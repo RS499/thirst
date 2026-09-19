@@ -26,8 +26,13 @@ DURATION_H = 1
 PROFILE_H = 24
 
 
+def clock(hour: int) -> str:
+    """12-hour label for a clock hour 0-23: 0 -> "12 AM", 14 -> "2 PM"."""
+    return f"{hour % 12 or 12} {'AM' if hour < 12 else 'PM'}"
+
+
 def _clock(hour_ending: int) -> str:
-    return f"{hour_ending - 1:02d}:00"
+    return clock(hour_ending - 1)
 
 
 def _tradeoff(deltas: dict[str, float], optimised: str) -> str:

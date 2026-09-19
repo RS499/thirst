@@ -24,6 +24,7 @@ import os
 import time
 from dataclasses import asdict
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 import httpx
@@ -33,9 +34,11 @@ from pydantic import BaseModel, Field
 
 from thirst.classify import MODEL, classify
 from thirst.explain import BASIS_PROSE, explain, fallback
-from thirst.place import OBJECTIVES, place
+from thirst.place import OBJECTIVES, clock, place
 from thirst.signals import load_profile, season_of
 
+# The profiles are PJM local time (Eastern). Read "now" there, not on the server's clock.
+ET = ZoneInfo("America/New_York")
 ROOT = Path(__file__).resolve().parent
 DATA, RESULTS, STATIC = ROOT / "data", ROOT / "results", ROOT / "static"
 BASES = ("average", "marginal_empirical")
@@ -53,12 +56,12 @@ class ClassifyIn(BaseModel):
 
 @app.post("/classify")
 def classify_route(body: ClassifyIn) -> dict:
-    now = datetime.now()
+    now = datetime.now(ET)
     t0 = time.perf_counter()
     c = classify(body.text, now_hour=now.hour, now_dow=now.weekday())
     elapsed = time.perf_counter() - t0
     return {**asdict(c), "arrival_hour": c.now_hour + 1, "season": season_of(now.month),
-            "display": {"now": f"{c.now_hour:02d}:00",
+            "display": {"now": clock(c.now_hour),
                         "window_h": "unparsed" if c.window_h is None else f"{c.window_h} h",
                         "model": MODEL.split("/")[-1], "latency": f"{elapsed:.1f} s"}}
 
@@ -80,20 +83,24 @@ def _start_window(window_h: int, duration_h: int | None) -> int:
 DAY_ABBR = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
+def _deadline(body: "PlaceIn") -> str:
+    """Deadline as a clock label, window_h after arrival: "5 PM Sat" (day if known)."""
+    arrival = body.arrival_hour - 1                     # hour-ending -> clock hour
+    hour, days_ahead = (arrival + body.window_h) % 24, (arrival + body.window_h) // 24
+    day = f" {DAY_ABBR[(body.now_dow + days_ahead) % 7]}" if body.now_dow is not None else ""
+    return f"{clock(hour)}{day}"
+
+
 def _timeline(rec, body: "PlaceIn") -> tuple[dict, str]:
     """Run span, deadline and spare hours for a job of known duration.
 
-    Clock hours: the job starts at placed.hour's start and runs duration_h;
-    the deadline is window_h after arrival. spare = window - shift - duration.
+    The job starts at placed.hour and runs duration_h; spare = window - shift - duration.
+    The one "ET" in the verdict card lives here when this line is shown.
     """
     d, w = body.duration_h, body.window_h
-    arrival = body.arrival_hour - 1                     # hour-ending -> clock hour
     start = rec.placed["hour"] - 1
-    end = (start + d) % 24
-    deadline, days_ahead = (arrival + w) % 24, (arrival + w) // 24
-    day = f" {DAY_ABBR[(body.now_dow + days_ahead) % 7]}" if body.now_dow is not None else ""
     spare = w - rec.shift_h - d
-    line = (f"runs {start:02d}:00 → {end:02d}:00 · deadline {deadline:02d}:00{day} · "
+    line = (f"runs {clock(start)} → {clock((start + d) % 24)} ET · deadline {_deadline(body)} · "
             f"{spare} h to spare")
     return {"shift": rec.shift_h, "duration": d, "window": w}, line
 
@@ -102,7 +109,8 @@ def _record_json(rec, energy_mwh: float | None, body: "PlaceIn") -> dict:
     out = {"basis": rec.basis, "objective": rec.objective, "tradeoff": rec.tradeoff,
            "placed_hour": rec.placed["hour"], "shift_h": rec.shift_h,
            "delta": {m: getattr(rec, m).delta_pct for m in METRICS},
-           "display": dict(rec.display), "fallback": asdict(fallback(rec))}
+           "display": {**rec.display, "deadline": _deadline(body)},
+           "fallback": asdict(fallback(rec))}
     if energy_mwh:
         # Job-level totals: per-MWh start-hour prices x the job's energy, in Python.
         for m in METRICS:

@@ -134,7 +134,7 @@ Write it like this:
 
 Rules (output that breaks any rule is thrown away):
 1. Every number you write must be one of the RECORD strings above, copied character for
-   character, including its "+" or "-" sign and units ("+9.9 %", "20:00", "1 h"). Never
+   character, including its "+" or "-" sign and units ("+9.9 %", "8 PM", "1 h"). Never
    write a quantity as a word ("one hour", "twice", "half"); use the RECORD string.
    Do not round, convert units, subtract, compare sizes, rank or count.
 2. A sentence that states a carbon, withdrawal or consumption figure must contain the

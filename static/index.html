@@ -373,7 +373,7 @@ body.demo #stage .demo-part {
       <div class="sub num" id="v-sub">Describe a job with a deadline to place it.</div>
       <div class="timeline" id="v-tl" hidden>
         <div class="tl-track" aria-hidden="true"><div class="tl-job" id="v-tl-job"></div><span class="tl-dl"></span></div>
-        <div class="tl-scale"><span>arrival</span><span>deadline</span></div>
+        <div class="tl-scale num"><span id="v-tl-from"></span><span id="v-tl-to"></span></div>
         <div class="tl-line num" id="v-tl-text"></div>
       </div>
       <div class="region-line" id="v-region" hidden>
@@ -648,7 +648,7 @@ function renderClassification(c) {
   $("c-phrase").innerHTML = c.window_phrase ? `<span class="q"></span>` : `<span class="faint">none stated</span>`;
   if (c.window_phrase) $("c-phrase").firstChild.textContent = `“${c.window_phrase}”`;
   $("c-window").textContent = c.display.window_h;
-  $("c-now").textContent = `${c.display.now} · ${c.season}`;
+  $("c-now").textContent = `${c.display.now} ET · ${c.season}`;
   $("c-int").textContent = c.interruptible === null ? "not stated" : c.interruptible ? "yes" : "no";
   $("c-why").textContent = c.rationale || "—";
   $("c-meta").textContent = c.error ? `Fell back to unclear: ${c.error}`
@@ -658,7 +658,7 @@ function renderClassification(c) {
 
 function renderRefusal(c, r) {
   $("v-tl").hidden = true;
-  $("v-over").textContent = "Can't be moved";
+  $("v-over").textContent = "Can't be moved · ET";
   setHero(c.display.now, false);
   $("v-sub").textContent = `This job takes ${r.duration} and the deadline is ${r.window} away — it can't be moved. ` +
     (r.late ? "Even starting now, it finishes after the deadline." : "It has to start now.");
@@ -669,7 +669,7 @@ function renderRefusal(c, r) {
 
 function renderNotDeferable(c) {
   $("v-tl").hidden = true;
-  $("v-over").textContent = "Runs on arrival";
+  $("v-over").textContent = "Runs on arrival · ET";
   setHero(c.display.now, false);
   $("v-sub").textContent = c.label === "unclear"
     ? "No deadline in the text resolves to a number of hours. Add one (“within 6 hours”, “by 8am tomorrow”) to place it."
@@ -709,11 +709,13 @@ function render(fresh) {
   const rec = P.records[basis()][objective()], d = rec.display, b = BASIS_PROSE[basis()];
   $("v-over").textContent = `Best start · minimising ${OBJ_PROSE[objective()]} · ${b} basis`;
   setHero(d["placed.hour"], false);
-  const deadline = state.cls.display.window_h;
+  // "ET" appears once on the card: in the timeline line when it is shown, else here,
+  // where the deadline also moves when there is no timeline to carry it.
   $("v-sub").innerHTML = "";
   $("v-sub").append(
     "instead of ", Object.assign(document.createElement("b"), { textContent: d["arrival.hour"] }),
-    ` · shift ${d["shift_h"]} · deadline ${deadline}` +
+    (rec.timeline ? "" : " ET") + ` · shift ${d["shift_h"]}` +
+    (rec.timeline ? "" : ` · deadline ${d["deadline"]}`) +
     (P.start_window_h !== state.cls.window_h ? ` · ${d["window_h"]} of start times` : ""));
   $("bars").hidden = false;
   $("v-tl").hidden = !rec.timeline;
@@ -722,6 +724,8 @@ function render(fresh) {
     $("v-tl-job").style.left = `${100 * t.shift / t.window}%`;
     $("v-tl-job").style.width = `${100 * t.duration / t.window}%`;
     $("v-tl-text").textContent = d["timeline"];
+    $("v-tl-from").textContent = d["arrival.hour"];
+    $("v-tl-to").textContent = d["deadline"];
   }
 
   const worse = Object.keys(METRIC_PROSE).filter(m => rec.display[`${m}.delta_pct`].startsWith("-")
