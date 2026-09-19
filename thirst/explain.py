@@ -102,8 +102,8 @@ What the fields mean:
   window for `objective`. A shift_h of "0 h" means running on arrival was already best.
 - For carbon, withdrawal and consumption, delta_pct is how much LESS than running on
   arrival: positive = better, negative = worse.
-- tradeoff: "aligned" = all three improve; "conflict" = minimising the objective makes
-  another metric worse; "neutral" = little or nothing changes.
+- tradeoff: "aligned" = at least one metric improves and none gets worse; "conflict" =
+  at least one improves and at least one gets worse; "neutral" = no metric changes.
 - Water withdrawal and water consumption are different metrics. Never combine them or
   call either one just "water".
 
@@ -198,17 +198,20 @@ def fallback(record: PlacementRecord) -> Explanation:
     arr, new, obj = d["arrival.hour"], d["placed.hour"], OBJECTIVE_PROSE[record.objective]
     # Same one-decimal test as place._tradeoff, so the words match the printed signs.
     worse = [METRIC_PROSE[m] for m in METRIC_PROSE if round(getattr(record, m).delta_pct, 1) < 0]
+    better = [METRIC_PROSE[m] for m in METRIC_PROSE if round(getattr(record, m).delta_pct, 1) > 0]
 
     if record.placed == record.arrival:
         headline = f"The best start in the window is the arrival hour, {arr}, so the job stays put."
     elif record.tradeoff == "conflict":
-        headline = (f"Starting at {new} instead of {arr} lowers {obj} but makes "
+        # Name what improved, not the objective: the objective can round to +0.0 %.
+        headline = (f"Starting at {new} instead of {arr} lowers {' and '.join(better)} but makes "
                     f"{' and '.join(worse)} worse ({b} basis).")
     elif record.tradeoff == "aligned":
-        headline = (f"Starting at {new} instead of {arr} lowers carbon, water withdrawal "
-                    f"and water consumption ({b} basis).")
+        listed = " and ".join(better) if len(better) < 3 else f"{', '.join(better[:-1])} and {better[-1]}"
+        headline = (f"Starting at {new} instead of {arr} lowers {listed}"
+                    f"{'' if len(better) == 3 else ', and nothing gets worse'} ({b} basis).")
     else:
-        headline = f"Starting at {new} instead of {arr} changes little ({b} basis)."
+        headline = f"Starting at {new} instead of {arr} changes no metric ({b} basis)."
 
     deltas = ", ".join(f"{METRIC_PROSE[m]} {d[f'{m}.delta_pct']}" for m in METRIC_PROSE)
     totals = ", ".join(f"{METRIC_PROSE[m]} from {d[f'{m}.baseline']} to {d[f'{m}.placed']}"

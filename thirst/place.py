@@ -35,18 +35,18 @@ def _clock(hour_ending: int) -> str:
     return clock(hour_ending - 1)
 
 
-def _tradeoff(deltas: dict[str, float], optimised: str) -> str:
-    """aligned: every other metric improves; conflict: any other metric worsens.
+def _tradeoff(deltas: dict[str, float]) -> str:
+    """conflict: at least one metric improves and at least one worsens.
+    aligned: at least one improves and none worsens. neutral: none changes.
 
     Judged on the one-decimal values that are displayed, so the flag can never
     contradict the numbers printed beside it.
     """
-    if round(deltas[optimised], 1) == 0:
-        return "neutral"
-    others = [round(v, 1) for m, v in deltas.items() if m != optimised]
-    if any(v < 0 for v in others):
+    shown = [round(v, 1) for v in deltas.values()]
+    better, worse = any(v > 0 for v in shown), any(v < 0 for v in shown)
+    if better and worse:
         return "conflict"
-    return "aligned" if all(v > 0 for v in others) else "neutral"
+    return "aligned" if better else "neutral"
 
 
 def place(arrival_hour: int, window_h: int, season: str,
@@ -73,7 +73,7 @@ def place(arrival_hour: int, window_h: int, season: str,
             new = float(prof.at[placed_hour, c]) * ENERGY_MWH
             deltas[m] = (base - new) / base * 100
             outcomes[m] = MetricOutcome(UNITS[m], base, new, deltas[m])
-        tradeoff = _tradeoff(deltas, metric)
+        tradeoff = _tradeoff(deltas)
 
         display = {
             "basis": basis, "objective": objective, "season": season,

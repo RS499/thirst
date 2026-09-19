@@ -87,15 +87,16 @@ if job:
 
         # Same one-decimal test as place._tradeoff, so the banner matches the flag.
         worse = [name for m, name in METRICS.items() if round(getattr(rec, m).delta_pct, 1) < 0]
+        better = [name for m, name in METRICS.items() if round(getattr(rec, m).delta_pct, 1) > 0]
         if rec.tradeoff == "conflict":
             st.error(f"### ⚠️ Conflict ({b} basis)\nMinimizing {OBJECTIVES[objective].lower()} "
                      f"makes {' and '.join(w.lower() for w in worse)} worse.")
         elif rec.tradeoff == "aligned":
             st.success(f"### ✅ Aligned ({b} basis)\nMinimizing "
-                       f"{OBJECTIVES[objective].lower()} improves every metric.")
+                       f"{OBJECTIVES[objective].lower()} improves "
+                       f"{' and '.join(w.lower() for w in better)}, and nothing gets worse.")
         else:
-            st.warning(f"### ➖ Neutral ({b} basis)\nMoving this job changes little, "
-                    "or nothing gets worse.")
+            st.warning(f"### ➖ Neutral ({b} basis)\nMoving this job changes no metric.")
 
         cols = st.columns(4)
         cols[0].metric("Best start", d["placed.hour"],

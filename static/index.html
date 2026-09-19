@@ -128,6 +128,9 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 
 /* ---------------------------------------------------------------- centre: verdict */
 .verdict { padding: 20px; }
+/* While a new job is being placed, the previous verdict is dimmed, not shown as current. */
+.verdict > * { transition: opacity 150ms var(--ease); }
+.verdict.stale > * { opacity: .3; }
 .hero {
   font-size: var(--fs-hero); font-weight: 700; line-height: 1; letter-spacing: -.03em;
   margin: 10px 0 6px; transition: opacity 180ms var(--ease), transform 180ms var(--ease);
@@ -626,6 +629,10 @@ async function submit(ev) {
   const text = $("text").value.trim();
   if (!text) return;
   $("go").disabled = true;
+  // The card still shows the previous job: dim it, and hide its strip so the new
+  // block appears in place rather than sliding from an unrelated job's position.
+  document.querySelector(".verdict").classList.add("stale");
+  $("v-tl").hidden = true;
   setStatus(demo.on ? "Replaying cached classification…" : "Classifying with Nemotron…", true);
   if (!demo.on) $("demobar").hidden = true;       // a live submit ends any cached display
   state.explanations = {}; state.pending = {};
@@ -650,6 +657,7 @@ async function submit(ev) {
     setStatus(`Request failed: ${e.message}`, false);
   } finally {
     $("go").disabled = false;
+    document.querySelector(".verdict").classList.remove("stale");
   }
 }
 
@@ -775,11 +783,15 @@ function render(fresh) {
 
   const worse = Object.keys(METRIC_PROSE).filter(m => rec.display[`${m}.delta_pct`].startsWith("-")
                                                  && !/^-0\.0 %$/.test(rec.display[`${m}.delta_pct`]));
+  const better = Object.keys(METRIC_PROSE).filter(m => rec.display[`${m}.delta_pct`].startsWith("+")
+                                                  && !/^\+0\.0 %$/.test(rec.display[`${m}.delta_pct`]));
+  const list = (ms) => ms.map(m => METRIC_PROSE[m]).join(" and ");
   const msg = {
-    conflict: `Minimising ${OBJ_PROSE[objective()]} makes ${worse.map(m => METRIC_PROSE[m]).join(" and ")} worse.`,
-    aligned: `Minimising ${OBJ_PROSE[objective()]} improves all three metrics.`,
+    conflict: `Minimising ${OBJ_PROSE[objective()]} makes ${list(worse)} worse.`,
+    aligned: better.length === 3 ? `Minimising ${OBJ_PROSE[objective()]} improves all three metrics.`
+                                 : `Minimising ${OBJ_PROSE[objective()]} improves ${list(better)}, and nothing gets worse.`,
     neutral: d["placed.hour"] === d["arrival.hour"] ? "Running on arrival is already the best hour in the window."
-                                                   : "Moving this job changes little, or nothing gets worse.",
+                                                   : "Moving this job changes no metric.",
   }[rec.tradeoff];
   $("v-badge").hidden = false;
   $("v-badge").className = `badge ${rec.tradeoff}`;
