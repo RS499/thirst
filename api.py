@@ -220,6 +220,8 @@ def evidence() -> dict:
             "region": r["region"],
             "rank_raw": int(r["rank_consumption"]),
             "rank_stress": int(r["rank_stress_adjusted_consumption"]),
+            "name": REGION_NAMES.get(r["region"], r["region"]),
+            "stress_value": float(r["stress_adjusted_consumption_l_eq_per_mwh"]),
             "display": {
                 "withdrawal": f"{float(r['withdrawal_l_per_mwh']):,.0f}",
                 "consumption": f"{float(r['consumption_l_per_mwh']):,.0f}",
@@ -252,6 +254,51 @@ def evidence() -> dict:
         "holdout": f"sealed · sha256 {holdout[:12]}…",
         "model": MODEL,
         "regions": sorted(regions, key=lambda r: r["rank_raw"]),
+        "region_finding": _region_finding(regions),
+    }
+
+
+REGION_NAMES = {"PJM": "PJM (Mid-Atlantic)", "MISO": "Midwest (MISO)", "ERCO": "Texas (ERCOT)",
+                "SOCO": "Southeast (Southern Co.)", "BPAT": "Pacific Northwest (BPA)"}
+HOME_REGION = "PJM"
+
+
+def _ordinal(n: int) -> str:
+    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def _region_finding(regions: list[dict]) -> dict:
+    """The facts the region callout states, computed here. Rank 1 = thirstiest."""
+    best = min(regions, key=lambda r: r["stress_value"])
+    worst = max(regions, key=lambda r: r["stress_value"])
+    home = next(r for r in regions if r["region"] == HOME_REGION)
+    stress = [r["stress_value"] for r in regions]
+    hourly = load_profile("hourly", "average")["consumption_gal_mwh"]
+    n = len(regions)
+    region_span = f"{max(stress) / min(stress):.0f}×"
+    hour_span = f"{hourly.max() / hourly.min():.2f}×"
+    return {
+        "verdict": (f"{best['name']} · {best['display']['stress_adjusted']} L-eq/MWh · "
+                    f"{home['region']} is {_ordinal(home['rank_stress'])}-thirstiest of {n} "
+                    f"at {home['display']['stress_adjusted']}"),
+        "callout": (f"Ranked by raw water consumption, {worst['name']} is the "
+                    f"{_ordinal(n - worst['rank_raw'] + 1)}-lowest of the {n}. Weighted for local "
+                    f"water scarcity it is the thirstiest, and {home['region']} moves from "
+                    f"{_ordinal(home['rank_raw'])}- to {_ordinal(home['rank_stress'])}-thirstiest. "
+                    f"Where a job runs matters more than when: stress-weighted consumption spans "
+                    f"{region_span} across these {n} regions and {hour_span} across "
+                    f"{home['region']}'s hours (average basis)."),
+        "n": n,
+        "best": {"region": best["region"], "name": best["name"],
+                 "value": best["display"]["stress_adjusted"]},
+        "worst": {"region": worst["region"], "name": worst["name"],
+                  "rank_raw": worst["rank_raw"], "rank_stress": worst["rank_stress"]},
+        "home": {"region": home["region"], "rank_raw": home["rank_raw"],
+                 "rank_stress": home["rank_stress"], "value": home["display"]["stress_adjusted"]},
+        # "Where beats when": stress-weighted consumption across regions vs PJM's own
+        # hour-to-hour consumption (season x hour profile), both average basis.
+        "region_span": region_span,
+        "hour_span": hour_span,
     }
 
 
