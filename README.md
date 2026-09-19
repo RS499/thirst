@@ -3,95 +3,84 @@
 **Schedule your compute when the grid is less thirsty, and see what that costs
 in carbon.**
 
-Carbon-aware schedulers assume the cleanest hour is the best hour, but power
-plants also draw water for cooling, and on the PJM grid the lowest-carbon hour
-and the lowest-water-withdrawal hour are usually different hours. We measured
-this over a full year: on the average accounting basis the two minima disagree
-on 360 of 365 days, because PJM's cleanest large source (once-through-cooled
-nuclear) is also its thirstiest. thirst takes a job described in plain English,
-works out how long it can wait, places it in the best hour for carbon, water
-withdrawal or water consumption, and shows exactly what that choice trades away,
-with the accounting basis named beside every figure.
+Power plants need water for cooling. On the PJM grid (13 eastern states and
+DC), I found the lowest-carbon hour and the lowest-water hour disagree on 360 of
+365 days. thirst reads a compute job in plain English, works out how long it
+can wait, places it in the best hour for carbon or water, and shows what that
+choice trades away.
+
+## Why this matters
+
+Carbon-aware schedulers are real and deployed, shifting batch work into
+cleaner hours today. On this grid their
+advice quietly makes water worse. Nobody checks, because nobody measures both.
 
 ## The finding
 
-Source: [`pjm-water-carbon`](../pjm-water-carbon) @ `28aecf4`, PJM balancing
-authority, 2025-09-17 → 2026-09-16, 8,760 hours, EIA-930 generation × EIA-860
-cooling types. All figures in this section are on the **average** basis
-(generation-weighted intensity of the whole mix) unless marked otherwise.
+Source: [`pjm-water-carbon`](../pjm-water-carbon) @ `28aecf4`: EIA-930 hourly
+generation × EIA-860 plant cooling types, 2025-09-17 → 2026-09-16, 8,760 hours.
 
-- **The minima sit 6 hours apart.** On the annual-mean hourly profile, carbon
-  bottoms out at hour-ending 13 and water withdrawal at hour-ending 19 (average
-  basis).
-- **Day by day, they almost never agree.** The min-carbon hour differs from the
-  min-withdrawal hour on **360 of 365 days (98.6 %)**, with a mean gap of 6.7 h
-  when they differ (average basis). If the two hours were statistically
-  independent they would differ on 97.1 % of days, so the observed rate matches
-  independence rather than alignment.
-- **Mechanism.** Once-through-cooled nuclear delivers **13.3 % of PJM's
-  generation**. It emits about 12 gCO₂/kWh but withdraws about 44,350 gal/MWh.
-  Any hour that is clean *because* nuclear is a large share of the mix is also
-  water-intensive, so carbon and withdrawal are negatively correlated
-  (r = −0.465, average basis).
-- **It does not generalize.** Of eight balancing authorities, five pass the
-  cooling-data coverage gate. PJM is the only one of those five where carbon
-  and withdrawal conflict. In the other four (MISO, BPAT, ERCO, SOCO) the daily
-  minima coincide far more often than chance: 25–70 % of days differ against an
-  85–91 % independence null (average basis). ISNE, NYIS and CISO fail coverage
-  and are not counted. Across the five passing regions, once-through nuclear's
-  share of generation explains the withdrawal correlation (R² = 0.82,
-  p = 0.034, n = 5).
-- **The basis flips the answer.** In upstream's scheduling simulation,
-  carbon-optimized scheduling *increases* water withdrawal on the average basis
-  (by 0.29 % to 1.87 % across 2–24 h of slack). On the marginal-empirical basis
-  (the fuels that respond to an added load, with nuclear off the margin) it
-  saves 3.05 % carbon and 6.37 % withdrawal at 24 h of slack. Attribution and
-  causation give opposite answers, which is why thirst never shows a figure
-  without its basis.
+**Water withdrawal** is water taken from a river and mostly returned;
+**consumption** is water evaporated and gone. They are always reported
+separately. The **average basis** counts what was in the average kilowatt-hour
+you drew; the **marginal-empirical basis** counts which plants actually turned
+up when you added load. Figures are average basis unless marked.
+
+- **Clean and low-water are different times of day.** On the year-averaged
+  profile, carbon bottoms out at hour-ending 13 and withdrawal at hour-ending
+  19, 6 hours apart.
+- **Day by day, they almost never agree:** the two hours differ on **360 of
+  365 days (98.6 %)**, by 6.7 h on average. The **independence null** (how
+  often two unrelated hours would differ by chance alone) is 97.1 %: they line
+  up no more than chance.
+- **Worse than unrelated, they are opposed.** Across the year's hours, carbon
+  and withdrawal are negatively correlated (r = −0.465). Picking the cleanest
+  hour tends to pick a thirstier one.
+- **Why: clean nuclear is thirsty.** **Once-through cooling** pulls river water
+  straight through a plant and returns it, rather than recirculating it.
+  Once-through nuclear delivers **13.3 % of PJM's generation** at about
+  12 gCO₂/kWh but about 44,350 gal/MWh withdrawn. An hour that is clean
+  *because* of nuclear is also water-heavy.
+- **It's specific to this grid.** Of eight **balancing authorities** (the
+  operators running each region's grid), five have usable cooling data, and
+  only PJM shows the conflict. In MISO, BPAT, ERCO and SOCO the minima coincide
+  far more often than chance: 25–70 % of days differ against an 85–91 %
+  independence null. ISNE, NYIS and CISO fail the coverage check and are not
+  counted. Across the five, once-through nuclear's share of generation
+  explains the withdrawal correlation (R² = 0.82, p = 0.034, n = 5).
+- **How you count flips the answer.** In a scheduling simulation,
+  carbon-optimized scheduling *increases* withdrawal by 0.29 % to 1.87 % across
+  2–24 h of slack (average basis). It saves 3.05 % carbon and 6.37 % withdrawal
+  at 24 h of slack on the marginal-empirical basis, where nuclear
+  never answers added load. So thirst never shows a figure without its basis.
 
 ## Where Nemotron sits
 
-Nemotron (`nvidia/nemotron-3-super-120b-a12b` on NVIDIA's hosted API) does two
-jobs. Python does everything else.
+Nemotron (`nvidia/nemotron-3-super-120b-a12b`, NVIDIA's hosted API) does two
+jobs; Python does everything else.
 
-**(a) Classify: plain-English workload → structured deferability.**
-`thirst/classify.py`. Input: "It's 10pm. Fine-tuning overnight, need it before
-the 9am standup." Output, constrained to a JSON schema server-side:
+**(a) Classify: plain-English job → structured deferability** (`thirst/classify.py`).
+A job is **deferable** when its text states a deadline that resolves to a
+number of hours. The model returns a label and a *verbatim quote* ("before
+the 9am standup"), never an hour count. Python confirms the quote is in the
+input; `parse_window_hours()` resolves it against anchors elsewhere in the text
+("my flight is Thursday at 6am") and does the arithmetic.
 
-```json
-{"label": "deferable", "interruptible": null,
- "window_phrase": "before the 9am standup",
- "rationale": "The job can be delayed until later tonight and still finish in time for the morning meeting."}
-```
+**(b) Explain: narrate the tradeoff from a `PlacementRecord`** (`thirst/explain.py`).
+Python builds the record, with every figure pre-formatted as a display string.
+Nemotron writes a headline and 2–4 sentences from those fields only.
 
-The model returns a *verbatim quote*, never a number of hours. Python checks
-that the quote is a real substring of the input, then `parse_window_hours()`
-resolves it against anchors in the full text ("It's Tuesday 6pm", "my flight is
-Thursday at 6am") and does the arithmetic. A rationale containing a digit is
-blanked.
-
-**(b) Explain: narrate the tradeoff from a `PlacementRecord`.**
-`thirst/explain.py`. Python builds the record: basis, objective, arrival and
-placed hour, and per-metric baseline / placed / delta for carbon, water
-withdrawal and water consumption. It also computes the tradeoff flag and a
-`display` map of every figure pre-formatted as a string. Nemotron writes a
-headline and 2–4 sentences using only those fields.
-
-**The architectural rule: Nemotron never emits a number Python didn't compute.**
-This is enforced mechanically by `thirst/verify.py`, not by instructions in the
-prompt. Every numeric token in the model's text must match, sign included, a
-string in `PlacementRecord.display`. Any sentence stating a figure must name its
-accounting basis. The text may not mention outside facts (fuels, cooling,
-weather) or cite a field that doesn't exist. Output with any violation is
-discarded and replaced by `explain.fallback()`, a deterministic Python template.
-The model can make an explanation worse, but it cannot put a wrong number in
-front of the user.
+**The rule: Nemotron never emits a number Python didn't compute.** This is
+enforced mechanically by `thirst/verify.py`, not by prompt instructions: every
+number must match a display string, sign included; every sentence with a figure
+must name its basis; no outside facts or invented fields. Any violation swaps
+in `explain.fallback()`, a deterministic Python template. The model can make an
+explanation worse, but it cannot put a wrong number in front of the user.
 
 ## Evidence
 
-Development set: `eval/labeled.jsonl` (60 hand-written rows). Results are
-appended to `results/progress.csv`; full per-row output is in
-`results/classify_eval.json` and `results/explain_eval.json`.
+Development set: `eval/labeled.jsonl`, 60 hand-written rows. Per-run results in
+`results/progress.csv`; per-row detail in `results/*_eval.json`.
 
 | what | result | baseline / note |
 |---|---|---|
@@ -105,9 +94,9 @@ appended to `results/progress.csv`; full per-row output is in
 | Fallback template passes `verify()` | **4032/4032** | 4 seasons × 24 arrival hours × 7 windows × 3 objectives × 2 bases, offline |
 | Holdout | sealed | 30 rows, sha256 in `results/HOLDOUT_HASH.txt`; to be opened exactly once, on Sunday. Score: TODO |
 
-Constant-classifier scores per category, for scale: always answering "unclear"
-scores 1.000 on ambiguous rows and 0.000 on standard and unusual rows. The
-classifier is the only thing that scores well across all four categories.
+For scale: always answering "unclear" scores 1.000 on ambiguous rows and 0.000
+on standard and unusual rows. The classifier is the only thing that scores well
+across all four categories.
 
 ## Limitations
 
@@ -143,8 +132,6 @@ Evals: `python3 eval/run_eval.py` (classify) and `python3 eval/explain_eval.py` 
 
 | name | email |
 |---|---|
-| TODO | TODO |
-| TODO | TODO |
 | TODO | TODO |
 
 ## Prior work disclosure
