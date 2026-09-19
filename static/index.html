@@ -207,6 +207,18 @@ figcaption { font-size: var(--fs-xs); color: var(--text-2); margin-top: 6px; }
 
 .empty { color: var(--text-3); }
 
+/* ---------------------------------------------------------------- demo mode (?demo=1 only) */
+.demobar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: flex; align-items: center; gap: 20px; padding: 14px 24px;
+  background: var(--panel); border-top: 1px solid var(--line-2);
+}
+.demobar .tag { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; color: var(--warn); }
+.demobar .cap { flex: 1; font-size: var(--fs-lg); font-weight: 500; color: var(--text); transition: opacity 180ms var(--ease); }
+.demobar .cap.swap { opacity: 0; }
+.demobar .hint { margin: 0; white-space: nowrap; }
+body.demo { padding-bottom: 76px; }
+
 @media (max-width: 1180px) {
   .live { grid-template-columns: 1fr 1fr 1fr; }
   .live .mixwrap, .live-label, .stamp { grid-column: 1 / -1; text-align: left; }
@@ -397,6 +409,13 @@ figcaption { font-size: var(--fs-xs); color: var(--text-2); margin-top: 6px; }
   </aside>
 </main>
 
+<div class="demobar" id="demobar" hidden role="status" aria-live="polite">
+  <span class="tag over"><span class="dot" style="background:var(--warn)"></span>demo mode · cached responses</span>
+  <span class="cap" id="demo-cap"></span>
+  <span class="hint" id="demo-hint">Click or press any key to take over</span>
+  <button class="ghost" id="demo-replay" type="button" hidden>Replay</button>
+</div>
+
 <script>
 "use strict";
 // Every figure rendered below is a string Python formatted. The page only
@@ -412,6 +431,7 @@ const EXAMPLES = [
   ["No deadline", "Re-embed our document archive with the new embedding model."],
 ];
 const state = { cls: null, placed: null, req: null, explanations: {}, pending: {}, evidence: null };
+const demo = { on: false, run: 0, cache: null };   // ?demo=1 only; see "demo mode" below
 
 const objective = () => document.querySelector("input[name=obj]:checked").value;
 const basis = () => document.querySelector("input[name=basis]:checked").value;
@@ -419,6 +439,7 @@ const portable = () => document.querySelector("input[name=loc]:checked").value =
 const key = () => `${basis()}|${objective()}`;
 
 async function api(path, body) {
+  if (demo.on) { const hit = demoLookup(path, body); if (hit) return hit; }
   const r = await fetch(path, body ? { method: "POST", headers: { "content-type": "application/json" },
                                        body: JSON.stringify(body) } : undefined);
   if (!r.ok) throw new Error(`${path} ${r.status}`);
@@ -520,7 +541,8 @@ async function submit(ev) {
   const text = $("text").value.trim();
   if (!text) return;
   $("go").disabled = true;
-  setStatus("Classifying with Nemotron…", true);
+  setStatus(demo.on ? "Replaying cached classification…" : "Classifying with Nemotron…", true);
+  if (!demo.on) $("demobar").hidden = true;       // a live submit ends any cached display
   state.explanations = {}; state.pending = {};
   try {
     const c = await api("/classify", { text });
@@ -558,7 +580,7 @@ function renderClassification(c) {
   $("c-int").textContent = c.interruptible === null ? "not stated" : c.interruptible ? "yes" : "no";
   $("c-why").textContent = c.rationale || "—";
   $("c-meta").textContent = c.error ? `Fell back to unclear: ${c.error}`
-                                     : `${c.display.model} · ${c.display.latency} · window parsed in Python`;
+                                     : `${c.display.model} · ${c._cached ? "cached response" : c.display.latency} · window parsed in Python`;
   $("model-dot").classList.toggle("ok", !c.error);
 }
 
@@ -648,7 +670,7 @@ function renderExplanation(rec) {
   const e = got || rec.fallback;
   const src = $("e-src");
   if (got && !got.fallback) {
-    src.innerHTML = '<span class="dot ok"></span>Nemotron · verified';
+    src.innerHTML = `<span class="dot ok"></span>Nemotron · verified${got._cached ? " · cached" : ""}`;
     $("e-verify").textContent = "verify(): every number traced to Python, basis named";
   } else if (got && got.fallback) {
     src.innerHTML = '<span class="dot" style="background:var(--warn)"></span>Python template · Nemotron rejected';
@@ -657,7 +679,7 @@ function renderExplanation(rec) {
     src.innerHTML = '<span class="dot"></span>Python template';
     $("e-verify").textContent = "Deterministic template; no model call for this view";
   }
-  $("e-meta").textContent = got ? `${got.display.latency}` : "";
+  $("e-meta").textContent = got ? (got._cached ? "cached response" : `${got.display.latency}`) : "";
   $("e-headline").textContent = e.headline;
   $("e-body").textContent = e.explanation;
   $("e-ask").hidden = !!got;
@@ -697,8 +719,114 @@ for (const el of document.querySelectorAll("input[name=obj], input[name=basis]")
 for (const el of document.querySelectorAll("input[name=loc]"))
   el.addEventListener("change", () => { $("regions").hidden = !portable(); });
 
+// ---------------------------------------------------------------- demo mode (?demo=1)
+// A scripted walkthrough of the "Overnight fine-tune" preset. It replays the
+// classify, place and explain responses recorded in static/demo_cache.json, so
+// it needs no network and makes no model call. Any real click or keypress
+// stops it and hands the page back; without ?demo=1 none of this runs.
+const DEMO_STOP = Symbol("demo stopped");
+
+function demoLookup(path, body) {
+  const C = demo.cache, copy = (o) => o && { ...structuredClone(o), _cached: true };
+  if (path === "/classify" && body.text.trim() === C.preset) return copy(C.classify);
+  if (path === "/place" && Object.keys(C.request).every(k => body[k] === C.request[k])) return copy(C.place);
+  if (path === "/explain") return copy(C.explain[`${body.basis}|${body.objective}`]);
+  return null;
+}
+
+function demoCaption(text) {
+  const cap = $("demo-cap");
+  cap.classList.add("swap");
+  setTimeout(() => { cap.textContent = text; cap.classList.remove("swap"); }, 180);
+}
+
+function demoWait(ms, token) {
+  return new Promise((ok, stop) => setTimeout(() => (demo.on && token === demo.run ? ok() : stop(DEMO_STOP)), ms));
+}
+
+async function demoUntil(done, token) {
+  for (let t = 0; t < 150 && !done(); t++) await demoWait(100, token);
+  if (!done()) throw DEMO_STOP;
+}
+
+function demoPick(id) {                      // select a radio and fire the page's own handler
+  $(id).checked = true;
+  $(id).dispatchEvent(new Event("change"));
+}
+
+function demoExit(text) {
+  if (!demo.on) return;
+  demo.on = false; demo.run++;
+  $("demo-hint").hidden = true; $("demo-replay").hidden = false;
+  demoCaption(text || "Demo stopped. You're in control; cached results stay labelled until you place a job.");
+}
+
+async function playDemo() {
+  const token = ++demo.run;
+  demo.on = true;
+  document.body.classList.add("demo");
+  $("demobar").hidden = false; $("demo-hint").hidden = false; $("demo-replay").hidden = true;
+  const wait = (ms) => demoWait(ms, token);
+  try {
+    demoCaption("Describe a compute job in plain English.");
+    await wait(900);
+    $("text").value = "";
+    for (const ch of demo.cache.preset) { $("text").value += ch; await wait(25); }
+    await wait(700);
+
+    demoCaption("Nemotron labels the job and quotes its deadline. Python turns the quote into hours and places it.");
+    $("go").click();
+    await demoUntil(() => state.placed && state.explanations[key()] && !$("go").disabled, token);
+    $("bars").scrollIntoView({ behavior: "smooth", block: "center" });
+    await wait(900);
+    demoCaption("Average basis: the lowest-carbon start makes both water metrics worse. The bars point opposite ways.");
+    await wait(3000);
+
+    demoCaption("Marginal-empirical basis: same job, same hours. The bars swing to the same side.");
+    demoPick("b-marginal");
+    await askNemotron();                      // demo auto-refreshes the explanation
+    await wait(1500);
+    $("explain").scrollIntoView({ behavior: "smooth", block: "center" });
+    demoCaption("Nemotron explains. verify() checked every number against Python's record, sign included.");
+    await wait(3000);
+
+    demoCaption("If the job can move regions: water stress reorders them (consumption, average basis).");
+    demoPick("loc-portable");
+    $("regions").scrollIntoView({ behavior: "smooth", block: "center" });
+    await wait(2000);
+
+    demoCaption("Evidence: classifier accuracy against its baseline, explainer fidelity, holdout still sealed.");
+    $("evidence").scrollIntoView({ behavior: "smooth", block: "center" });
+    await wait(4000);
+    demoExit("End of demo. Replay it, or describe your own job above.");
+  } catch (e) {
+    if (e !== DEMO_STOP) { demoExit(`Demo stopped: ${e.message || e}`); throw e; }
+  }
+}
+
+async function startDemo() {
+  $("demobar").hidden = false;
+  try {
+    const r = await fetch("/demo_cache.json");
+    if (!r.ok) throw new Error(`demo_cache.json ${r.status}`);
+    demo.cache = await r.json();
+  } catch (e) {
+    $("demo-hint").hidden = true;
+    $("demo-cap").textContent = `Demo unavailable: ${e.message}`;
+    return;
+  }
+  // Only a real person's click or key stops the demo; the script's own clicks are untrusted.
+  for (const type of ["pointerdown", "keydown"])
+    document.addEventListener(type, (e) => {
+      if (e.isTrusted && demo.on && !$("demo-replay").contains(e.target)) demoExit();
+    }, true);
+  $("demo-replay").addEventListener("click", () => location.reload());
+  setTimeout(playDemo, 800);
+}
+
 loadLive(); loadEvidence();
 setInterval(loadLive, 10 * 60 * 1000);
+if (new URLSearchParams(location.search).get("demo") === "1") startDemo();
 </script>
 </body>
 </html>

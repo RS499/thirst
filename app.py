@@ -4,7 +4,7 @@ Pipeline for one request:
 
     plain-English job  --classify (Nemotron)-->  Classification
                        --place (Python)-------->  PlacementRecord
-                       --explain (Nemotron)---->  Explanation      (not wired yet)
+                       --explain (Nemotron)---->  Explanation
                        --verify (Python)------->  shown to user, or fallback
 
 Python owns every number. Nemotron only labels (classify) and narrates
@@ -20,10 +20,11 @@ from pathlib import Path
 import streamlit as st
 
 from thirst.classify import classify
+from thirst.explain import explain
 from thirst.place import place
 from thirst.signals import season_of
 
-DIVERGENCE_PNG = Path(__file__).parent / "results" / "divergence.png"
+RESULTS = Path(__file__).parent / "results"
 PLACEHOLDER = ("Nightly fine-tuning run. It can pause and resume, "
                "and it needs to be done before the 9am standup.")
 OBJECTIVES = {"carbon": "Carbon", "water_withdrawal": "Water withdrawal",
@@ -108,14 +109,32 @@ if job:
                    f"{b} basis · season {d['season']} · per {d['energy_mwh']} · "
                    f"source {d['source']}.")
 
-        # Placeholder: the explain -> verify step (Nemotron job #2) goes here.
+        # Explain once per record and basis; flipping the radios back reuses it.
+        cache = st.session_state.setdefault("explanations", {})
+        key = (rec.job_id, rec.basis, c.window_phrase)
+        if key not in cache:
+            with st.spinner("Explaining..."):
+                cache[key] = explain(rec)
+        e = cache[key]
         with st.container(border=True):
-            st.markdown("**Explanation**")
-            st.caption("Plain-English explanation coming soon.")
+            st.markdown(f"**{e.headline}**")
+            st.write(e.explanation)
+            if e.fallback:
+                st.caption("Template fallback: verify() rejected the model's text"
+                           + (f" ({e.error})" if e.error else "") + ".")
+            else:
+                st.caption("Written by Nemotron. verify() checked every number against the "
+                           "placement record, sign included.")
 
 st.divider()
-st.image(str(DIVERGENCE_PNG),
+st.image(str(RESULTS / "divergence.png"),
          caption="Average basis: the lowest-carbon hour and the lowest-withdrawal hour "
                  "are different hours.")
+st.image(str(RESULTS / "basis_flip.png"),
+         caption="Average vs marginal-empirical basis: carbon-optimized scheduling costs "
+                 "water withdrawal on one basis and saves it on the other.")
+st.image(str(RESULTS / "region_reorder.png"),
+         caption="Average-basis consumption, weighted by AWARE-US county water stress: "
+                 "the ranking of regions changes.")
 st.caption("Water withdrawal (water taken in) and water consumption (water not returned) "
            "are separate metrics. They are never added into one water number.")

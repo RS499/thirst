@@ -262,6 +262,12 @@ def index() -> FileResponse:
     return FileResponse(STATIC / "index.html")
 
 
+@app.get("/demo_cache.json")
+def demo_cache() -> FileResponse:
+    """Recorded responses for the ?demo=1 walkthrough; see static/demo_cache.json."""
+    return FileResponse(STATIC / "demo_cache.json")
+
+
 @app.get("/charts/{name}")
 def chart(name: str) -> FileResponse:
     if name not in ("divergence.png", "region_reorder.png"):
