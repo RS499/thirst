@@ -93,7 +93,8 @@ def nemotron() -> ModelFn:
     from openai import OpenAI
 
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
-    client = OpenAI(base_url=BASE_URL, api_key=os.environ["NVIDIA_API_KEY"], max_retries=2)
+    client = OpenAI(base_url=BASE_URL, api_key=os.environ["NVIDIA_API_KEY"],
+                    max_retries=5)  # free tier returns transient 503 "overloaded"
 
     # Server-side schema constraint; the no-digits rule is not expressible there
     # reliably, so it is enforced in Python in classify().

@@ -64,11 +64,23 @@ def main() -> None:
         hits = sum(preds[i].label == rows[i]["label"] for i in idx)
         by_category[cat] = {"accuracy": hits / len(idx), "correct": hits, "n": len(idx)}
 
+    # Trivial baselines: a constant classifier per label, overall and per category.
+    constant = {lab: {"overall": sum(r["label"] == lab for r in rows) / n,
+                      **{cat: sum(r["label"] == lab for r in rows if r["category"] == cat)
+                         / by_category[cat]["n"] for cat in by_category}}
+                for lab in LABELS}
+    majority = max(constant, key=lambda lab: constant[lab]["overall"])
+    ok_rows = [(p, r) for p, r in zip(preds, rows) if p.error is None]
+
     has_truth = [(p, r) for p, r in zip(preds, rows) if r["window_h"] is not None]
     parsed = [(p, r) for p, r in has_truth if p.window_h is not None]
     errors = [abs(p.window_h - r["window_h"]) for p, r in parsed]
     metrics = {
         "accuracy": correct / n,
+        "accuracy_excl_errors": (sum(p.label == r["label"] for p, r in ok_rows) / len(ok_rows)
+                                 if ok_rows else None),
+        "majority_baseline": {"label": majority, "accuracy": constant[majority]["overall"]},
+        "constant_baselines": constant,
         "n": n,
         "api_or_parse_errors": sum(p.error is not None for p in preds),
         "by_category": by_category,
@@ -80,9 +92,14 @@ def main() -> None:
     }
 
     print(f"\nlabel accuracy  {correct}/{n} = {metrics['accuracy']:.3f}   "
-          f"(errors -> unclear: {metrics['api_or_parse_errors']})")
+          f"majority baseline (always {majority}) {constant[majority]['overall']:.3f}")
+    excl = metrics["accuracy_excl_errors"]
+    print(f"  API/parse errors scored as unclear: {metrics['api_or_parse_errors']}"
+          + (f"; accuracy excluding them {excl:.3f} (n={len(ok_rows)})" if excl is not None else ""))
+    print(f"  {'category':13s} {'model':>12s}   " + "  ".join(f"always {lab[:9]:9s}" for lab in LABELS))
     for cat, s in by_category.items():
-        print(f"  {cat:13s} {s['correct']}/{s['n']} = {s['accuracy']:.3f}")
+        print(f"  {cat:13s} {s['correct']:>2}/{s['n']:<2} {s['accuracy']:.3f}   "
+              + "  ".join(f"{constant[lab][cat]:16.3f}" for lab in LABELS))
     print("per label")
     for lab, s in per_label.items():
         fmt = lambda x: "  n/a" if x is None else f"{x:.3f}"  # noqa: E731
@@ -111,11 +128,11 @@ def main() -> None:
         w = csv.writer(f)
         if new:
             w.writerow(["timestamp", "commit", "model", "eval", "n", "accuracy",
-                        "window_parse_rate", "window_mae_h", "errors"]
+                        "window_parse_rate", "window_mae_h", "errors", "majority_baseline"]
                    + [f"acc_{c}" for c in by_category])
         w.writerow([stamp, commit, MODEL, "classify", n, f"{metrics['accuracy']:.4f}",
                     "" if rate is None else f"{rate:.4f}", "" if mae is None else f"{mae:.3f}",
-                    metrics["api_or_parse_errors"]]
+                    metrics["api_or_parse_errors"], f"{constant[majority]['overall']:.4f}"]
                    + [f"{v['accuracy']:.4f}" for v in by_category.values()])
 
 
