@@ -1,38 +1,38 @@
 {
-  "timestamp": "2026-09-19T13:49:16",
-  "commit": "65b2aa2",
+  "timestamp": "2026-09-19T15:33:23",
+  "commit": "772a2d9",
   "model": "nvidia/nemotron-3-super-120b-a12b",
   "metrics": {
-    "accuracy": 0.9833333333333333,
-    "accuracy_excl_errors": 0.9833333333333333,
+    "accuracy": 0.9523809523809523,
+    "accuracy_excl_errors": 0.9523809523809523,
     "majority_baseline": {
       "label": "deferable",
-      "accuracy": 0.55
+      "accuracy": 0.5714285714285714
     },
     "constant_baselines": {
       "deferable": {
-        "overall": 0.55,
+        "overall": 0.5714285714285714,
         "ambiguous": 0.0,
         "no_deadline": 0.0,
-        "standard": 0.7666666666666667,
+        "standard": 0.7878787878787878,
         "unusual": 1.0
       },
       "not_deferable": {
-        "overall": 0.15,
+        "overall": 0.14285714285714285,
         "ambiguous": 0.0,
         "no_deadline": 0.4,
-        "standard": 0.23333333333333334,
+        "standard": 0.21212121212121213,
         "unusual": 0.0
       },
       "unclear": {
-        "overall": 0.3,
+        "overall": 0.2857142857142857,
         "ambiguous": 1.0,
         "no_deadline": 0.6,
         "standard": 0.0,
         "unusual": 0.0
       }
     },
-    "n": 60,
+    "n": 63,
     "api_or_parse_errors": 0,
     "by_category": {
       "ambiguous": {
@@ -46,41 +46,43 @@
         "n": 5
       },
       "standard": {
-        "accuracy": 1.0,
-        "correct": 30,
-        "n": 30
+        "accuracy": 0.9696969696969697,
+        "correct": 32,
+        "n": 33
       },
       "unusual": {
-        "accuracy": 1.0,
-        "correct": 10,
+        "accuracy": 0.9,
+        "correct": 9,
         "n": 10
       }
     },
     "per_label": {
       "deferable": {
-        "precision": 0.9705882352941176,
-        "recall": 1.0,
-        "support": 33
+        "precision": 0.9714285714285714,
+        "recall": 0.9444444444444444,
+        "support": 36
       },
       "not_deferable": {
-        "precision": 1.0,
+        "precision": 0.9,
         "recall": 1.0,
         "support": 9
       },
       "unclear": {
-        "precision": 1.0,
+        "precision": 0.9444444444444444,
         "recall": 0.9444444444444444,
         "support": 18
       }
     },
     "confusion": {
-      "deferable->deferable": 33,
+      "deferable->deferable": 34,
+      "deferable->not_deferable": 1,
+      "deferable->unclear": 1,
       "not_deferable->not_deferable": 9,
       "unclear->deferable": 1,
       "unclear->unclear": 17
     },
     "window_parse_rate": 1.0,
-    "window_n_with_truth": 40,
+    "window_n_with_truth": 43,
     "window_mae_h": 0.0
   },
   "predictions": [
@@ -192,7 +194,7 @@
         "label": "deferable",
         "interruptible": true,
         "window_phrase": "within 72 hours",
-        "rationale": "The text states a duration from now that resolves to a number of hours, making the deadline computable.",
+        "rationale": "The text states a duration from now that resolves to a number of hours, making the deferral window computable.",
         "window_h": 72,
         "error": null,
         "now_hour": null
@@ -268,7 +270,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "within 6 hours",
-        "rationale": "The text states a duration from now that resolves to a number of hours, so the window is computable.",
+        "rationale": "The text states a duration from now that resolves to a number of hours, making the deadline computable.",
         "window_h": 6,
         "error": null,
         "now_hour": null
@@ -287,7 +289,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "Due in 3 days",
-        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "rationale": "The text states a duration that resolves to a number of hours from now.",
         "window_h": 72,
         "error": null,
         "now_hour": null
@@ -344,7 +346,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "over the next 48 hours",
-        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "rationale": "",
         "window_h": 48,
         "error": null,
         "now_hour": null
@@ -363,7 +365,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "before the safety review in 30 hours",
-        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "rationale": "The text gives a duration from now that resolves to a number of hours.",
         "window_h": 30,
         "error": null,
         "now_hour": null
@@ -401,7 +403,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "within 18 hours",
-        "rationale": "rationale: ",
+        "rationale": "The text states a duration that resolves to a number of hours from now.",
         "window_h": 18,
         "error": null,
         "now_hour": null
@@ -439,7 +441,7 @@
         "label": "not_deferable",
         "interruptible": null,
         "window_phrase": "right now",
-        "rationale": "The text states the job must run immediately due to a waiting customer, indicating no deferral is possible.",
+        "rationale": "The text states the job must run immediately because a customer is waiting on the call.",
         "window_h": 0,
         "error": null,
         "now_hour": null
@@ -515,7 +517,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "within 4 hours",
-        "rationale": "The text states a duration that resolves to a number of hours from now, making the deadline computable.",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
         "window_h": 4,
         "error": null,
         "now_hour": null
@@ -553,7 +555,7 @@
         "label": "not_deferable",
         "interruptible": null,
         "window_phrase": "in 30 minutes",
-        "rationale": "The job must run now because results are needed for a meeting that is minutes away.",
+        "rationale": "",
         "window_h": 0,
         "error": null,
         "now_hour": null
@@ -569,10 +571,10 @@
         "window_phrase": "within the hour"
       },
       "pred": {
-        "label": "deferable",
+        "label": "not_deferable",
         "interruptible": null,
         "window_phrase": "within the hour",
-        "rationale": "The text states a deadline that resolves to a number of hours from now.",
+        "rationale": "The text states a deadline that requires immediate action, indicating the job must run now.",
         "window_h": 1,
         "error": null,
         "now_hour": null
@@ -591,7 +593,7 @@
         "label": "not_deferable",
         "interruptible": null,
         "window_phrase": "happening right now",
-        "rationale": "The job is described as live transcription occurring concurrently with an ongoing event, indicating it must run immediately.",
+        "rationale": "The job is described as live and occurring in real time, indicating it must run immediately.",
         "window_h": 0,
         "error": null,
         "now_hour": null
@@ -629,7 +631,7 @@
         "label": "not_deferable",
         "interruptible": null,
         "window_phrase": "within 15 minutes",
-        "rationale": "The text states a short deadline requiring immediate action for decision-making.",
+        "rationale": "The text states a short deadline requiring immediate action for a decision.",
         "window_h": 0,
         "error": null,
         "now_hour": null
@@ -705,7 +707,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "whenever the office opens again after the long weekend is fine, and that's Tuesday 8am",
-        "rationale": "The current time and a specific future time are both stated, so the window is computable.",
+        "rationale": "The current time and a future clock deadline are both stated, so the window is computable.",
         "window_h": 72,
         "error": null,
         "now_hour": 8
@@ -724,7 +726,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "before my advisor wakes up",
-        "rationale": "The current time and a usual wake time are both stated, so the window is computable.",
+        "rationale": "The current time and the advisor's usual wake time are both stated, so the window is computable.",
         "window_h": 6,
         "error": null,
         "now_hour": 1
@@ -780,8 +782,8 @@
       "pred": {
         "label": "deferable",
         "interruptible": null,
-        "window_phrase": "over the weekend",
-        "rationale": "The current time and a time range are both stated, so the window is computable.",
+        "window_phrase": "Train the ablation grid over the weekend; I'm back Monday 8am.",
+        "rationale": "The current time and a future time are both stated, so the window is computable.",
         "window_h": 62,
         "error": null,
         "now_hour": 18
@@ -797,10 +799,10 @@
         "window_phrase": "before the next release train leaves"
       },
       "pred": {
-        "label": "deferable",
+        "label": "unclear",
         "interruptible": null,
         "window_phrase": "before the next release train leaves",
-        "rationale": "The text states a recurring event with a known interval and the time since the last occurrence, allowing the deadline to be resolved in hours.",
+        "rationale": "The text gives a recurring interval but no specific time for the next train, so the deadline cannot be resolved to hours from now.",
         "window_h": 24,
         "error": null,
         "now_hour": null
@@ -838,7 +840,7 @@
         "label": "deferable",
         "interruptible": null,
         "window_phrase": "while I'm asleep",
-        "rationale": "The text states a duration relative to the current time, allowing the window to be computed in hours.",
+        "rationale": "The text states a duration of sleep that resolves to a number of hours from now.",
         "window_h": 8,
         "error": null,
         "now_hour": null
@@ -894,8 +896,8 @@
       "pred": {
         "label": "unclear",
         "interruptible": null,
-        "window_phrase": null,
-        "rationale": "The text mentions an event but gives no time for it, so no deadline resolves to hours.",
+        "window_phrase": "before the demo",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
         "window_h": null,
         "error": null,
         "now_hour": null
@@ -933,7 +935,7 @@
         "label": "unclear",
         "interruptible": null,
         "window_phrase": null,
-        "rationale": "The text mentions flexibility and a desire for speed but gives no resolvable deadline in hours.",
+        "rationale": "The text states no specific timing or deadline that resolves to a number of hours from now.",
         "window_h": null,
         "error": null,
         "now_hour": null
@@ -1009,7 +1011,7 @@
         "label": "unclear",
         "interruptible": null,
         "window_phrase": "in a bit",
-        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "rationale": "The phrase 'in a bit' is vague and does not resolve to a specific number of hours.",
         "window_h": null,
         "error": null,
         "now_hour": null
@@ -1028,7 +1030,7 @@
         "label": "unclear",
         "interruptible": null,
         "window_phrase": null,
-        "rationale": "The text gives no timing or deadline that resolves to a number of hours from now.",
+        "rationale": "The text gives no timing that resolves to a number of hours from now.",
         "window_h": null,
         "error": null,
         "now_hour": null
@@ -1123,7 +1125,7 @@
         "label": "unclear",
         "interruptible": null,
         "window_phrase": "tonight",
-        "rationale": "The timing word gives no resolvable deadline in hours.",
+        "rationale": "The timing word gives no resolvable deadline in hours from now.",
         "window_h": null,
         "error": null,
         "now_hour": null
@@ -1142,7 +1144,7 @@
         "label": "not_deferable",
         "interruptible": null,
         "window_phrase": null,
-        "rationale": "The job is described as real-time serving, which means it must run immediately and cannot be deferred.",
+        "rationale": "The job is real-time interactive serving, which must run immediately as users type.",
         "window_h": null,
         "error": null,
         "now_hour": null
@@ -1178,9 +1180,9 @@
       },
       "pred": {
         "label": "not_deferable",
-        "interruptible": null,
+        "interruptible": false,
         "window_phrase": null,
-        "rationale": "The job is real-time interactive serving, requiring immediate response to spoken commands.",
+        "rationale": "The job is real-time interactive serving requiring immediate response to spoken commands.",
         "window_h": null,
         "error": null,
         "now_hour": null
@@ -1222,6 +1224,69 @@
         "window_h": null,
         "error": null,
         "now_hour": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L61",
+        "category": "standard",
+        "text": "i have computing tasks that due on sunday 3pm. they're pausable",
+        "label": "deferable",
+        "window_h": 97,
+        "window_phrase": "due on sunday 3pm",
+        "now_day": "Wednesday",
+        "now_hour": 14
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": true,
+        "window_phrase": "due on sunday 3pm",
+        "rationale": "The text states a specific day and time deadline that resolves to a number of hours from now.",
+        "window_h": 97,
+        "error": null,
+        "now_hour": 14
+      }
+    },
+    {
+      "truth": {
+        "id": "L62",
+        "category": "standard",
+        "text": "Nightly ETL backfill, due on sunday 10pm.",
+        "label": "deferable",
+        "window_h": 104,
+        "window_phrase": "due on sunday 10pm",
+        "now_day": "Wednesday",
+        "now_hour": 14
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "due on sunday 10pm",
+        "rationale": "The text states a specific day and time deadline that resolves to a number of hours from now.",
+        "window_h": 104,
+        "error": null,
+        "now_hour": 14
+      }
+    },
+    {
+      "truth": {
+        "id": "L63",
+        "category": "standard",
+        "text": "Refresh the recommendation embeddings before Monday 9am.",
+        "label": "deferable",
+        "window_h": 115,
+        "window_phrase": "before Monday 9am",
+        "now_day": "Wednesday",
+        "now_hour": 14
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before Monday 9am",
+        "rationale": "The text states a clock deadline with a day and time, which resolves to a number of hours from now.",
+        "window_h": 115,
+        "error": null,
+        "now_hour": 14
       }
     }
   ]
