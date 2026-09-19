@@ -26,7 +26,7 @@ Labeling conventions:
   real-time / interactive serving.
 - Clock deadlines are anchored by a "now" stated in the text. Without one
   ("by morning", "before EOD"), the label is `unclear` and `window_h` is null.
-- Exception: weekday deadlines with no stated "now" (L61–L63, "due on sunday
+- Exception: weekday deadlines with no stated "now" (L61–L69, e.g. "due on sunday
   3pm") are `deferable`, resolved against a submission clock the row carries
   in `now_day` / `now_hour` (the app uses the system clock).
 - `window_phrase` is the shortest verbatim span that states the time

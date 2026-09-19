@@ -61,3 +61,9 @@
 {"id": "L61", "category": "standard", "text": "i have computing tasks that due on sunday 3pm. they're pausable", "label": "deferable", "window_h": 97, "window_phrase": "due on sunday 3pm", "now_day": "Wednesday", "now_hour": 14}
 {"id": "L62", "category": "standard", "text": "Nightly ETL backfill, due on sunday 10pm.", "label": "deferable", "window_h": 104, "window_phrase": "due on sunday 10pm", "now_day": "Wednesday", "now_hour": 14}
 {"id": "L63", "category": "standard", "text": "Refresh the recommendation embeddings before Monday 9am.", "label": "deferable", "window_h": 115, "window_phrase": "before Monday 9am", "now_day": "Wednesday", "now_hour": 14}
+{"id": "L64", "category": "standard", "text": "Retrain the fraud model by 10pm tuesday; it can checkpoint.", "label": "deferable", "window_h": 78, "window_phrase": "by 10pm tuesday", "now_day": "Saturday", "now_hour": 16}
+{"id": "L65", "category": "standard", "text": "Batch-caption the new uploads, needed by 3pm on sunday.", "label": "deferable", "window_h": 23, "window_phrase": "by 3pm on sunday", "now_day": "Saturday", "now_hour": 16}
+{"id": "L66", "category": "standard", "text": "Rebuild the search index before 9am next monday.", "label": "deferable", "window_h": 41, "window_phrase": "before 9am next monday", "now_day": "Saturday", "now_hour": 16}
+{"id": "L67", "category": "standard", "text": "Regenerate the product embeddings by Tuesday 10pm.", "label": "deferable", "window_h": 78, "window_phrase": "by Tuesday 10pm", "now_day": "Saturday", "now_hour": 16}
+{"id": "L68", "category": "standard", "text": "Distill the new checkpoint; it's due Sat 2pm.", "label": "deferable", "window_h": 166, "window_phrase": "due Sat 2pm", "now_day": "Saturday", "now_hour": 16}
+{"id": "L69", "category": "standard", "text": "Score the renewal leads by Friday at noon.", "label": "deferable", "window_h": 140, "window_phrase": "by Friday at noon", "now_day": "Saturday", "now_hour": 16}

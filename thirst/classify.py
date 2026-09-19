@@ -171,7 +171,14 @@ _DAY_ALIASES = {**{d: i for i, d in enumerate(_DAYS)},
                 **{a: i for i, names in enumerate((("mon",), ("tue", "tues"), ("wed", "weds"),
                                                     ("thu", "thur", "thurs"), ("fri",), ("sat",),
                                                     ("sun",))) for a in names}}
-_DAY = r"\b(" + "|".join(sorted(_DAY_ALIASES, key=len, reverse=True)) + r")(?:['’]?s)?\.?"
+_DAY_ALT = "|".join(sorted(_DAY_ALIASES, key=len, reverse=True))
+_DAY = r"\b(" + _DAY_ALT + r")(?:['’]?s)?\.?"
+
+
+def _named_day(name: str) -> str:
+    """A weekday with an optional next/this/coming modifier, as named groups."""
+    return (rf"(?:(?P<{name}_mod>next|this|coming)\s+)?"
+            rf"\b(?P<{name}>{_DAY_ALT})(?:['’]?s)?\.?")
 DAY_ONLY_HOUR = 9          # "by Friday" with no time: 9am, the earliest plausible deadline
 _UNIT_H = {"minute": 1 / 60, "min": 1 / 60, "hour": 1, "hr": 1, "day": 24, "week": 168}
 
@@ -181,21 +188,28 @@ _UNIT = r"\s*(minutes?|mins?|hours?|hrs?|days?|weeks?)\b"
 # a duration, not a deadline.
 _REL_BEFORE = re.compile(r"\b(?:in|within|next|every|over the next|in the next)\s+" + _N + _UNIT)
 _REL_AFTER = re.compile(r"\b" + _N + _UNIT + r"\s+(?:later|from now)")
-_TIME = r"(?:(\d{1,2})(?::\d{2})?\s*(am|pm|a\.m\.|p\.m\.)(?![a-z0-9])|(noon|midnight))"
-_WHEN = re.compile(r"(?:" + _DAY + r"\s+(?:at\s+)?)?" + _TIME
-                   + r"(?:\s+on\s+the\s+(\d{1,2})(?:st|nd|rd|th))?(\s+tomorrow)?")
+_TIME = (r"(?:(?P<num>\d{1,2})(?::\d{2})?\s*(?P<ampm>am|pm|a\.m\.|p\.m\.)(?![a-z0-9])"
+         r"|(?P<word>noon|midnight))")
+# A weekday may come before the time ("sunday 3pm", "Friday at noon") or after it
+# ("10pm tuesday", "3pm on sunday", "9am next monday").
+_WHEN = re.compile(r"(?:" + _named_day("day1") + r"\s+(?:at\s+)?)?" + _TIME
+                   + r"(?:\s+(?:on\s+)?" + _named_day("day2") + r")?"
+                   + r"(?:\s+on\s+the\s+(?P<dom>\d{1,2})(?:st|nd|rd|th))?(?P<tomorrow>\s+tomorrow)?")
 _NOW = re.compile(r"\bit['’]?s\s+(?:now\s+)?" + _WHEN.pattern)
 # A weekday with no time, after a deadline cue ("by Friday", "next Tuesday").
 _DAY_ONLY = re.compile(r"\b(?:by|on|before|due|until|till|next|this|coming)\s+"
                        r"(?:(next|this|coming)\s+)?" + _DAY + r"(?!\s*(?:at\s+)?\d)")
 
 
-def _when(m: re.Match) -> tuple[int | None, int, int | None, bool]:
-    """(day-of-week, clock hour, day-of-month, tomorrow) from a _WHEN/_NOW match."""
-    day, num, ampm, word, dom, tomorrow = m.groups()
-    hour = (int(num) % 12 + (12 if ampm.startswith("p") else 0)) if num else \
-        (12 if word == "noon" else 0)
-    return (_DAY_ALIASES[day] if day else None, hour, int(dom) if dom else None, bool(tomorrow))
+def _when(m: re.Match) -> tuple[int | None, int, int | None, bool, bool]:
+    """(day-of-week, clock hour, day-of-month, tomorrow, "next") from a _WHEN/_NOW match."""
+    g = m.groupdict()
+    hour = (int(g["num"]) % 12 + (12 if g["ampm"].startswith("p") else 0)) if g["num"] else \
+        (12 if g["word"] == "noon" else 0)
+    day = g["day1"] or g["day2"]
+    nxt = "next" in (g["day1_mod"], g["day2_mod"])
+    return (_DAY_ALIASES[day.lower()] if day else None, hour,
+            int(g["dom"]) if g["dom"] else None, bool(g["tomorrow"]), nxt)
 
 
 def _hours_until(clock_hour: int, now: int, next_day: bool = False) -> int:
@@ -229,14 +243,14 @@ def _anchor(text: str, now: tuple) -> int | None:
             return None
         return _hours_to_weekday(_DAY_ALIASES[d.group(2)], DAY_ONLY_HOUR, now_dow, now_hour,
                                  next_week=d.group(0).startswith("next") or d.group(1) == "next")
-    dow, hour, dom, tomorrow = _when(m)
+    dow, hour, dom, tomorrow, nxt = _when(m)
     tomorrow = tomorrow or "tomorrow" in text
     if dom is not None and now_dom is not None:
         return (dom - now_dom) * 24 + hour - now_hour
     if dow is not None:
         if now_dow is None:
             return None
-        return _hours_to_weekday(dow, hour, now_dow, now_hour)
+        return _hours_to_weekday(dow, hour, now_dow, now_hour, next_week=nxt)
     return _hours_until(hour, now_hour, next_day=tomorrow)
 
 
