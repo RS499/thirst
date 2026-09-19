@@ -33,79 +33,67 @@ autumn profile, cached in `static/demo_cache.json` and recomputed from
 
 ---
 
-## SLIDE 1 · 0:00–0:20 · The hidden cost
+## SLIDE 1 · 0:00–0:22 · The hidden cost
 
-> Every AI company is being told the same thing: run your compute when the
-> grid is clean. Big clouds already do it.
->
-> I measured what that does to **water**. On the PJM grid, which covers
-> thirteen eastern states and Northern Virginia's data-centre alley, the
-> cleanest hour of the day is not the lowest-water hour on **360 of 365 days**.
-> Chase carbon, and you tend to pick a thirstier hour.
->
-> Nobody noticed, because nobody measures both.
+> AI is told: run your compute when the grid is clean. I measured what that
+> does to **water**. On PJM, the grid behind Northern Virginia's data centres,
+> the cleanest hour isn't the lowest-water hour on **360 of 365 days**. Chase
+> carbon and you tend to pick a thirstier hour. Nobody noticed, because nobody
+> measures both.
 
 *Slide: one line, "Greener compute is quietly thirstier", plus the chart where
 carbon bottoms out at 1pm and water at 7pm.*
 
-## SLIDE 2 · 0:20–0:35 · Who has this problem (Seed Round)
+## SLIDE 2 · 0:22–0:32 · Who has this problem (Seed Round)
 
-> Who cares? Anyone running flexible compute: AI labs, cloud providers, and
-> data-centre operators facing growing local scrutiny over water.
-> Carbon-aware scheduling is already a product category. **Nobody puts water on
-> the same screen.** That's the gap.
+> AI labs, clouds, and data-centre operators under growing scrutiny over water
+> all run flexible compute. Carbon-aware scheduling already exists. **Nobody
+> puts water on the same screen.**
 
 *Slide: three boxes, no logos: AI teams · data-centre operators · sustainability
 reporting. Headline: "Carbon-aware exists. Water-aware doesn't."*
-`[CUT → 1:30: drop the first sentence after "Who cares?"]`
+`[CUT → 1:30: skip this slide; fold "nobody puts water on the same screen" into slide 1]`
 
-## DEMO · 0:35–1:15 · Watch it decide
+## DEMO · 0:32–1:14 · Watch it decide
 
 `[Switch to the /?demo=1 window. It is already running.]`
 
-> Here's thirst. You describe a job the way you'd say it in Slack. *"It's 7pm.
-> Overnight fine-tune, can pause and resume, done by 7am."*
+> Here's thirst. I describe a job like a Slack message: overnight fine-tune,
+> done by 7am.
 
 `[The tour presses "Place it". Results appear. PRESS ANY KEY: you now drive.]`
 
-> **Nemotron** reads that and pulls out one thing: the exact words that set the
-> deadline. Plain code turns those words into a twelve-hour window. No guessing.
+> **Nemotron** pulls out the exact words that set the deadline; plain code
+> turns them into a twelve-hour window.
 
 `[Point at the verdict.]`
 
-> The verdict: **conflict**. Start at 3am, and on the average basis carbon drops
-> 7 percent, but water withdrawal gets **16 percent worse**.
+> Verdict: **conflict**. Start at 3am: on the average basis, carbon drops 7
+> percent but water withdrawal gets **16 percent worse**.
 
 `[Click "marginal-empirical". The bars swing.]`
 
-> Now count the electricity a different way: which power plants actually
-> respond to *your* job. On that basis the goals line up. Start at 8pm, and
-> carbon and water both improve. Same job, opposite advice. So thirst never shows
-> a number without saying how it was counted.
+> Now count only the plants that actually respond to *my* job. The goals line
+> up: start at 8pm and both improve. Same job, opposite advice, so every number
+> says how it was counted.
 
-## SLIDE 3 · 1:15–1:35 · Nemotron in the pipeline (Beyond the Chatbot · Xtract)
+## SLIDE 3 · 1:14–1:31 · Nemotron in the pipeline (Beyond the Chatbot · Xtract)
 
-> Nemotron isn't a chatbot here. It's two parts of the machine. It **classifies**
-> messy requests into a structured deadline: **0.952** accuracy on 63 labeled
-> jobs, against 0.571 for guessing. And it **explains** the tradeoff, but a
-> verifier checks every number it writes against the math. Anything untraceable
-> is thrown out, so a number the code didn't compute can never reach the screen.
-> Every figure traces back to its source: the exact words quoted, the public
-> grid data, the commit.
+> Nemotron isn't a chatbot here; it's two parts of the machine. It
+> **classifies** messy requests: **0.952** accuracy against 0.571 for guessing.
+> It **explains** the tradeoff, and a verifier throws out any number the code
+> didn't compute. Every figure traces to its source.
 
 *Slide: pipeline diagram "plain English → Nemotron: classify → Python: place →
 Nemotron: explain → verify". Two numbers under it: 0.952 vs 0.571 · 18/20
 explanations exact.*
-`[CUT → 1:30: drop the last sentence]`
+`[CUT → 1:30: drop "Every figure traces to its source"]`
 
-## SLIDE 4 · 1:35–1:50 · What I learned (Cold Start)
+## SLIDE 4 · 1:31–1:45 · What I learned (Cold Start)
 
-> What I learned this weekend: an AI eval can lie to you. My classifier jumped
-> from 67 to 92 percent when I fixed *my own* question, not the model. And the
-> same data can give opposite answers depending on how you count. So I wrote
-> down every failure: there are seven, in the repo.
->
-> Greener computing shouldn't cost the rivers. thirst makes the trade visible.
+> What I learned: evals can lie. Accuracy jumped from 67 to 92 percent when I
+> fixed *my* question, not the model. All seven failures are written down.
+> Greener computing shouldn't cost the rivers.
 
 *Slide: "7 failures, documented" + the closing line.*
 
