@@ -135,6 +135,11 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 .hero.swap { opacity: 0; transform: translateY(4px); }
 .hero.idle { color: var(--text-3); }
 .sub { color: var(--text-2); }
+.region-line { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.hero-2 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; }
+.rname { font-size: var(--fs-hero); font-weight: 700; line-height: 1; letter-spacing: -.03em; }
+.rmeta { color: var(--text-2); }
+.regions tr.mover td { color: var(--bad); font-weight: 500; }
 .sub b { color: var(--text); font-weight: 500; }
 .badge {
   display: flex; flex-direction: column; gap: 2px; margin: 18px 0 6px; padding: 12px 16px;
@@ -156,6 +161,10 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 .brow { display: grid; grid-template-columns: 1fr; gap: 4px; margin-bottom: 14px; }
 .brow .name { display: flex; justify-content: space-between; align-items: baseline; }
 .brow .name .val { font-weight: 700; font-size: var(--fs-lg); transition: color 240ms var(--ease); }
+.trow { display: flex; align-items: center; gap: 12px; }
+.trow .track { flex: 1; }
+.abs { font-size: calc(var(--fs-lg) * .6); font-weight: 700; white-space: nowrap; text-align: right; min-width: 88px; }
+.abs.good { color: var(--good); } .abs.bad { color: var(--bad); } .abs.zero { color: var(--text-2); }
 .track { position: relative; height: 34px; background: var(--panel-2); border-radius: 4px; }
 .track::before {           /* shared centre line */
   content: ""; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px;
@@ -208,16 +217,47 @@ figcaption { font-size: var(--fs-xs); color: var(--text-2); margin-top: 6px; }
 .empty { color: var(--text-3); }
 
 /* ---------------------------------------------------------------- demo mode (?demo=1 only) */
-.demobar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
-  display: flex; align-items: center; gap: 20px; padding: 14px 24px;
-  background: var(--panel); border-top: 1px solid var(--line-2);
+/* The page is wrapped in #stage and moved like a camera: translate + scale. */
+body.demo { overflow: hidden; height: 100vh; }
+body.demo #stage {
+  position: fixed; left: 0; top: 0; width: 100vw; transform-origin: 0 0;
+  transition: transform 1600ms cubic-bezier(.65, 0, .35, 1); will-change: transform;
 }
-.demobar .tag { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; color: var(--warn); }
-.demobar .cap { flex: 1; font-size: var(--fs-lg); font-weight: 500; color: var(--text); transition: opacity 180ms var(--ease); }
-.demobar .cap.swap { opacity: 0; }
-.demobar .hint { margin: 0; white-space: nowrap; }
-body.demo { padding-bottom: 76px; }
+body.demo #stage .panel, body.demo #stage .brand, body.demo #stage .live {
+  transition: opacity 700ms var(--ease), filter 700ms var(--ease), box-shadow 700ms var(--ease);
+}
+body.demo #stage .demo-dim { opacity: .22; filter: saturate(.4); }
+body.demo #stage .demo-sec { box-shadow: 0 0 0 2px var(--line-2), 0 20px 60px rgba(0, 0, 0, .6); }
+body.demo #stage .demo-part {
+  outline: 3px solid var(--accent); outline-offset: 6px; border-radius: 6px;
+  box-shadow: 0 0 0 9px rgba(118, 185, 0, .12), 0 0 40px rgba(118, 185, 0, .25);
+  transition: outline-color 400ms var(--ease), box-shadow 400ms var(--ease);
+}
+.demo-pop {
+  position: fixed; z-index: 70; width: min(380px, 30vw); padding: 18px 20px 20px;
+  background: var(--panel-2); border: 1px solid var(--line-2); border-left: 3px solid var(--accent);
+  border-radius: 8px; box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
+  opacity: 0; transform: translateX(10px); pointer-events: none;
+  transition: opacity 150ms var(--ease), transform 150ms var(--ease);
+}
+.demo-pop.show { opacity: 1; transform: none; }
+.demo-pop::before {                      /* notch pointing at the highlighted part */
+  content: ""; position: absolute; left: -9px; top: var(--ay, 50%); margin-top: -8px;
+  border: 8px solid transparent; border-right-color: var(--accent); border-left-width: 0;
+}
+.demo-pop.center::before { display: none; }    /* intro and outro point at nothing */
+.demo-pop .step { color: var(--accent); margin-bottom: 6px; }
+.demo-pop .t { font-size: var(--fs-lg); font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+.demo-pop .b { font-size: 15px; line-height: 1.55; color: var(--text); }
+.demo-pill {
+  position: fixed; left: 16px; bottom: 16px; z-index: 80;
+  display: flex; align-items: center; gap: 14px; padding: 8px 12px 8px 14px;
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: 999px;
+}
+.demo-pill .tag { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; color: var(--warn); }
+.demo-pill .hint { margin: 0; white-space: nowrap; }
+.demo-pill .count { font-weight: 700; color: var(--text); white-space: nowrap; }
+.demo-pill a.ghost { text-decoration: none; }
 
 @media (max-width: 1180px) {
   .live { grid-template-columns: 1fr 1fr 1fr; }
@@ -324,6 +364,10 @@ body.demo { padding-bottom: 76px; }
       <div class="over" id="v-over">Best start</div>
       <div class="hero num idle" id="v-hero">--:--</div>
       <div class="sub num" id="v-sub">Describe a job with a deadline to place it.</div>
+      <div class="region-line" id="v-region" hidden>
+        <div class="over">Best region · stress-adjusted · average basis</div>
+        <div class="hero-2"><span class="rname" id="v-rname"></span><span class="rmeta num" id="v-rmeta"></span></div>
+      </div>
 
       <div class="badge" id="v-badge" hidden>
         <span class="word" id="v-word"></span>
@@ -334,15 +378,15 @@ body.demo { padding-bottom: 76px; }
         <div class="axis"><span>← worse</span><span id="v-axis">vs running on arrival</span><span>better →</span></div>
         <div class="brow" data-m="carbon">
           <div class="name"><span>Carbon</span><span class="val num zero">—</span></div>
-          <div class="track"><div class="bar"></div></div>
+          <div class="trow"><div class="track"><div class="bar"></div></div><span class="abs num" hidden></span></div>
         </div>
         <div class="brow" data-m="withdrawal">
           <div class="name"><span>Water withdrawal</span><span class="val num zero">—</span></div>
-          <div class="track"><div class="bar"></div></div>
+          <div class="trow"><div class="track"><div class="bar"></div></div><span class="abs num" hidden></span></div>
         </div>
         <div class="brow" data-m="consumption">
           <div class="name"><span>Water consumption</span><span class="val num zero">—</span></div>
-          <div class="track"><div class="bar"></div></div>
+          <div class="trow"><div class="track"><div class="bar"></div></div><span class="abs num" hidden></span></div>
         </div>
         <div class="jobline num" id="v-job" hidden></div>
       </div>
@@ -360,17 +404,20 @@ body.demo { padding-bottom: 76px; }
 
     <section class="panel regions" id="regions" hidden>
       <h2 class="over">If this job can move regions</h2>
+      <div class="badge conflict" id="r-finding" hidden>
+        <span class="word">Ranking flips</span>
+        <span id="r-callout"></span>
+      </div>
       <div class="scroll-x">
         <table>
           <thead><tr>
-            <th>Region</th><th>Withdrawal<br>L/MWh</th><th>Consumption<br>L/MWh</th><th>Raw<br>rank</th>
-            <th>Stress<br>factor</th><th>Stress-adj.<br>L-eq/MWh</th><th>Stress<br>rank</th>
+            <th>Region</th><th>Consumption<br>L/MWh</th><th>Raw<br>rank</th><th>Stress<br>rank</th>
           </tr></thead>
           <tbody id="r-body"></tbody>
         </table>
       </div>
       <svg class="slope" id="r-slope" viewBox="0 0 440 214" role="img" aria-label="Rank change from raw consumption to stress-adjusted consumption"></svg>
-      <div class="hint">Rank 1 = most water consumed per MWh. Annual means, average basis; stress weighting from AWARE-US county factors. Regional figures do not vary by hour.</div>
+      <div class="hint">Rank 1 = thirstiest (most water consumed per MWh). Annual means on the average basis, with hydro reservoir evaporation excluded, which favours hydro-heavy BPAT. They do not vary by hour. Five regions that pass the cooling-data check, not fifty. Stress weighting: AWARE-US county factors.</div>
     </section>
   </section>
 
@@ -409,11 +456,17 @@ body.demo { padding-bottom: 76px; }
   </aside>
 </main>
 
-<div class="demobar" id="demobar" hidden role="status" aria-live="polite">
+<div class="demo-pill" id="demobar" hidden role="status" aria-live="polite">
   <span class="tag over"><span class="dot" style="background:var(--warn)"></span>demo mode · cached responses</span>
-  <span class="cap" id="demo-cap"></span>
-  <span class="hint" id="demo-hint">Click or press any key to take over</span>
+  <span class="count num" id="demo-count"></span>
+  <span class="hint" id="demo-hint">← → step · space pause · esc exit</span>
+  <a class="ghost" id="demo-full" href="/?demo=1" hidden>Full tour</a>
   <button class="ghost" id="demo-replay" type="button" hidden>Replay</button>
+</div>
+<div class="demo-pop" id="demo-pop" hidden aria-live="polite">
+  <div class="step over" id="demo-pop-step"></div>
+  <div class="t" id="demo-pop-title"></div>
+  <div class="b" id="demo-pop-body"></div>
 </div>
 
 <script>
@@ -501,6 +554,12 @@ async function loadEvidence() {
       prov.append(dt, dd);
     }
     renderRegions(d.regions);
+    const F = d.region_finding;
+    $("v-rname").textContent = F.best.region;
+    $("v-rmeta").textContent = F.verdict;
+    $("r-callout").textContent = F.callout;
+    $("r-finding").hidden = false;
+    $("v-region").hidden = !portable();
   } catch (e) { /* evidence is supplementary */ }
 }
 
@@ -508,12 +567,13 @@ function renderRegions(regions) {
   const body = $("r-body"); body.innerHTML = "";
   for (const r of regions) {
     const tr = document.createElement("tr");
-    if (r.region === "PJM") tr.className = "here";
-    const cells = [r.region, r.display.withdrawal, r.display.consumption, r.rank_raw,
-                   r.display.stress_factor, r.display.stress_adjusted, r.rank_stress];
+    const F = state.evidence.region_finding;
+    if (r.region === F.home.region) tr.className = "here";
+    else if (r.region === F.worst.region) tr.className = "mover";
+    const cells = [r.region, r.display.consumption, r.rank_raw, r.rank_stress];
     cells.forEach((c, i) => {
       const td = document.createElement("td"); td.textContent = c;
-      td.className = "num" + (i === 3 || i === 6 ? " rk" : "");
+      td.className = "num" + (i >= 2 ? " rk" : "");
       tr.appendChild(td);
     });
     body.appendChild(tr);
@@ -523,9 +583,9 @@ function renderRegions(regions) {
   let s = `<text x="${x0}" y="12" text-anchor="middle" fill="#A3A3A3" font-size="10" letter-spacing="1">RAW</text>
            <text x="${x1}" y="12" text-anchor="middle" fill="#A3A3A3" font-size="10" letter-spacing="1">STRESS-ADJUSTED</text>`;
   for (const r of regions) {
-    const moved = Math.abs(r.rank_raw - r.rank_stress) >= 2;
-    const here = r.region === "PJM";
-    const c = here ? "#76B900" : moved ? "#EAEAEA" : "#555555";
+    const F = state.evidence.region_finding;
+    const here = r.region === F.home.region, moved = r.region === F.worst.region;   // same as the table
+    const c = here ? "#76B900" : moved ? "#F2555A" : "#555555";
     const w = here || moved ? 700 : 400;
     s += `<line x1="${x0}" y1="${y(r.rank_raw)}" x2="${x1}" y2="${y(r.rank_stress)}" stroke="${c}" stroke-width="${moved || here ? 3 : 1.5}" stroke-linecap="round"/>
           <circle cx="${x0}" cy="${y(r.rank_raw)}" r="4.5" fill="${c}"/><circle cx="${x1}" cy="${y(r.rank_stress)}" r="4.5" fill="${c}"/>
@@ -607,9 +667,10 @@ function renderNotDeferable(c) {
 
 function setHero(text, idle) {
   const h = $("v-hero");
-  if (h.textContent === text) { h.classList.toggle("idle", idle); return; }
+  clearTimeout(h.swapTimer);                 // a newer value always wins over a pending swap
+  if (h.textContent === text) { h.classList.toggle("idle", idle); h.classList.remove("swap"); return; }
   h.classList.add("swap");
-  setTimeout(() => { h.textContent = text; h.classList.toggle("idle", idle); h.classList.remove("swap"); }, 120);
+  h.swapTimer = setTimeout(() => { h.textContent = text; h.classList.toggle("idle", idle); h.classList.remove("swap"); }, 120);
 }
 
 function setBars(rec, scale) {
@@ -622,6 +683,9 @@ function setBars(rec, scale) {
     const tone = zero ? "zero" : v > 0 ? "good" : "bad";
     bar.className = `bar ${tone === "zero" ? "" : tone}`;
     val.textContent = text; val.className = `val num ${tone}`;
+    const abs = row.querySelector(".abs"), job = rec.display[`job.${m}.saved`];
+    abs.hidden = !job;
+    if (job) { abs.textContent = job; abs.className = `abs num ${tone}`; }
   }
 }
 
@@ -656,8 +720,7 @@ function render(fresh) {
 
   if (d["job.energy_mwh"]) {
     $("v-job").hidden = false;
-    $("v-job").textContent = `Moving this ${d["job.energy_mwh"]} job: carbon ${d["job.carbon.saved"]} · withdrawal ` +
-      `${d["job.withdrawal.saved"]} · consumption ${d["job.consumption.saved"]} (+ = less used; ${b} basis, start-hour pricing)`;
+    $("v-job").textContent = `Moving this ${d["job.energy_mwh"]} job · + = less used · ${b} basis · start-hour pricing`;
   } else { $("v-job").hidden = true; }
 
   renderExplanation(rec);
@@ -717,14 +780,26 @@ $("e-ask").addEventListener("click", askNemotron);
 for (const el of document.querySelectorAll("input[name=obj], input[name=basis]"))
   el.addEventListener("change", () => render(false));
 for (const el of document.querySelectorAll("input[name=loc]"))
-  el.addEventListener("change", () => { $("regions").hidden = !portable(); });
+  el.addEventListener("change", () => {
+    $("regions").hidden = !portable();
+    $("v-region").hidden = !(portable() && state.evidence);   // best-region line: portable only
+  });
 
-// ---------------------------------------------------------------- demo mode (?demo=1)
-// A scripted walkthrough of the "Overnight fine-tune" preset. It replays the
+// ---------------------------------------------------------------- demo mode (?demo=1 | ?demo=short)
+// A guided walkthrough of the "Overnight fine-tune" preset. It replays the
 // classify, place and explain responses recorded in static/demo_cache.json, so
-// it needs no network and makes no model call. Any real click or keypress
-// stops it and hands the page back; without ?demo=1 none of this runs.
+// it needs no network and makes no model call. Without ?demo= none of this runs.
+//
+// The tour is a list of steps. Each step declares the page state it describes
+// (job typed, job placed, basis, Portable) and the section the camera frames.
+// Arriving at a step, forwards or backwards, applies that state, so stepping
+// back restores the page instead of undoing actions one by one.
+//   ← → step   space pause/resume   esc or a mouse click: exit
 const DEMO_STOP = Symbol("demo stopped");
+const cam = { s: 1, x: 0, y: 0 };
+const tour = { mode: "full", steps: [], idx: -1, section: undefined, paused: false,
+               timer: null, placing: null, settled: false, camMs: 1600 };
+const STEP_MS = 450;                         // camera move when YOU press an arrow key
 
 function demoLookup(path, body) {
   const C = demo.cache, copy = (o) => o && { ...structuredClone(o), _cached: true };
@@ -734,19 +809,8 @@ function demoLookup(path, body) {
   return null;
 }
 
-function demoCaption(text) {
-  const cap = $("demo-cap");
-  cap.classList.add("swap");
-  setTimeout(() => { cap.textContent = text; cap.classList.remove("swap"); }, 180);
-}
-
 function demoWait(ms, token) {
   return new Promise((ok, stop) => setTimeout(() => (demo.on && token === demo.run ? ok() : stop(DEMO_STOP)), ms));
-}
-
-async function demoUntil(done, token) {
-  for (let t = 0; t < 150 && !done(); t++) await demoWait(100, token);
-  if (!done()) throw DEMO_STOP;
 }
 
 function demoPick(id) {                      // select a radio and fire the page's own handler
@@ -754,79 +818,362 @@ function demoPick(id) {                      // select a radio and fire the page
   $(id).dispatchEvent(new Event("change"));
 }
 
-function demoExit(text) {
-  if (!demo.on) return;
-  demo.on = false; demo.run++;
-  $("demo-hint").hidden = true; $("demo-replay").hidden = false;
-  demoCaption(text || "Demo stopped. You're in control; cached results stay labelled until you place a job.");
+function wrapStage() {                       // demo only: put the page on a movable stage
+  if ($("stage")) return $("stage");
+  const stage = document.createElement("div");
+  stage.id = "stage";
+  document.body.insertBefore(stage, document.body.firstChild);
+  for (const el of [document.querySelector(".brand"), $("live"), document.querySelector("main.grid")])
+    stage.appendChild(el);
+  return stage;
 }
 
-async function playDemo() {
-  const token = ++demo.run;
-  demo.on = true;
-  document.body.classList.add("demo");
-  $("demobar").hidden = false; $("demo-hint").hidden = false; $("demo-replay").hidden = true;
-  const wait = (ms) => demoWait(ms, token);
-  try {
-    demoCaption("Describe a compute job in plain English.");
-    await wait(900);
-    $("text").value = "";
-    for (const ch of demo.cache.preset) { $("text").value += ch; await wait(25); }
-    await wait(700);
+// An element's box on the unscaled page, correct even while the camera is moving:
+// it divides out the stage's *current* (possibly mid-transition) transform.
+function stageRect(el) {
+  const t = getComputedStyle($("stage")).transform;
+  const m = t && t !== "none" ? new DOMMatrixReadOnly(t) : new DOMMatrixReadOnly();
+  const r = el.getBoundingClientRect();
+  return { x: (r.left - m.e) / m.a, y: (r.top - m.f) / m.a, w: r.width / m.a, h: r.height / m.a };
+}
 
-    demoCaption("Nemotron labels the job and quotes its deadline. Python turns the quote into hours and places it.");
-    $("go").click();
-    await demoUntil(() => state.placed && state.explanations[key()] && !$("go").disabled, token);
-    $("bars").scrollIntoView({ behavior: "smooth", block: "center" });
-    await wait(900);
-    demoCaption("Average basis: the lowest-carbon start makes both water metrics worse. The bars point opposite ways.");
-    await wait(3000);
+function setCamera(s, x, y, ms) {
+  if (ms !== undefined) $("stage").style.transitionDuration = `${ms}ms`;
+  Object.assign(cam, { s, x, y });
+  $("stage").style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+}
 
-    demoCaption("Marginal-empirical basis: same job, same hours. The bars swing to the same side.");
-    demoPick("b-marginal");
-    await askNemotron();                      // demo auto-refreshes the explanation
-    await wait(1500);
-    $("explain").scrollIntoView({ behavior: "smooth", block: "center" });
-    demoCaption("Nemotron explains. verify() checked every number against Python's record, sign included.");
-    await wait(3000);
+// null = the whole page; an element = framed on the left two thirds of the
+// screen, leaving the right third for the pop-up.
+function aim(el, ms) {
+  const vw = innerWidth, vh = innerHeight, stage = $("stage");
+  if (!el) {
+    const s = Math.min(vw / stage.offsetWidth, (vh - 70) / stage.offsetHeight, 1) * .94;
+    return setCamera(s, (vw - stage.offsetWidth * s) / 2, (vh - 60 - stage.offsetHeight * s) / 2, ms);
+  }
+  const r = stageRect(el);
+  const s = Math.max(.55, Math.min(vw * .58 / r.w, vh * .74 / r.h, 2.1));
+  setCamera(s, vw * .34 - (r.x + r.w / 2) * s, vh * .46 - (r.y + r.h / 2) * s, ms);
+}
 
-    demoCaption("If the job can move regions: water stress reorders them (consumption, average basis).");
-    demoPick("loc-portable");
-    $("regions").scrollIntoView({ behavior: "smooth", block: "center" });
-    await wait(2000);
-
-    demoCaption("Evidence: classifier accuracy against its baseline, explainer fidelity, holdout still sealed.");
-    $("evidence").scrollIntoView({ behavior: "smooth", block: "center" });
-    await wait(4000);
-    demoExit("End of demo. Replay it, or describe your own job above.");
-  } catch (e) {
-    if (e !== DEMO_STOP) { demoExit(`Demo stopped: ${e.message || e}`); throw e; }
+function spotlight(section) {                // dim every panel except the one being discussed
+  for (const p of $("stage").querySelectorAll(".panel, .brand, .live")) {
+    const on = !section || p === section || p.contains(section) || section.contains(p);
+    p.classList.toggle("demo-dim", !on);
+    p.classList.toggle("demo-sec", !!section && on && p.classList.contains("panel"));
   }
 }
 
-async function startDemo() {
+function highlight(el) {
+  for (const x of document.querySelectorAll(".demo-part")) x.classList.remove("demo-part");
+  if (el) el.classList.add("demo-part");
+}
+
+function hidePop() { $("demo-pop").classList.remove("show"); }
+
+// Placed from where the target WILL be once the camera lands, so it never
+// depends on catching the camera at rest.
+function showPop(el, label, title, body) {
+  const pop = $("demo-pop");
+  $("demo-pop-step").textContent = label;
+  $("demo-pop-title").textContent = title;
+  $("demo-pop-body").textContent = body;
+  pop.hidden = false;
+  pop.classList.toggle("center", !el);
+  const vw = innerWidth, vh = innerHeight;
+  if (!el) {
+    pop.style.left = `${(vw - pop.offsetWidth) / 2}px`;
+    pop.style.top = `${(vh - pop.offsetHeight) / 2 - 30}px`;
+  } else {
+    const r = stageRect(el);
+    const right = (r.x + r.w) * cam.s + cam.x, mid = (r.y + r.h / 2) * cam.s + cam.y;
+    const left = Math.max(vw * .68, Math.min(right + 36, vw - pop.offsetWidth - 24));
+    const top = Math.min(Math.max(mid - pop.offsetHeight / 2, 24), vh - pop.offsetHeight - 80);
+    pop.style.left = `${left}px`; pop.style.top = `${top}px`;
+    pop.style.setProperty("--ay", `${Math.min(Math.max(mid - top, 20), pop.offsetHeight - 20)}px`);
+  }
+  requestAnimationFrame(() => pop.classList.add("show"));
+}
+
+// Reading time. Pop-ups are at most two short sentences.
+const readMs = (text) => Math.max(2500, 1400 + 260 * text.split(/\s+/).length);
+
+// ---- page state
+function resetResults() {                    // back to the page as it loads, before "Place it"
+  Object.assign(state, { cls: null, placed: null, req: null, explanations: {}, pending: {} });
+  for (const id of ["cls", "explain", "v-badge", "v-job"]) $(id).hidden = true;
+  $("bars").hidden = false;
+  $("v-over").textContent = "Best start";
+  const hero = $("v-hero");
+  clearTimeout(hero.swapTimer);               // cancel any swap still pending from the last render
+  hero.textContent = "--:--"; hero.classList.add("idle"); hero.classList.remove("swap");
+  $("v-sub").textContent = "Describe a job with a deadline to place it.";
+  $("v-axis").textContent = "vs running on arrival";
+  for (const row of document.querySelectorAll(".brow")) {
+    row.querySelector(".bar").style.transform = "scaleX(0)";
+    row.querySelector(".bar").className = "bar";
+    Object.assign(row.querySelector(".val"), { textContent: "—", className: "val num zero" });
+    row.querySelector(".abs").hidden = true;
+  }
+  setStatus("");
+}
+
+async function placeCached() {               // press "Place it"; answered from the cache
+  $("go").click();
+  while (!(state.placed && state.explanations[key()] && !$("go").disabled))
+    await new Promise(r => setTimeout(r, 40));
+}
+
+async function applyState(st, animate, token) {
+  if (tour.placing) await tour.placing;     // never let an in-flight placement land late
+  if (!$("obj-carbon").checked) demoPick("obj-carbon");
+  const want = st.typed ? demo.cache.preset : "";
+  if ($("text").value !== want) {
+    if (animate && st.typed && want.startsWith($("text").value)) {
+      while ($("text").value.length < want.length) {
+        $("text").value = want.slice(0, $("text").value.length + 1);
+        await demoWait(8, token);
+      }
+    } else $("text").value = want;
+  }
+  if (!st.placed && state.placed) resetResults();
+  if (basis() !== st.basis) demoPick(st.basis === "average" ? "b-average" : "b-marginal");
+  if (portable() !== st.portable) demoPick(st.portable ? "loc-portable" : "loc-pinned");
+  if (st.placed && !state.placed) {
+    tour.placing = placeCached();
+    try { await tour.placing; } finally { tour.placing = null; }
+  }
+  if (state.placed) await askNemotron();    // explanation for this basis, from the cache
+}
+
+// ---- navigation
+function updatePill() {
+  const n = tour.steps.length, i = tour.idx;
+  $("demo-count").textContent = i >= n ? `${n} / ${n} · end` : `${i + 1} / ${n}`;
+  $("demo-hint").textContent = tour.paused ? "paused · space to resume · ← → step · esc exit"
+                                           : "← → step · space pause · esc exit";
+  $("demo-replay").hidden = i < n;
+}
+
+function armDwell() {
+  clearTimeout(tour.timer);
+  const step = tour.steps[tour.idx];
+  if (!step || tour.paused || !tour.settled) return;
+  tour.timer = setTimeout(() => goTo(tour.idx + 1, 1), readMs(step.text));
+}
+
+// Auto-play is cinematic: zoom out, zoom in, then the pop-up. A key press is
+// immediate: one quick pan, and the pop-up appears at once where its target
+// will land (showPop places it from the camera's destination, not its position).
+async function goTo(i, dir, manual = false) {
+  i = Math.max(0, Math.min(i, tour.steps.length));
+  const token = ++demo.run;
+  clearTimeout(tour.timer);
+  tour.idx = i; tour.settled = false;
+  updatePill();
+  hidePop(); highlight(null);
+  const step = tour.steps[i];                // undefined = the end card
+  const st = !step ? tour.final : dir < 0 && step.back === "after" ? step.after : step.st;
+  try {
+    const target = step ? step.section() : null;
+    const moved = target !== tour.section;
+    if (moved && !manual) {
+      spotlight(null);
+      if (tour.section) { aim(null, tour.camMs); await demoWait(tour.camMs, token); }
+    }
+    await applyState(st, false, token);
+    if (moved) {
+      tour.section = target;
+      spotlight(target); aim(target, manual ? STEP_MS : tour.camMs);
+      if (!manual) await demoWait(tour.camMs + 100, token);
+    } else if (!manual) await demoWait(250, token);
+    if (!step) { tour.settled = true; return; }
+    step.text = typeof step.body === "function" ? step.body() : step.body;
+    const el = step.el ? step.el() : null;
+    highlight(el);
+    showPop(el, step.name, step.title, step.text);
+    if (dir > 0 && step.late) {               // the step's own action, played forwards only
+      await demoWait(manual ? 150 : step.lateDelay ?? 600, token);
+      await applyState(step.after, true, token);
+    }
+    tour.settled = true;
+    armDwell();
+  } catch (e) {
+    if (e !== DEMO_STOP) throw e;
+  }
+}
+
+function demoExit() {
+  if (!demo.on) return;
+  demo.on = false; demo.run++;
+  clearTimeout(tour.timer);
+  hidePop(); highlight(null); spotlight(null);
+  $("demo-count").textContent = "";
+  $("demo-hint").textContent = "Demo stopped. Cached results stay labelled until you place a job.";
+  $("demo-replay").hidden = false;
+  setCamera(1, 0, 0, tour.camMs);            // glide back to normal size, then hand the page back
+  setTimeout(() => { document.body.classList.remove("demo"); $("stage").style.transform = ""; scrollTo(0, 0); },
+             tour.camMs);
+}
+
+function onKey(e) {
+  if (!demo.on || !e.isTrusted) return;
+  if (e.key === "ArrowRight") { e.preventDefault(); goTo(tour.idx + 1, 1, true); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); if (tour.idx > 0) goTo(tour.idx - 1, -1, true); }
+  else if (e.key === " ") {
+    e.preventDefault();
+    tour.paused = !tour.paused;
+    if (tour.paused) clearTimeout(tour.timer); else armDwell();
+    updatePill();
+  }
+  else if (e.key === "Escape") { e.preventDefault(); demoExit(); }
+  // any other key is ignored: only Escape and a mouse click exit
+}
+
+// ---- the tours
+function buildSteps(mode) {
+  const steps = [];
+  let cur = { typed: false, placed: false, basis: "average", portable: false };
+  const add = (o) => {
+    const st = { ...cur, ...(o.set || {}) };
+    const after = { ...st, ...(o.late || {}) };
+    steps.push({ ...o, st, after });
+    cur = after;
+  };
+  const rec = (b) => state.placed.records[b].carbon.display;
+  const figs = (b) => [rec(b)["carbon.delta_pct"], rec(b)["withdrawal.delta_pct"], rec(b)["consumption.delta_pct"]];
+  const job = () => $("job"), cls = () => $("cls"), verdict = () => document.querySelector(".verdict");
+  const basisGroup = () => $("b-average").closest(".group"), explainP = () => $("explain");
+  const regions = () => $("regions"), evidence = () => $("evidence"), none = () => null;
+  const accBase = () => ($("ev-acc-cmp").textContent.match(/vs ([\d.]+)/) || [])[1];
+  const typeJob = { el: () => $("text"), title: "Describe the job",
+    body: "Write it like a note to a coworker. Say what the job is and when it's due.",
+    late: { typed: true }, back: "after", lateDelay: 400 };
+  const flip = { el: () => $("b-marginal").nextElementSibling, late: { basis: "marginal_empirical" },
+    back: "before", lateDelay: 1500 };
+  const acc = { el: () => $("ev-acc").parentElement, title: "Does the AI read jobs right?",
+    body: () => `It scored ${$("ev-acc").textContent} on test jobs, where 1.0 is perfect. ` +
+                `Guessing the most common answer scores ${accBase() || "far lower"}.` };
+  const fid = { el: () => $("ev-fid").parentElement, title: "Are its summaries accurate?",
+    body: () => `Its summaries passed the number checker at a rate of ${$("ev-fid").textContent}, where 1.0 is all. ` +
+                "Any that fail are replaced by a safe template." };
+
+  if (mode === "short") {
+    add({ name: "The job", section: job, ...typeJob });
+    add({ name: "The answer", section: verdict, set: { placed: true }, el: () => $("v-badge"), title: "A clash",
+      body: () => `The best start is ${rec("average")["placed.hour"]} instead of ${rec("average")["arrival.hour"]}. ` +
+                  "Red means that hour is worse for water (average basis)." });
+    add({ name: "The answer", section: verdict, el: () => $("bars"), title: "Opposite directions",
+      body: () => { const [c, w, u] = figs("average");
+        return `Carbon ${c}, but water taken ${w} and water used up ${u}. Right is better, left is worse (average basis).`; } });
+    add({ name: "Count it another way", section: basisGroup, ...flip, title: "Switch the counting",
+      body: "“Marginal” counts only the power plants that ramp up for your job. Watch the answer change." });
+    add({ name: "Counted again", section: verdict, el: () => $("bars"), title: "Now everything improves",
+      body: () => { const [c, w, u] = figs("marginal_empirical");
+        return `Carbon ${c}, water taken ${w}, water used up ${u}. All better on the marginal-empirical basis.`; } });
+    add({ name: "Counted again", section: verdict, el: () => $("v-badge"), title: "Why it flips",
+      body: "Nuclear plants use lots of water but run no matter what. The marginal count leaves them out." });
+    add({ name: "Can you trust it?", section: evidence, ...acc });
+    add({ name: "Can you trust it?", section: evidence, ...fid });
+  } else {
+    add({ name: "Welcome", section: none, title: "What thirst does",
+      body: "Big computer jobs often don't need to run this minute. thirst finds the hour when power plants pollute less and use less water." });
+    add({ name: "Your job", section: job, ...typeJob });
+    add({ name: "Your job", section: job, el: () => $("obj-carbon").closest(".group"), title: "Choose what to cut",
+      body: "Carbon means planet-warming pollution; the other options are water. We'll start with carbon." });
+    add({ name: "Your job", section: job, el: () => $("go"), title: "Press “Place it”",
+      body: "One click, and the app works out when the job should run." });
+    add({ name: "What the AI understood", section: cls, set: { placed: true },
+      el: () => $("c-label").closest("dd"), title: "Can this job wait?",
+      body: "An AI model from NVIDIA, called Nemotron, read the sentence. It decided this job can wait." });
+    add({ name: "What the AI understood", section: cls, el: () => $("c-phrase"), title: "The deadline, word for word",
+      body: () => `It copied the exact words: ${$("c-phrase").textContent}. It is never allowed to invent a number.` });
+    add({ name: "What the AI understood", section: cls, el: () => $("c-window"), title: "Counted by plain code",
+      body: () => `Ordinary code, not the AI, turned those words into hours: ${state.cls.display.window_h} to work with.` });
+    add({ name: "The answer", section: verdict, el: () => $("v-hero"), title: "The best time to start",
+      body: () => `Start at ${rec("average")["placed.hour"]} instead of right away at ${rec("average")["arrival.hour"]}. ` +
+                  "That's the lowest-carbon hour before the deadline (average basis)." });
+    add({ name: "The answer", section: verdict, el: () => $("v-badge"), title: "But there's a catch",
+      body: "Red means the goals clash. The best hour for pollution is worse for water." });
+    add({ name: "The answer", section: verdict, el: () => $("bars"), title: "How to read the bars",
+      body: () => { const [c, w, u] = figs("average");
+        return `Right is better, left is worse. On the average basis: carbon ${c}, water taken ${w}, water used up ${u}.`; } });
+    add({ name: "The answer", section: verdict, el: () => $("bars"), title: "Two kinds of water",
+      body: "“Withdrawal” is river water a plant borrows to cool down and mostly returns. “Consumption” is water lost for good as steam." });
+    add({ name: "How it's counted", section: basisGroup, title: "Two honest ways to count",
+      body: "“Average” gives your job a slice of every plant running that hour. “Marginal” counts only the plants that ramp up for your job." });
+    add({ name: "How it's counted", section: basisGroup, ...flip, title: "Switching to marginal",
+      body: "Same job, same deadline. Only the counting changes." });
+    add({ name: "Counted again", section: verdict, el: () => $("v-badge"), title: "Now the goals agree",
+      body: "Green means every measure improves together." });
+    add({ name: "Counted again", section: verdict, el: () => $("bars"), title: "All three bars point right",
+      body: () => { const [c, w, u] = figs("marginal_empirical");
+        return `On the marginal-empirical basis: carbon ${c}, water taken ${w}, water used up ${u}. ` +
+               `The best start is now ${rec("marginal_empirical")["placed.hour"]}.`; } });
+    add({ name: "Counted again", section: verdict, el: () => $("bars"), title: "Why did it flip?",
+      body: "Nuclear plants barely pollute but use lots of water, and they run no matter what. The marginal count leaves them out." });
+    add({ name: "Counted again", section: verdict, el: () => $("v-badge"), title: "Always labelled",
+      body: "So the answer depends on how you count. thirst always says which way it's counting." });
+    add({ name: "The explanation", section: explainP, el: () => $("e-headline"), title: "A plain-English summary",
+      body: "The AI writes up the result in words. It may only use numbers the code already worked out." });
+    add({ name: "The explanation", section: explainP, el: () => $("e-verify").parentElement, title: "Checked before you see it",
+      body: "A checker compares every number to the math, down to the plus or minus sign." });
+    add({ name: "The explanation", section: explainP, el: () => $("e-verify").parentElement, title: "If the AI slips",
+      body: "Any mismatch and its words are thrown out. A safe template is shown instead." });
+    add({ name: "If the job can move", section: regions, set: { portable: true },
+      el: () => $("regions").querySelector("table"), title: "What if the job could move?",
+      body: "Here's how five regional US power grids compare on water. PJM, the grid this app plans for, is highlighted." });
+    add({ name: "If the job can move", section: regions, el: () => $("r-slope"), title: "Where water is scarce matters",
+      body: "A litre used in dry West Texas costs more than one used where water is plentiful." });
+    add({ name: "If the job can move", section: regions, el: () => $("r-slope"), title: "The ranking reshuffles",
+      body: "Weighted by local water stress, Texas's grid (ERCO) jumps from 4th to 1st. PJM drops from 2nd to 4th." });
+    add({ name: "Can you trust it?", section: evidence, ...acc });
+    add({ name: "Can you trust it?", section: evidence, ...fid });
+    add({ name: "Can you trust it?", section: evidence, el: () => $("ev-prov"), title: "A sealed final exam",
+      body: "Some test jobs are locked away and unseen. The final score can't be tuned to pass them." });
+    add({ name: "That's thirst", section: none, title: "Right time, honest trade-off",
+      body: "Describe a job, get the best hour, and see the cost in carbon and water. The counting method is always named." });
+  }
+  tour.final = cur;
+  return steps;
+}
+
+async function startDemo(mode) {
   $("demobar").hidden = false;
   try {
     const r = await fetch("/demo_cache.json");
     if (!r.ok) throw new Error(`demo_cache.json ${r.status}`);
     demo.cache = await r.json();
   } catch (e) {
-    $("demo-hint").hidden = true;
-    $("demo-cap").textContent = `Demo unavailable: ${e.message}`;
+    $("demo-hint").textContent = `Demo unavailable: ${e.message}`;
     return;
   }
-  // Only a real person's click or key stops the demo; the script's own clicks are untrusted.
-  for (const type of ["pointerdown", "keydown"])
-    document.addEventListener(type, (e) => {
-      if (e.isTrusted && demo.on && !$("demo-replay").contains(e.target)) demoExit();
-    }, true);
+  tour.mode = mode;
+  tour.camMs = mode === "short" ? 1100 : 1600;
+  $("stage") || wrapStage();
+  $("stage").style.transitionDuration = `${tour.camMs}ms`;
+  tour.steps = buildSteps(mode);
+  $("demo-full").hidden = mode !== "short";
+  // A mouse click anywhere except the pill exits; keys are handled in onKey.
+  document.addEventListener("pointerdown", (e) => {
+    if (e.isTrusted && demo.on && !$("demobar").contains(e.target)) demoExit();
+  }, true);
+  document.addEventListener("keydown", onKey, true);
   $("demo-replay").addEventListener("click", () => location.reload());
-  setTimeout(playDemo, 800);
+  // Test hook: what each step claims the page shows, and what it shows now.
+  window.demoTour = { tour, expected: (i, dir) => {
+      const s = tour.steps[i]; if (!s) return tour.final;
+      return dir < 0 && s.back === "after" ? s.after : dir > 0 && s.late ? s.after : s.st; } };
+  demo.on = true;
+  document.body.classList.add("demo");
+  updatePill();
+  setTimeout(() => goTo(0, 1), 1200);        // let /evidence fill the page first
 }
 
 loadLive(); loadEvidence();
 setInterval(loadLive, 10 * 60 * 1000);
-if (new URLSearchParams(location.search).get("demo") === "1") startDemo();
+const DEMO_MODE = { "1": "full", "short": "short" }[new URLSearchParams(location.search).get("demo")];
+if (DEMO_MODE) startDemo(DEMO_MODE);
 </script>
 </body>
 </html>
