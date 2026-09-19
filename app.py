@@ -47,13 +47,13 @@ if submitted and description.strip():
     now = datetime.now()
     with st.spinner("Classifying..."):
         # Classify once per submit; the radios below re-run place() only.
-        st.session_state["job"] = {
+        st.session_state["classification"] = {
             "c": classify(description, now_hour=now.hour),
             "arrival": now.hour + 1,             # hour-ending of the current hour
             "season": season_of(now.month),
         }
 
-job = st.session_state.get("job")
+job = st.session_state.get("classification")
 if job:
     c = job["c"]
     st.markdown(f"**Classification:** `{c.label}`"
