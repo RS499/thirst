@@ -69,6 +69,7 @@ class PlaceIn(BaseModel):
     season: str
     duration_h: int | None = Field(default=None, ge=1, le=24)
     power_kw: float | None = Field(default=None, gt=0)
+    now_dow: int | None = Field(default=None, ge=0, le=6)    # weekday of arrival, 0 = Monday
 
 
 def _start_window(window_h: int, duration_h: int | None) -> int:
@@ -76,7 +77,28 @@ def _start_window(window_h: int, duration_h: int | None) -> int:
     return max(window_h - (duration_h or 1) + 1, 1)
 
 
-def _record_json(rec, energy_mwh: float | None) -> dict:
+DAY_ABBR = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+
+def _timeline(rec, body: "PlaceIn") -> tuple[dict, str]:
+    """Run span, deadline and spare hours for a job of known duration.
+
+    Clock hours: the job starts at placed.hour's start and runs duration_h;
+    the deadline is window_h after arrival. spare = window - shift - duration.
+    """
+    d, w = body.duration_h, body.window_h
+    arrival = body.arrival_hour - 1                     # hour-ending -> clock hour
+    start = rec.placed["hour"] - 1
+    end = (start + d) % 24
+    deadline, days_ahead = (arrival + w) % 24, (arrival + w) // 24
+    day = f" {DAY_ABBR[(body.now_dow + days_ahead) % 7]}" if body.now_dow is not None else ""
+    spare = w - rec.shift_h - d
+    line = (f"runs {start:02d}:00 → {end:02d}:00 · deadline {deadline:02d}:00{day} · "
+            f"{spare} h to spare")
+    return {"shift": rec.shift_h, "duration": d, "window": w}, line
+
+
+def _record_json(rec, energy_mwh: float | None, body: "PlaceIn") -> dict:
     out = {"basis": rec.basis, "objective": rec.objective, "tradeoff": rec.tradeoff,
            "placed_hour": rec.placed["hour"], "shift_h": rec.shift_h,
            "delta": {m: getattr(rec, m).delta_pct for m in METRICS},
@@ -88,6 +110,8 @@ def _record_json(rec, energy_mwh: float | None) -> dict:
             saved = (o.baseline - o.placed) * energy_mwh
             out["display"][f"job.{m}.saved"] = f"{saved:+,.1f} {o.units}"
         out["display"]["job.energy_mwh"] = f"{energy_mwh:,.2f} MWh"
+    if body.duration_h:
+        out["timeline"], out["display"]["timeline"] = _timeline(rec, body)
     return out
 
 
@@ -102,7 +126,7 @@ def place_route(body: PlaceIn) -> dict:
     start_window = _start_window(body.window_h, body.duration_h)
     energy = (body.power_kw * body.duration_h / 1000
               if body.power_kw and body.duration_h else None)
-    records = {b: {obj: _record_json(r, energy) for obj, r in
+    records = {b: {obj: _record_json(r, energy, body) for obj, r in
                    place(body.arrival_hour, start_window, body.season, basis=b).items()}
                for b in BASES}
     # One bar scale for every basis and objective, so switching moves bars

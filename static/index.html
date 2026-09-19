@@ -135,6 +135,13 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 .hero.swap { opacity: 0; transform: translateY(4px); }
 .hero.idle { color: var(--text-3); }
 .sub { color: var(--text-2); }
+.timeline { margin-top: 12px; }
+.tl-track { position: relative; height: 12px; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 3px; }
+.tl-job { position: absolute; top: 1px; bottom: 1px; min-width: 3px; background: var(--text); border-radius: 2px;
+  transition: left 250ms var(--ease), width 250ms var(--ease); }
+.tl-dl { position: absolute; right: -2px; top: -5px; bottom: -5px; width: 2px; background: var(--text-2); }
+.tl-scale { display: flex; justify-content: space-between; margin-top: 4px; font-size: var(--fs-xs); color: var(--text-3); }
+.tl-line { margin-top: 4px; font-weight: 500; color: var(--text); }
 .region-line { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 .hero-2 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; }
 .rname { font-size: var(--fs-hero); font-weight: 700; line-height: 1; letter-spacing: -.03em; }
@@ -364,6 +371,11 @@ body.demo #stage .demo-part {
       <div class="over" id="v-over">Best start</div>
       <div class="hero num idle" id="v-hero">--:--</div>
       <div class="sub num" id="v-sub">Describe a job with a deadline to place it.</div>
+      <div class="timeline" id="v-tl" hidden>
+        <div class="tl-track" aria-hidden="true"><div class="tl-job" id="v-tl-job"></div><span class="tl-dl"></span></div>
+        <div class="tl-scale"><span>arrival</span><span>deadline</span></div>
+        <div class="tl-line num" id="v-tl-text"></div>
+      </div>
       <div class="region-line" id="v-region" hidden>
         <div class="over">Best region · stress-adjusted · average basis</div>
         <div class="hero-2"><span class="rname" id="v-rname"></span><span class="rmeta num" id="v-rmeta"></span></div>
@@ -614,7 +626,7 @@ async function submit(ev) {
     const dur = parseInt($("duration").value, 10), kw = parseFloat($("power").value);
     state.req = { arrival_hour: c.arrival_hour, window_h: c.window_h, season: c.season,
                   duration_h: Number.isFinite(dur) && dur > 0 ? dur : null,
-                  power_kw: Number.isFinite(kw) && kw > 0 ? kw : null };
+                  power_kw: Number.isFinite(kw) && kw > 0 ? kw : null, now_dow: c.now_dow };
     const placed = await api("/place", state.req);
     if (placed.refusal) { state.placed = null; renderRefusal(c, placed.refusal); setStatus(""); return; }
     state.placed = placed;
@@ -645,6 +657,7 @@ function renderClassification(c) {
 }
 
 function renderRefusal(c, r) {
+  $("v-tl").hidden = true;
   $("v-over").textContent = "Can't be moved";
   setHero(c.display.now, false);
   $("v-sub").textContent = `This job takes ${r.duration} and the deadline is ${r.window} away — it can't be moved. ` +
@@ -655,6 +668,7 @@ function renderRefusal(c, r) {
 }
 
 function renderNotDeferable(c) {
+  $("v-tl").hidden = true;
   $("v-over").textContent = "Runs on arrival";
   setHero(c.display.now, false);
   $("v-sub").textContent = c.label === "unclear"
@@ -702,6 +716,13 @@ function render(fresh) {
     ` · shift ${d["shift_h"]} · deadline ${deadline}` +
     (P.start_window_h !== state.cls.window_h ? ` · ${d["window_h"]} of start times` : ""));
   $("bars").hidden = false;
+  $("v-tl").hidden = !rec.timeline;
+  if (rec.timeline) {
+    const t = rec.timeline;
+    $("v-tl-job").style.left = `${100 * t.shift / t.window}%`;
+    $("v-tl-job").style.width = `${100 * t.duration / t.window}%`;
+    $("v-tl-text").textContent = d["timeline"];
+  }
 
   const worse = Object.keys(METRIC_PROSE).filter(m => rec.display[`${m}.delta_pct`].startsWith("-")
                                                  && !/^-0\.0 %$/.test(rec.display[`${m}.delta_pct`]));
@@ -901,7 +922,7 @@ const readMs = (text) => Math.max(2500, 1400 + 260 * text.split(/\s+/).length);
 // ---- page state
 function resetResults() {                    // back to the page as it loads, before "Place it"
   Object.assign(state, { cls: null, placed: null, req: null, explanations: {}, pending: {} });
-  for (const id of ["cls", "explain", "v-badge", "v-job"]) $(id).hidden = true;
+  for (const id of ["cls", "explain", "v-badge", "v-job", "v-tl"]) $(id).hidden = true;
   $("bars").hidden = false;
   $("v-over").textContent = "Best start";
   const hero = $("v-hero");

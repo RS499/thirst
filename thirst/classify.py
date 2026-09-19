@@ -111,6 +111,7 @@ class Classification:
     window_h: int | None          # computed by parse_window_hours, never by the model
     error: str | None = None      # why the result fell back to "unclear", if it did
     now_hour: int | None = None   # clock hour (0-23) window_h counts from: stated in text, else caller's
+    now_dow: int | None = None    # weekday (0 = Monday) of that "now", resolved the same way
 
 
 def client():
@@ -326,12 +327,15 @@ def classify(description: str, model: ModelFn | None = None,
         now_dow = datetime.now().weekday()
     stated = _NOW.search(description.lower())
     now_hour = _when(stated)[1] if stated else now_hour
+    if stated and _when(stated)[0] is not None:
+        now_dow = _when(stated)[0]
     try:
         raw = (model or nemotron())(build_prompt(description))
         data = parse_response(raw)
     except Exception as e:                                   # noqa: BLE001 -- never raise
         return Classification("unclear", None, None, "", None,
-                              error=f"{type(e).__name__}: {e}", now_hour=now_hour)
+                              error=f"{type(e).__name__}: {e}", now_hour=now_hour,
+                              now_dow=now_dow)
 
     label = data.get("label") if data.get("label") in LABELS else "unclear"
     interruptible = data.get("interruptible") if isinstance(data.get("interruptible"), bool) else None
@@ -341,4 +345,4 @@ def classify(description: str, model: ModelFn | None = None,
     rationale = "" if re.search(r"\d", rationale) else rationale
     return Classification(label, interruptible, phrase, rationale,
                           parse_window_hours(description, phrase, now_hour, now_dow),
-                          now_hour=now_hour)
+                          now_hour=now_hour, now_dow=now_dow)
