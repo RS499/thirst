@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>thirst</title>
+<style>
+/* One family, three weights (400 / 500 / 700). Scale: 11 · 14 · 18 · 28 · 72. */
+:root {
+  --bg: #0D0D0D;
+  --panel: #141414;
+  --panel-2: #1A1A1A;
+  --line: #262626;
+  --line-2: #333333;
+  --text: #EAEAEA;
+  --text-2: #A3A3A3;
+  --text-3: #6E6E6E;
+  --accent: #76B900;          /* the one accent; also "better" */
+  --bad: #F2555A;             /* worse / conflict */
+  --warn: #F5A524;            /* neutral / stale / unclear */
+  --good: #76B900;
+  --good-bg: rgba(118, 185, 0, .10);
+  --bad-bg: rgba(242, 85, 90, .10);
+  --warn-bg: rgba(245, 165, 36, .10);
+  --fs-xs: 11px; --fs-body: 14px; --fs-lg: 18px; --fs-stat: 28px; --fs-hero: 72px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--fs-body); font-weight: 400; line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.num, input[type=number] { font-variant-numeric: tabular-nums; }
+.over {                    /* overline label */
+  font-size: var(--fs-xs); font-weight: 500; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--text-2);
+}
+.muted { color: var(--text-2); }
+.faint { color: var(--text-3); }
+[hidden] { display: none !important; }
+
+/* ---------------------------------------------------------------- header */
+.brand {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  padding: 16px 24px 12px; border-bottom: 1px solid var(--line);
+}
+.brand .word { font-size: var(--fs-lg); font-weight: 700; letter-spacing: -.01em; }
+.brand .tag { color: var(--text-2); }
+.brand .model { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: var(--fs-xs); }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-3); display: inline-block; flex: none; }
+.dot.ok { background: var(--good); }
+
+/* ---------------------------------------------------------------- live bar */
+.live {
+  display: grid; grid-template-columns: auto minmax(220px, 1.6fr) repeat(3, auto) auto;
+  align-items: center; gap: 28px; padding: 12px 24px;
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.live-label { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.pulse { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
+.pulse::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%;
+  border: 2px solid var(--good); opacity: 0; animation: ping 2s var(--ease) infinite;
+}
+.pulse.stale, .pulse.stale::after { background: var(--warn); border-color: var(--warn); }
+.pulse.stale::after { background: none; }
+@keyframes ping { 0% { transform: scale(.6); opacity: .8; } 100% { transform: scale(1.8); opacity: 0; } }
+.mixbar { display: flex; height: 12px; border-radius: 3px; overflow: hidden; gap: 2px; background: var(--bg); }
+.mixbar span { display: block; height: 100%; }
+.mixlegend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: var(--fs-xs); color: var(--text-2); }
+.mixlegend b { font-weight: 500; color: var(--text); }
+.lstat { white-space: nowrap; }
+.lstat .v { font-size: var(--fs-lg); font-weight: 700; }
+.lstat .u { color: var(--text-2); font-size: var(--fs-xs); margin-left: 4px; }
+.stamp { font-size: var(--fs-xs); color: var(--text-2); text-align: right; line-height: 1.5; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- layout */
+.grid {
+  display: grid; grid-template-columns: 38fr 34fr 28fr; gap: 20px;
+  padding: 20px 24px 40px; align-items: start;
+}
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.panel + .panel { margin-top: 16px; }
+.panel h2 { margin: 0 0 12px; }
+
+/* ---------------------------------------------------------------- left: job */
+textarea, input[type=number] {
+  width: 100%; background: var(--panel-2); color: var(--text); border: 1px solid var(--line-2);
+  border-radius: 6px; padding: 10px 12px; font: inherit;
+}
+textarea { min-height: 112px; resize: vertical; line-height: 1.5; }
+textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
+.chip {
+  font: inherit; font-size: var(--fs-xs); color: var(--text-2); background: none;
+  border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 10px; cursor: pointer;
+}
+.chip:hover { color: var(--text); border-color: var(--text-3); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.field label { display: block; margin-bottom: 6px; }
+.field .opt { text-transform: none; letter-spacing: 0; color: var(--text-3); font-weight: 400; }
+.group { margin-bottom: 14px; }
+.group > .over { display: block; margin-bottom: 6px; }
+.seg { display: flex; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 6px; padding: 3px; gap: 3px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label {
+  flex: 1; text-align: center; padding: 7px 8px; border-radius: 4px; cursor: pointer;
+  color: var(--text-2); font-weight: 500; white-space: nowrap; transition: background 150ms, color 150ms;
+}
+.seg input:checked + label { background: #2E2E2E; color: var(--text); box-shadow: inset 0 -2px 0 var(--text-2); }
+.seg input:focus-visible + label { outline: 2px solid var(--text); outline-offset: 1px; }
+.hint { font-size: var(--fs-xs); color: var(--text-3); margin-top: 6px; }
+.go {
+  width: 100%; font: inherit; font-weight: 700; font-size: var(--fs-body); color: #0D0D0D;
+  background: var(--accent); border: 0; border-radius: 6px; padding: 12px; cursor: pointer;
+}
+.go:disabled { opacity: .55; cursor: progress; }
+.status { min-height: 20px; margin-top: 10px; font-size: var(--fs-xs); color: var(--text-2); display: flex; align-items: center; gap: 8px; }
+.spin { width: 10px; height: 10px; border: 2px solid var(--text-3); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; }
+.kv dt { color: var(--text-2); font-size: var(--fs-xs); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; padding-top: 2px; }
+.kv dd { margin: 0; }
+.label-chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.q { color: var(--text); font-style: italic; }
+
+/* ---------------------------------------------------------------- centre: verdict */
+.verdict { padding: 20px; }
+.hero {
+  font-size: var(--fs-hero); font-weight: 700; line-height: 1; letter-spacing: -.03em;
+  margin: 10px 0 6px; transition: opacity 180ms var(--ease), transform 180ms var(--ease);
+}
+.hero.swap { opacity: 0; transform: translateY(4px); }
+.hero.idle { color: var(--text-3); }
+.sub { color: var(--text-2); }
+.sub b { color: var(--text); font-weight: 500; }
+.badge {
+  display: flex; flex-direction: column; gap: 2px; margin: 18px 0 6px; padding: 12px 16px;
+  border-radius: 6px; border: 1px solid var(--line-2); background: var(--panel-2);
+  transition: background 240ms var(--ease), border-color 240ms var(--ease);
+}
+.badge .word { font-size: var(--fs-stat); font-weight: 700; letter-spacing: .04em; line-height: 1.15; }
+.badge.conflict { background: var(--bad-bg); border-color: var(--bad); }
+.badge.conflict .word { color: var(--bad); }
+.badge.aligned { background: var(--good-bg); border-color: var(--good); }
+.badge.aligned .word { color: var(--good); }
+.badge.neutral { background: var(--warn-bg); border-color: var(--warn); }
+.badge.neutral .word { color: var(--warn); }
+
+.bars { margin-top: 18px; }
+.axis { display: grid; grid-template-columns: 1fr auto 1fr; font-size: var(--fs-xs); color: var(--text-2); margin-bottom: 8px; }
+.axis span:nth-child(2) { color: var(--text-3); padding: 0 8px; }
+.axis span:last-child { text-align: right; }
+.brow { display: grid; grid-template-columns: 1fr; gap: 4px; margin-bottom: 14px; }
+.brow .name { display: flex; justify-content: space-between; align-items: baseline; }
+.brow .name .val { font-weight: 700; font-size: var(--fs-lg); transition: color 240ms var(--ease); }
+.track { position: relative; height: 34px; background: var(--panel-2); border-radius: 4px; }
+.track::before {           /* shared centre line */
+  content: ""; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px;
+  margin-left: -1px; background: var(--text-2); z-index: 2;
+}
+/* One element per metric, anchored at the centre line. scaleX carries the signed
+   delta, so a sign flip retracts the bar into the centre and grows it out the
+   other side instead of sliding it across. */
+.bar {
+  position: absolute; top: 4px; bottom: 4px; left: 50%; width: 50%;
+  transform-origin: left center; transform: scaleX(0);
+  background: var(--text-3);
+  transition: transform 280ms cubic-bezier(.45, 0, .25, 1), background-color 280ms linear;
+}
+.bar.good { background: var(--good); }
+.bar.bad { background: var(--bad); }
+.val.good { color: var(--good); } .val.bad { color: var(--bad); } .val.zero { color: var(--text-2); }
+.jobline { margin-top: 4px; font-size: var(--fs-xs); color: var(--text-2); }
+
+.explain .src { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.explain .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+.explain .headline { font-size: var(--fs-lg); font-weight: 500; line-height: 1.35; margin: 0 0 8px; }
+.explain p { margin: 0; color: var(--text-2); }
+.explain .foot { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-3); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ghost { font: inherit; font-size: var(--fs-xs); font-weight: 500; color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+.ghost:disabled { opacity: .5; cursor: progress; }
+
+.regions table { width: 100%; border-collapse: collapse; font-size: var(--fs-xs); }
+.regions th { text-align: right; font-weight: 500; color: var(--text-2); padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: bottom; }
+.regions th:first-child, .regions td:first-child { text-align: left; }
+.regions td { text-align: right; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.regions tr.here td { color: var(--accent); font-weight: 500; }
+.regions .rk { font-weight: 700; color: var(--text); }
+.scroll-x { overflow-x: auto; }
+.slope { display: block; width: 100%; max-width: 440px; height: auto; margin: 14px auto 0; }
+
+/* ---------------------------------------------------------------- right: evidence */
+figure { margin: 0; }
+figure img { display: block; width: 100%; border-radius: 6px; border: 1px solid var(--line); }
+figcaption { font-size: var(--fs-xs); color: var(--text-2); margin-top: 6px; }
+.evi-stat { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.evi-stat .v { font-size: var(--fs-stat); font-weight: 700; line-height: 1.1; }
+.evi-stat .cmp { font-size: var(--fs-xs); color: var(--text-2); }
+.meter { position: relative; height: 4px; background: var(--panel-2); border-radius: 2px; margin: 6px 0 4px; }
+.meter i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 2px; }
+.meter b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--text-2); }
+.prov { font-size: var(--fs-xs); }
+.prov dd { color: var(--text); }
+
+.empty { color: var(--text-3); }
+
+@media (max-width: 1180px) {
+  .live { grid-template-columns: 1fr 1fr 1fr; }
+  .live .mixwrap, .live-label, .stamp { grid-column: 1 / -1; text-align: left; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .col-right { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .grid { grid-template-columns: 1fr; padding: 16px; }
+  .brand, .live { padding-left: 16px; padding-right: 16px; }
+  :root { --fs-hero: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar, .hero, .badge, .pulse::after { transition: none; animation: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="brand">
+  <span class="word">thirst</span>
+  <span class="tag">Water-aware placement for deferrable compute on the PJM grid</span>
+  <span class="model"><span class="dot" id="model-dot"></span><span id="model-name">Nemotron</span></span>
+</header>
+
+<!-- PJM RIGHT NOW: hidden unless /live answers -->
+<section class="live" id="live" hidden aria-label="PJM grid right now">
+  <div class="live-label"><span class="pulse" id="pulse"></span><span class="over" style="color:var(--text)">PJM right now</span></div>
+  <div class="mixwrap">
+    <div class="mixbar" id="mixbar"></div>
+    <div class="mixlegend" id="mixlegend"></div>
+  </div>
+  <div class="lstat"><div class="over">Carbon</div><span class="v num" id="l-carbon"></span><span class="u">gCO₂/kWh</span></div>
+  <div class="lstat"><div class="over">Withdrawal</div><span class="v num" id="l-withdrawal"></span><span class="u">gal/MWh</span></div>
+  <div class="lstat"><div class="over">Consumption</div><span class="v num" id="l-consumption"></span><span class="u">gal/MWh</span></div>
+  <div class="stamp num" id="l-stamp"></div>
+</section>
+
+<main class="grid">
+
+  <!-- ============================================================ LEFT -->
+  <section class="col-left">
+    <form class="panel" id="job" autocomplete="off">
+      <h2 class="over">Job</h2>
+      <textarea id="text" required aria-label="Describe the job"
+        placeholder="Describe the job and its deadline, e.g. “It’s 10pm now. Nightly fine-tuning run, needs to be done before the 9am standup.”"></textarea>
+      <div class="examples" id="examples" aria-label="Examples"></div>
+
+      <div class="row2">
+        <div class="field"><label class="over" for="power">Power <span class="opt">kW, optional</span></label>
+          <input type="number" id="power" min="1" step="any" placeholder="e.g. 400"></div>
+        <div class="field"><label class="over" for="duration">Duration <span class="opt">h, optional</span></label>
+          <input type="number" id="duration" min="1" max="24" step="1" placeholder="e.g. 3"></div>
+      </div>
+
+      <div class="group">
+        <span class="over">Location</span>
+        <div class="seg" role="radiogroup" aria-label="Location">
+          <input type="radio" name="loc" id="loc-pinned" value="pinned" checked><label for="loc-pinned">Pinned to PJM</label>
+          <input type="radio" name="loc" id="loc-portable" value="portable"><label for="loc-portable">Portable</label>
+        </div>
+        <div class="hint">Portable: the job could run in another grid region.</div>
+      </div>
+
+      <div class="group">
+        <span class="over">Minimise</span>
+        <div class="seg" role="radiogroup" aria-label="Objective">
+          <input type="radio" name="obj" id="obj-carbon" value="carbon" checked><label for="obj-carbon">Carbon</label>
+          <input type="radio" name="obj" id="obj-withdrawal" value="water_withdrawal"><label for="obj-withdrawal">Withdrawal</label>
+          <input type="radio" name="obj" id="obj-consumption" value="water_consumption"><label for="obj-consumption">Consumption</label>
+        </div>
+      </div>
+
+      <div class="group">
+        <span class="over">Accounting basis</span>
+        <div class="seg" role="radiogroup" aria-label="Accounting basis">
+          <input type="radio" name="basis" id="b-average" value="average" checked><label for="b-average">average</label>
+          <input type="radio" name="basis" id="b-marginal" value="marginal_empirical"><label for="b-marginal">marginal-empirical</label>
+        </div>
+        <div class="hint">average: the whole mix in that hour (attribution). marginal-empirical: the fuels that respond to added load (causation).</div>
+      </div>
+
+      <button class="go" id="go" type="submit">Place it</button>
+      <div class="status" id="status" aria-live="polite"></div>
+    </form>
+
+    <section class="panel" id="cls" hidden aria-live="polite">
+      <h2 class="over">Classification · Nemotron</h2>
+      <dl class="kv">
+        <dt>Label</dt><dd><span class="label-chip"><span class="dot" id="c-dot"></span><span id="c-label"></span></span></dd>
+        <dt>Deadline</dt><dd id="c-phrase"></dd>
+        <dt>Window</dt><dd class="num" id="c-window"></dd>
+        <dt>Counting from</dt><dd class="num" id="c-now"></dd>
+        <dt>Pausable</dt><dd id="c-int"></dd>
+        <dt>Why</dt><dd class="muted" id="c-why"></dd>
+      </dl>
+      <div class="hint num" id="c-meta"></div>
+    </section>
+  </section>
+
+  <!-- ============================================================ CENTRE -->
+  <section class="col-centre">
+    <div class="panel verdict" aria-live="polite">
+      <div class="over" id="v-over">Best start</div>
+      <div class="hero num idle" id="v-hero">--:--</div>
+      <div class="sub num" id="v-sub">Describe a job with a deadline to place it.</div>
+
+      <div class="badge" id="v-badge" hidden>
+        <span class="word" id="v-word"></span>
+        <span id="v-msg"></span>
+      </div>
+
+      <div class="bars" id="bars">
+        <div class="axis"><span>← worse</span><span id="v-axis">vs running on arrival</span><span>better →</span></div>
+        <div class="brow" data-m="carbon">
+          <div class="name"><span>Carbon</span><span class="val num zero">—</span></div>
+          <div class="track"><div class="bar"></div></div>
+        </div>
+        <div class="brow" data-m="withdrawal">
+          <div class="name"><span>Water withdrawal</span><span class="val num zero">—</span></div>
+          <div class="track"><div class="bar"></div></div>
+        </div>
+        <div class="brow" data-m="consumption">
+          <div class="name"><span>Water consumption</span><span class="val num zero">—</span></div>
+          <div class="track"><div class="bar"></div></div>
+        </div>
+        <div class="jobline num" id="v-job" hidden></div>
+      </div>
+    </div>
+
+    <section class="panel explain" id="explain" hidden>
+      <div class="head">
+        <span class="src" id="e-src"></span>
+        <button class="ghost" id="e-ask" type="button" hidden>Explain with Nemotron</button>
+      </div>
+      <p class="headline" id="e-headline"></p>
+      <p id="e-body"></p>
+      <div class="foot"><span id="e-verify"></span><span id="e-meta" class="num"></span></div>
+    </section>
+
+    <section class="panel regions" id="regions" hidden>
+      <h2 class="over">If this job can move regions</h2>
+      <div class="scroll-x">
+        <table>
+          <thead><tr>
+            <th>Region</th><th>Withdrawal<br>L/MWh</th><th>Consumption<br>L/MWh</th><th>Raw<br>rank</th>
+            <th>Stress<br>factor</th><th>Stress-adj.<br>L-eq/MWh</th><th>Stress<br>rank</th>
+          </tr></thead>
+          <tbody id="r-body"></tbody>
+        </table>
+      </div>
+      <svg class="slope" id="r-slope" viewBox="0 0 440 214" role="img" aria-label="Rank change from raw consumption to stress-adjusted consumption"></svg>
+      <div class="hint">Rank 1 = most water consumed per MWh. Annual means, average basis; stress weighting from AWARE-US county factors. Regional figures do not vary by hour.</div>
+    </section>
+  </section>
+
+  <!-- ============================================================ RIGHT -->
+  <aside class="col-right">
+    <div class="panel">
+      <figure>
+        <a href="/charts/divergence.png" target="_blank" rel="noopener"><img src="/charts/divergence.png" alt="Average basis: carbon bottoms out at hour 13, water withdrawal at hour 19, six hours apart."></a>
+        <figcaption>Average basis: the cleanest hour for carbon is not the cleanest for water.</figcaption>
+      </figure>
+    </div>
+    <div class="panel">
+      <figure>
+        <a href="/charts/region_reorder.png" target="_blank" rel="noopener"><img src="/charts/region_reorder.png" alt="Slope chart: weighting by water stress moves ERCO from 4th to 1st and PJM from 2nd to 4th."></a>
+        <figcaption>Stress weighting reorders the five regions (consumption, average basis).</figcaption>
+      </figure>
+    </div>
+    <div class="panel" id="evidence">
+      <h2 class="over">Evidence</h2>
+      <div class="evi-stat">
+        <div>
+          <div class="over">Classifier</div>
+          <div class="v num" id="ev-acc">—</div>
+          <div class="meter"><i id="ev-acc-bar"></i><b id="ev-base-mark"></b></div>
+          <div class="cmp num" id="ev-acc-cmp"></div>
+        </div>
+        <div>
+          <div class="over">Explainer fidelity</div>
+          <div class="v num" id="ev-fid">—</div>
+          <div class="meter"><i id="ev-fid-bar"></i></div>
+          <div class="cmp num" id="ev-fid-cmp"></div>
+        </div>
+      </div>
+      <dl class="kv prov" id="ev-prov"></dl>
+    </div>
+  </aside>
+</main>
+
+<script>
+"use strict";
+// Every figure rendered below is a string Python formatted. The page only
+// lays strings out and sizes bars from Python-computed deltas.
+const $ = (id) => document.getElementById(id);
+const BASIS_PROSE = { average: "average", marginal_empirical: "marginal-empirical" };
+const OBJ_PROSE = { carbon: "carbon", water_withdrawal: "water withdrawal", water_consumption: "water consumption" };
+const METRIC_PROSE = { carbon: "carbon", withdrawal: "water withdrawal", consumption: "water consumption" };
+const EXAMPLES = [
+  ["Overnight fine-tune", "It's 7pm now. Overnight fine-tune of the support model; it can pause and resume, and it has to be done by 7am tomorrow."],
+  ["Before standup", "It's 10pm now. Nightly fine-tuning run, it can pause and resume, and it needs to be done before the 9am standup."],
+  ["Same-day quantize", "It's 9am. Quantize the three release candidates to 4-bit; needed by 5pm today."],
+  ["No deadline", "Re-embed our document archive with the new embedding model."],
+];
+const state = { cls: null, placed: null, req: null, explanations: {}, pending: {}, evidence: null };
+
+const objective = () => document.querySelector("input[name=obj]:checked").value;
+const basis = () => document.querySelector("input[name=basis]:checked").value;
+const portable = () => document.querySelector("input[name=loc]:checked").value === "portable";
+const key = () => `${basis()}|${objective()}`;
+
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: "POST", headers: { "content-type": "application/json" },
+                                       body: JSON.stringify(body) } : undefined);
+  if (!r.ok) throw new Error(`${path} ${r.status}`);
+  return r.json();
+}
+
+function setStatus(text, busy) {
+  $("status").innerHTML = text ? `${busy ? '<span class="spin"></span>' : ""}<span></span>` : "";
+  if (text) $("status").lastChild.textContent = text;
+}
+
+// ---------------------------------------------------------------- live bar
+async function loadLive() {
+  try {
+    const d = await api("/live");
+    const greys = ["#D4D4D4", "#A8A8A8", "#808080", "#626262", "#4D4D4D", "#3D3D3D", "#333333", "#2B2B2B", "#262626"];
+    $("mixbar").innerHTML = ""; $("mixlegend").innerHTML = "";
+    d.mix.forEach((m, i) => {
+      const seg = document.createElement("span");
+      seg.style.width = `${m.share * 100}%`; seg.style.background = greys[Math.min(i, greys.length - 1)];
+      seg.title = `${m.bucket} · ${m.display.share} · ${m.display.mw}`;
+      $("mixbar").appendChild(seg);
+      if (m.share >= 0.005) {
+        const l = document.createElement("span");
+        l.innerHTML = `${m.bucket} <b class="num"></b>`; l.lastChild.textContent = m.display.share;
+        $("mixlegend").appendChild(l);
+      }
+    });
+    for (const k of ["carbon", "withdrawal", "consumption"]) $(`l-${k}`).textContent = d.display[k];
+    const stale = d.age_hours > 3;
+    $("pulse").classList.toggle("stale", stale);
+    $("l-stamp").innerHTML = `EIA-930 · <span></span><br><span></span> · ${d.display.basis} basis`;
+    const spans = $("l-stamp").querySelectorAll("span");
+    spans[0].textContent = d.display.timestamp;
+    spans[1].textContent = `${d.display.age}${stale ? " · stale" : ""} · ${d.display.total}`;
+    $("live").hidden = false;
+  } catch (e) {
+    $("live").hidden = true;          // live pull failed: hide the bar, keep everything else
+  }
+}
+
+// ---------------------------------------------------------------- evidence
+async function loadEvidence() {
+  try {
+    const d = await api("/evidence");
+    state.evidence = d;
+    $("model-name").textContent = `Nemotron · ${d.model.split("/").pop()}`;
+    $("ev-acc").textContent = d.classifier.accuracy;
+    $("ev-acc-bar").style.width = `${d.classifier.accuracy_value * 100}%`;
+    $("ev-base-mark").style.left = `${d.classifier.baseline_value * 100}%`;
+    $("ev-acc-cmp").textContent = `vs ${d.classifier.baseline} majority baseline · ${d.classifier.n} rows`;
+    $("ev-fid").textContent = d.explainer.fidelity;
+    $("ev-fid-bar").style.width = `${d.explainer.fidelity_value * 100}%`;
+    $("ev-fid-cmp").textContent = `${d.explainer.passed} numbers traced to Python`;
+    const prov = $("ev-prov"); prov.innerHTML = "";
+    for (const [k, v] of [...d.provenance, ["Holdout", d.holdout]]) {
+      const dt = document.createElement("dt"); dt.textContent = k;
+      const dd = document.createElement("dd"); dd.textContent = v;
+      prov.append(dt, dd);
+    }
+    renderRegions(d.regions);
+  } catch (e) { /* evidence is supplementary */ }
+}
+
+function renderRegions(regions) {
+  const body = $("r-body"); body.innerHTML = "";
+  for (const r of regions) {
+    const tr = document.createElement("tr");
+    if (r.region === "PJM") tr.className = "here";
+    const cells = [r.region, r.display.withdrawal, r.display.consumption, r.rank_raw,
+                   r.display.stress_factor, r.display.stress_adjusted, r.rank_stress];
+    cells.forEach((c, i) => {
+      const td = document.createElement("td"); td.textContent = c;
+      td.className = "num" + (i === 3 || i === 6 ? " rk" : "");
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  }
+  // Slope chart: raw rank -> stress-adjusted rank.
+  const svg = $("r-slope"), x0 = 150, x1 = 290, y = (rk) => 30 + (rk - 1) * 42;
+  let s = `<text x="${x0}" y="12" text-anchor="middle" fill="#A3A3A3" font-size="10" letter-spacing="1">RAW</text>
+           <text x="${x1}" y="12" text-anchor="middle" fill="#A3A3A3" font-size="10" letter-spacing="1">STRESS-ADJUSTED</text>`;
+  for (const r of regions) {
+    const moved = Math.abs(r.rank_raw - r.rank_stress) >= 2;
+    const here = r.region === "PJM";
+    const c = here ? "#76B900" : moved ? "#EAEAEA" : "#555555";
+    const w = here || moved ? 700 : 400;
+    s += `<line x1="${x0}" y1="${y(r.rank_raw)}" x2="${x1}" y2="${y(r.rank_stress)}" stroke="${c}" stroke-width="${moved || here ? 3 : 1.5}" stroke-linecap="round"/>
+          <circle cx="${x0}" cy="${y(r.rank_raw)}" r="4.5" fill="${c}"/><circle cx="${x1}" cy="${y(r.rank_stress)}" r="4.5" fill="${c}"/>
+          <text x="${x0 - 12}" y="${y(r.rank_raw) + 4}" text-anchor="end" fill="${c}" font-size="12" font-weight="${w}">${r.region} ${r.rank_raw}</text>
+          <text x="${x1 + 12}" y="${y(r.rank_stress) + 4}" fill="${c}" font-size="12" font-weight="${w}">${r.rank_stress} ${r.region}</text>`;
+  }
+  svg.innerHTML = s;
+}
+
+// ---------------------------------------------------------------- classify + place
+async function submit(ev) {
+  ev.preventDefault();
+  const text = $("text").value.trim();
+  if (!text) return;
+  $("go").disabled = true;
+  setStatus("Classifying with Nemotron…", true);
+  state.explanations = {}; state.pending = {};
+  try {
+    const c = await api("/classify", { text });
+    state.cls = c;
+    renderClassification(c);
+    if (c.label !== "deferable" || !c.window_h) {
+      state.placed = null; renderNotDeferable(c); setStatus(""); return;
+    }
+    const dur = parseInt($("duration").value, 10), kw = parseFloat($("power").value);
+    state.req = { arrival_hour: c.arrival_hour, window_h: c.window_h, season: c.season,
+                  duration_h: Number.isFinite(dur) && dur > 0 ? dur : null,
+                  power_kw: Number.isFinite(kw) && kw > 0 ? kw : null };
+    state.placed = await api("/place", state.req);
+    render(true);
+    setStatus("");
+    await askNemotron();
+  } catch (e) {
+    setStatus(`Request failed: ${e.message}`, false);
+  } finally {
+    $("go").disabled = false;
+  }
+}
+
+function renderClassification(c) {
+  $("cls").hidden = false;
+  const tone = { deferable: "ok", not_deferable: "bad", unclear: "warn" }[c.label];
+  $("c-dot").style.background = tone === "ok" ? "var(--good)" : tone === "bad" ? "var(--bad)" : "var(--warn)";
+  $("c-label").textContent = c.label.replace("_", " ");
+  $("c-phrase").innerHTML = c.window_phrase ? `<span class="q"></span>` : `<span class="faint">none stated</span>`;
+  if (c.window_phrase) $("c-phrase").firstChild.textContent = `“${c.window_phrase}”`;
+  $("c-window").textContent = c.display.window_h;
+  $("c-now").textContent = `${c.display.now} · ${c.season}`;
+  $("c-int").textContent = c.interruptible === null ? "not stated" : c.interruptible ? "yes" : "no";
+  $("c-why").textContent = c.rationale || "—";
+  $("c-meta").textContent = c.error ? `Fell back to unclear: ${c.error}`
+                                     : `${c.display.model} · ${c.display.latency} · window parsed in Python`;
+  $("model-dot").classList.toggle("ok", !c.error);
+}
+
+function renderNotDeferable(c) {
+  $("v-over").textContent = "Runs on arrival";
+  setHero(c.display.now, false);
+  $("v-sub").textContent = c.label === "unclear"
+    ? "No deadline in the text resolves to a number of hours. Add one (“within 6 hours”, “by 8am tomorrow”) to place it."
+    : "It has to run now, so there is nothing to place.";
+  $("v-badge").hidden = true;
+  setBars(null);
+  $("v-job").hidden = true;
+  $("explain").hidden = true;
+}
+
+function setHero(text, idle) {
+  const h = $("v-hero");
+  if (h.textContent === text) { h.classList.toggle("idle", idle); return; }
+  h.classList.add("swap");
+  setTimeout(() => { h.textContent = text; h.classList.toggle("idle", idle); h.classList.remove("swap"); }, 120);
+}
+
+function setBars(rec, scale) {
+  for (const row of document.querySelectorAll(".brow")) {
+    const m = row.dataset.m, bar = row.querySelector(".bar"), val = row.querySelector(".val");
+    if (!rec) {
+      bar.style.transform = "scaleX(0)"; bar.className = "bar";
+      val.textContent = "—"; val.className = "val num zero"; continue;
+    }
+    const v = rec.delta[m], text = rec.display[`${m}.delta_pct`];
+    const zero = text.replace(/[^0-9]/g, "").replace(/^0+/, "") === "";   // shows as ±0.0 %
+    const frac = zero ? 0 : Math.sign(v) * Math.min(Math.abs(v) / scale, 1);
+    bar.style.transform = `scaleX(${frac})`;
+    const tone = zero ? "zero" : v > 0 ? "good" : "bad";
+    bar.className = `bar ${tone === "zero" ? "" : tone}`;
+    val.textContent = text; val.className = `val num ${tone}`;
+  }
+}
+
+function render(fresh) {
+  const P = state.placed;
+  if (!P) return;
+  const rec = P.records[basis()][objective()], d = rec.display, b = BASIS_PROSE[basis()];
+  $("v-over").textContent = `Best start · minimising ${OBJ_PROSE[objective()]} · ${b} basis`;
+  setHero(d["placed.hour"], false);
+  const deadline = state.cls.display.window_h;
+  $("v-sub").innerHTML = "";
+  $("v-sub").append(
+    "instead of ", Object.assign(document.createElement("b"), { textContent: d["arrival.hour"] }),
+    ` · shift ${d["shift_h"]} · deadline ${deadline}` +
+    (P.start_window_h !== state.cls.window_h ? ` · ${d["window_h"]} of start times` : "") +
+    (P.infeasible ? " · runs past the deadline" : ""));
+
+  const worse = Object.keys(METRIC_PROSE).filter(m => rec.display[`${m}.delta_pct`].startsWith("-")
+                                                 && !/^-0\.0 %$/.test(rec.display[`${m}.delta_pct`]));
+  const msg = {
+    conflict: `Minimising ${OBJ_PROSE[objective()]} makes ${worse.map(m => METRIC_PROSE[m]).join(" and ")} worse.`,
+    aligned: `Minimising ${OBJ_PROSE[objective()]} improves all three metrics.`,
+    neutral: d["placed.hour"] === d["arrival.hour"] ? "Running on arrival is already the best hour in the window."
+                                                   : "Moving this job changes little, or nothing gets worse.",
+  }[rec.tradeoff];
+  $("v-badge").hidden = false;
+  $("v-badge").className = `badge ${rec.tradeoff}`;
+  $("v-word").textContent = `${rec.tradeoff.toUpperCase()}`;
+  $("v-msg").textContent = `${msg} (${b} basis)`;
+  $("v-axis").textContent = `vs running on arrival · ${b} basis`;
+  setBars(rec, P.scale);
+
+  if (d["job.energy_mwh"]) {
+    $("v-job").hidden = false;
+    $("v-job").textContent = `Moving this ${d["job.energy_mwh"]} job: carbon ${d["job.carbon.saved"]} · withdrawal ` +
+      `${d["job.withdrawal.saved"]} · consumption ${d["job.consumption.saved"]} (+ = less used; ${b} basis, start-hour pricing)`;
+  } else { $("v-job").hidden = true; }
+
+  renderExplanation(rec);
+  $("regions").hidden = !portable();
+}
+
+function renderExplanation(rec) {
+  $("explain").hidden = false;
+  const k = key(), got = state.explanations[k], pending = state.pending[k];
+  const e = got || rec.fallback;
+  const src = $("e-src");
+  if (got && !got.fallback) {
+    src.innerHTML = '<span class="dot ok"></span>Nemotron · verified';
+    $("e-verify").textContent = "verify(): every number traced to Python, basis named";
+  } else if (got && got.fallback) {
+    src.innerHTML = '<span class="dot" style="background:var(--warn)"></span>Python template · Nemotron rejected';
+    $("e-verify").textContent = `verify() rejected the model: ${got.error || "unknown"}`;
+  } else {
+    src.innerHTML = '<span class="dot"></span>Python template';
+    $("e-verify").textContent = "Deterministic template; no model call for this view";
+  }
+  $("e-meta").textContent = got ? `${got.display.latency}` : "";
+  $("e-headline").textContent = e.headline;
+  $("e-body").textContent = e.explanation;
+  $("e-ask").hidden = !!got;
+  $("e-ask").disabled = !!pending;
+  $("e-ask").textContent = pending ? "Asking Nemotron…" : "Explain with Nemotron";
+}
+
+async function askNemotron() {
+  if (!state.placed) return;
+  const k = key(), [b, o] = k.split("|");
+  if (state.explanations[k] || state.pending[k]) return;
+  state.pending[k] = true;
+  render(false);
+  try {
+    state.explanations[k] = await api("/explain", { ...state.req, basis: b, objective: o });
+  } catch (e) {
+    state.explanations[k] = { fallback: true, error: e.message, display: { latency: "" },
+      ...state.placed.records[b][o].fallback };
+  } finally {
+    delete state.pending[k];
+    if (key() === k) render(false);
+  }
+}
+
+// ---------------------------------------------------------------- wiring
+for (const [label, text] of EXAMPLES) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = label;
+  b.addEventListener("click", () => { $("text").value = text; $("text").focus(); });
+  $("examples").appendChild(b);
+}
+$("job").addEventListener("submit", submit);
+$("e-ask").addEventListener("click", askNemotron);
+// Switching objective or basis re-renders from cache: no model call.
+for (const el of document.querySelectorAll("input[name=obj], input[name=basis]"))
+  el.addEventListener("change", () => render(false));
+for (const el of document.querySelectorAll("input[name=loc]"))
+  el.addEventListener("change", () => { $("regions").hidden = !portable(); });
+
+loadLive(); loadEvidence();
+setInterval(loadLive, 10 * 60 * 1000);
+</script>
+</body>
+</html>

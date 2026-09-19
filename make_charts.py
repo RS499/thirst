@@ -144,7 +144,48 @@ def basis_flip() -> None:
     plt.close(fig)
 
 
+def region_reorder() -> None:
+    """Slope chart: raw consumption rank -> stress-adjusted rank, five regions."""
+    r = pd.read_csv(OUT / "regional_water_stress.csv")
+    movers = {"ERCO": ORANGE, "PJM": BLUE}
+
+    fig, ax = plt.subplots(figsize=(9, 7))
+    for _, row in r.iterrows():
+        a, b = row["rank_consumption"], row["rank_stress_adjusted_consumption"]
+        color = movers.get(row["region"], INK_2)
+        lw, z = (3.5, 3) if row["region"] in movers else (2, 2)
+        ax.plot([0, 1], [a, b], color=color, lw=lw, zorder=z, solid_capstyle="round")
+        for x, rank, ha, dx in ((0, a, "right", -14), (1, b, "left", 14)):
+            ax.plot(x, rank, "o", ms=11, color=color, mec=SURFACE, mew=2, zorder=z + 1)
+            ax.annotate(f"{row['region']}  {int(rank)}" if ha == "right" else f"{int(rank)}  {row['region']}",
+                        (x, rank), xytext=(dx, 0), textcoords="offset points", ha=ha, va="center",
+                        fontsize=16, color=INK,
+                        fontweight="bold" if row["region"] in movers else "normal")
+
+    ax.set_xlim(-0.55, 1.55)
+    ax.set_ylim(5.5, 0.5)                    # rank 1 on top
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["Raw consumption", "Stress-adjusted"], fontsize=16, color=INK)
+    ax.tick_params(axis="x", length=0, pad=12)
+    ax.set_yticks([])
+    for side in ("left", "bottom"):
+        ax.spines[side].set_visible(False)
+
+    fig.suptitle("Water stress reorders the regions", x=0.06, ha="left",
+                 fontsize=22, fontweight="bold", color=INK)
+    fig.text(0.06, 0.885, "Rank 1 = most water consumed per MWh. Average basis, annual mean.\n"
+             "Stress weighting: AWARE-US county factors (Lee et al. 2019).",
+             fontsize=13, color=INK_2, va="top")
+    fig.text(0.06, 0.02, "Source: pjm-water-carbon @ 28aecf4, five balancing authorities; "
+             "results/regional_water_stress.csv.",
+             fontsize=11, color=INK_2)
+    fig.subplots_adjust(left=0.06, right=0.94, top=0.76, bottom=0.12)
+    fig.savefig(OUT / "region_reorder.png", dpi=200)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     divergence()
     basis_flip()
+    region_reorder()
