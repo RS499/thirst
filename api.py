@@ -83,26 +83,42 @@ def _start_window(window_h: int, duration_h: int | None) -> int:
 DAY_ABBR = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
+def _day_offset(body: "PlaceIn", offset_h: int) -> int:
+    """Days from the arrival day to the moment offset_h hours after arrival."""
+    return (body.arrival_hour - 1 + offset_h) // 24
+
+
+def _at(body: "PlaceIn", offset_h: int, with_day: bool | None = None) -> str:
+    """Clock label offset_h after arrival: "7 AM", or "7 AM Mon" when it falls on a
+    different day from the arrival (``with_day`` overrides; no day if unknown)."""
+    t = body.arrival_hour - 1 + offset_h
+    days = _day_offset(body, offset_h)
+    show = days != 0 if with_day is None else with_day
+    day = f" {DAY_ABBR[(body.now_dow + days) % 7]}" if show and body.now_dow is not None else ""
+    return f"{clock(t % 24)}{day}"
+
+
 def _deadline(body: "PlaceIn") -> str:
-    """Deadline as a clock label, window_h after arrival: "5 PM Sat" (day if known)."""
-    arrival = body.arrival_hour - 1                     # hour-ending -> clock hour
-    hour, days_ahead = (arrival + body.window_h) % 24, (arrival + body.window_h) // 24
-    day = f" {DAY_ABBR[(body.now_dow + days_ahead) % 7]}" if body.now_dow is not None else ""
-    return f"{clock(hour)}{day}"
+    return _at(body, body.window_h)
 
 
-def _timeline(rec, body: "PlaceIn") -> tuple[dict, str]:
+def _timeline(rec, body: "PlaceIn") -> tuple[dict, dict]:
     """Run span, deadline and spare hours for a job of known duration.
 
-    The job starts at placed.hour and runs duration_h; spare = window - shift - duration.
+    The job starts shift_h after arrival and runs duration_h; spare = window - shift -
+    duration. A time off the arrival day carries its weekday; when start and end share
+    a day that is not the arrival day, the day is written once, on the end.
     The one "ET" in the verdict card lives here when this line is shown.
     """
-    d, w = body.duration_h, body.window_h
-    start = rec.placed["hour"] - 1
-    spare = w - rec.shift_h - d
-    line = (f"runs {clock(start)} → {clock((start + d) % 24)} ET · deadline {_deadline(body)} · "
-            f"{spare} h to spare")
-    return {"shift": rec.shift_h, "duration": d, "window": w}, line
+    d, w, s = body.duration_h, body.window_h, rec.shift_h
+    same_day = _day_offset(body, s) == _day_offset(body, s + d)
+    start = _at(body, s, with_day=False if same_day else None)
+    end = _at(body, s + d)
+    line = f"runs {start} → {end} ET · deadline {_deadline(body)} · {w - s - d} h to spare"
+    return ({"shift": s, "duration": d, "window": w},
+            {"timeline": line, "timeline.start": start, "timeline.end": end,
+             # Latest start that still finishes by the deadline: shift w - d.
+             "latest_start": _at(body, w - d)})
 
 
 def _record_json(rec, energy_mwh: float | None, body: "PlaceIn") -> dict:
@@ -119,7 +135,8 @@ def _record_json(rec, energy_mwh: float | None, body: "PlaceIn") -> dict:
             out["display"][f"job.{m}.saved"] = f"{saved:+,.1f} {o.units}"
         out["display"]["job.energy_mwh"] = f"{energy_mwh:,.2f} MWh"
     if body.duration_h:
-        out["timeline"], out["display"]["timeline"] = _timeline(rec, body)
+        out["timeline"], labels = _timeline(rec, body)
+        out["display"].update(labels)
     return out
 
 

@@ -140,7 +140,14 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 .tl-job { position: absolute; top: 1px; bottom: 1px; min-width: 3px; background: var(--text); border-radius: 2px;
   transition: left 250ms var(--ease), width 250ms var(--ease); }
 .tl-dl { position: absolute; right: -2px; top: -5px; bottom: -5px; width: 2px; background: var(--text-2); }
-.tl-scale { display: flex; justify-content: space-between; margin-top: 4px; font-size: var(--fs-xs); color: var(--text-3); }
+/* Block labels (the answer) sit above the track inside the block's edges; if they
+   do not fit they drop below, outside the edges. End labels (context) are dimmer. */
+.tl-wrap { position: relative; padding: 18px 0; }
+.tl-lab { position: absolute; font-size: var(--fs-xs); line-height: 14px; white-space: nowrap;
+  transition: left 250ms var(--ease); }
+.tl-lab.blk { top: 0; color: var(--text); font-weight: 500; }
+.tl-lab.blk.below { top: auto; bottom: 0; }
+.tl-lab.end { bottom: 0; color: var(--text-3); }
 .tl-line { margin-top: 4px; font-weight: 500; color: var(--text); }
 .region-line { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 .hero-2 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; }
@@ -372,8 +379,11 @@ body.demo #stage .demo-part {
       <div class="hero num idle" id="v-hero">--:--</div>
       <div class="sub num" id="v-sub">Describe a job with a deadline to place it.</div>
       <div class="timeline" id="v-tl" hidden>
-        <div class="tl-track" aria-hidden="true"><div class="tl-job" id="v-tl-job"></div><span class="tl-dl"></span></div>
-        <div class="tl-scale num"><span id="v-tl-from"></span><span id="v-tl-to"></span></div>
+        <div class="tl-wrap num" id="v-tl-wrap">
+          <span class="tl-lab blk" id="v-tl-bs"></span><span class="tl-lab blk" id="v-tl-be"></span>
+          <div class="tl-track" aria-hidden="true"><div class="tl-job" id="v-tl-job"></div><span class="tl-dl"></span></div>
+          <span class="tl-lab end" id="v-tl-from"></span><span class="tl-lab end" id="v-tl-to"></span>
+        </div>
         <div class="tl-line num" id="v-tl-text"></div>
       </div>
       <div class="region-line" id="v-region" hidden>
@@ -650,11 +660,35 @@ function renderClassification(c) {
   $("c-window").textContent = c.display.window_h;
   $("c-now").textContent = `${c.display.now} ET · ${c.season}`;
   $("c-int").textContent = c.interruptible === null ? "not stated" : c.interruptible ? "yes" : "no";
+  if (c.interruptible) $("c-int").append(Object.assign(document.createElement("div"), { className: "hint",
+    textContent: "Pausable jobs could be split across the cleanest hours instead of run as one block — " +
+                 "not implemented; the placer treats every job as contiguous." }));
   $("c-why").textContent = c.rationale || "—";
   $("c-meta").textContent = c.error ? `Fell back to unclear: ${c.error}`
                                      : `${c.display.model} · ${c._cached ? "cached response" : c.display.latency} · window parsed in Python`;
   $("model-dot").classList.toggle("ok", !c.error);
 }
+
+// Place the strip labels in pixels from the block's edges (geometry only; the text
+// is Python's). Above the track if both fit inside the block, else below, outside it.
+function layoutStrip(t = state.placed && state.placed.records[basis()][objective()].timeline) {
+  if (!t || $("v-tl").hidden) return;
+  const W = $("v-tl-wrap").getBoundingClientRect().width, gap = 8;
+  const wd = (el) => el.getBoundingClientRect().width;     // fractional, unlike offsetWidth
+  const x0 = W * t.shift / t.window, x1 = W * (t.shift + t.duration) / t.window;
+  const bs = $("v-tl-bs"), be = $("v-tl-be"), from = $("v-tl-from"), to = $("v-tl-to");
+  const clamp = (x, w) => Math.max(0, Math.min(x, W - w));
+  const inside = x0 + wd(bs) + gap <= x1 - wd(be);
+  bs.classList.toggle("below", !inside); be.classList.toggle("below", !inside);
+  bs.style.left = `${clamp(inside ? x0 : x0 - wd(bs), wd(bs))}px`;
+  be.style.left = `${clamp(inside ? x1 - wd(be) : x1, wd(be))}px`;
+  from.style.left = "0px"; to.style.left = `${W - wd(to)}px`;
+  // Below the track, an end label that collides with a block label gives way.
+  const span = (el) => [parseFloat(el.style.left), parseFloat(el.style.left) + wd(el)];
+  const hits = (a, b) => { const [a0, a1] = span(a), [b0, b1] = span(b); return a0 < b1 + gap && b0 < a1 + gap; };
+  for (const e of [from, to]) e.style.visibility = !inside && (hits(e, bs) || hits(e, be)) ? "hidden" : "visible";
+}
+window.addEventListener("resize", () => layoutStrip());
 
 function renderRefusal(c, r) {
   $("v-tl").hidden = true;
@@ -716,7 +750,7 @@ function render(fresh) {
     "instead of ", Object.assign(document.createElement("b"), { textContent: d["arrival.hour"] }),
     (rec.timeline ? "" : " ET") + ` · shift ${d["shift_h"]}` +
     (rec.timeline ? "" : ` · deadline ${d["deadline"]}`) +
-    (P.start_window_h !== state.cls.window_h ? ` · ${d["window_h"]} of start times` : ""));
+    (P.start_window_h !== state.cls.window_h ? ` · latest start ${d["latest_start"]}` : ""));
   $("bars").hidden = false;
   $("v-tl").hidden = !rec.timeline;
   if (rec.timeline) {
@@ -726,6 +760,9 @@ function render(fresh) {
     $("v-tl-text").textContent = d["timeline"];
     $("v-tl-from").textContent = d["arrival.hour"];
     $("v-tl-to").textContent = d["deadline"];
+    $("v-tl-bs").textContent = d["timeline.start"];
+    $("v-tl-be").textContent = d["timeline.end"];
+    layoutStrip(t);
   }
 
   const worse = Object.keys(METRIC_PROSE).filter(m => rec.display[`${m}.delta_pct`].startsWith("-")
