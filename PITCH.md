@@ -82,7 +82,7 @@ time of day. Verified: 22:00 arrival, 11 h window.
 > thrown out for a plain template. A number Python didn't compute *cannot* reach
 > the screen.
 >
-> **A holdout:** thirty jobs, sealed and hashed before I started,
+> **A holdout:** thirty jobs, sealed and hashed before my first eval run,
 > `[IF OPENED:]` opened exactly once, scoring ___.
 > `[IF NOT YET:]` opened exactly once, at the end.
 >
