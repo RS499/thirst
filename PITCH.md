@@ -36,8 +36,8 @@ autumn profile, cached in `static/demo_cache.json` and recomputed from
 ## SLIDE 1 · 0:00–0:22 · The hidden cost
 
 > AI is told: run your compute when the grid is clean. I measured what that
-> does to **water**. On PJM, the grid behind Northern Virginia's data centres,
-> the cleanest hour isn't the lowest-water hour on **360 of 365 days**. Chase
+> does to **water**. On PJM, the grid from Pennsylvania through Illinois, and the
+> one Pittsburgh sits on, the cleanest hour isn't the lowest-water hour on **360 of 365 days**. Chase
 > carbon and you tend to pick a thirstier hour. Nobody noticed, because nobody
 > measures both.
 
@@ -80,22 +80,22 @@ reporting. Headline: "Carbon-aware exists. Water-aware doesn't."*
 ## SLIDE 3 · 1:14–1:31 · Nemotron in the pipeline (Beyond the Chatbot · Xtract)
 
 > Nemotron isn't a chatbot here; it's two parts of the machine. It
-> **classifies** messy requests: **0.952** accuracy against 0.571 for guessing.
+> **classifies** messy requests: **0.986** accuracy against 0.609 for guessing.
 > It **explains** the tradeoff, and a verifier throws out any number the code
 > didn't compute. Every figure traces to its source.
 
 *Slide: pipeline diagram "plain English → Nemotron: classify → Python: place →
-Nemotron: explain → verify". Two numbers under it: 0.952 vs 0.571 · 18/20
+Nemotron: explain → verify". Two numbers under it: 0.986 vs 0.609 · 20/20
 explanations exact.*
 `[CUT → 1:30: drop "Every figure traces to its source"]`
 
 ## SLIDE 4 · 1:31–1:45 · What I learned (Cold Start)
 
 > What I learned: evals can lie. Accuracy jumped from 67 to 92 percent when I
-> fixed *my* question, not the model. All seven failures are written down.
+> fixed *my* question, not the model. All eight failures are written down.
 > Greener computing shouldn't cost the rivers.
 
-*Slide: "7 failures, documented" + the closing line.*
+*Slide: "8 failures, documented" + the closing line.*
 
 ---
 
@@ -106,8 +106,9 @@ explanations exact.*
   phrase quoted verbatim. Python does all the arithmetic.
 - **Explain:** narrates a Python-built record, and `verify()` rejects any
   untraceable number.
-- **Evidence:** 0.952 vs 0.571 baseline (63 rows); explainer 18/20 exact, and
-  both misses were sign flips caught by the verifier; a sealed, hashed holdout.
+- **Evidence:** 0.986 vs 0.609 baseline (69 rows); explainer 20/20 exact (it was
+  18/20, and both misses were sign flips caught by the verifier); a sealed,
+  hashed holdout.
 - **Failures found:** `/no_think` is ignored by nemotron-3-super, so it needed
   `enable_thinking=False` plus a JSON schema. The specified model was retired
   (HTTP 410).
