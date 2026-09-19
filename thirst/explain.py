@@ -84,35 +84,51 @@ OBJECTIVE_PROSE = {"carbon": "carbon", "water_withdrawal": "water withdrawal",
                    "water_consumption": "water consumption"}
 
 PROMPT = """You explain one compute-job placement to a non-expert. Python already did all
-the maths. Your job is words only.
+the maths, and the reader already sees every figure in a chart next to your text. Your
+job is to say what the figures MEAN, in words.
 
 RECORD (field path -> the exact string you may print):
 {display}
 
-Meaning of the fields:
-- The job arrived at arrival.hour and was moved to placed.hour to minimise `objective`.
-- For carbon, withdrawal and consumption: baseline = running on arrival, placed = at
-  placed.hour. delta_pct is the percentage LESS than running on arrival: a positive value
-  means the placement is better on that metric, a negative value means it is worse.
-- tradeoff: "aligned" = every metric improves; "conflict" = optimising the objective makes
+What the fields mean:
+- The job arrived at arrival.hour. It may wait up to window_h (its slack) and can only
+  move LATER, never earlier. placed.hour, shift_h after arrival, is the best hour in that
+  window for `objective`. A shift_h of "0 h" means running on arrival was already best.
+- For carbon, withdrawal and consumption, delta_pct is how much LESS than running on
+  arrival: positive = better, negative = worse.
+- tradeoff: "aligned" = all three improve; "conflict" = minimising the objective makes
   another metric worse; "neutral" = little or nothing changes.
-- Water withdrawal and water consumption are two different metrics. Never add them or
+- Water withdrawal and water consumption are different metrics. Never combine them or
   call either one just "water".
+
+Write it like this:
+- headline: one sentence that gives the direction in words and contains NO carbon,
+  withdrawal or consumption figure. Times from the RECORD are fine.
+  Shape: "Waiting until <placed.hour> improves carbon and both water metrics." or
+  "Delaying to <placed.hour> cuts carbon but costs water withdrawal and water consumption."
+- explanation: two or three sentences.
+  * First, WHY: how long the job waits (shift_h) out of the slack it had (window_h), and
+    that placed.hour is the best hour in that window for the objective.
+  * Then ONE sentence containing ONE figure: the objective's delta_pct. That sentence
+    names the "{basis} basis"; it is the only place the basis is named. If shift_h is
+    "0 h", skip this figure.
+  * If tradeoff is "conflict", say in words, with no figure, which metrics get worse.
+  * No other carbon, withdrawal or consumption figures: do not list the deltas.
+- Phrase the figure so its sign does the work: "+9.9 % less carbon than running on
+  arrival", or "-3.4 % on water consumption" for a cost. Never "decreased by +9.9 %".
+- Talk about the job and the hours, not the machinery: do not mention Python, the
+  RECORD, field names, or the words "aligned", "conflict", "neutral" or "tradeoff".
 
 Rules (output that breaks any rule is thrown away):
 1. Every number you write must be one of the RECORD strings above, copied character for
-   character, including its "+" or "-" sign, commas and units (e.g. write "-1.4 %", never
-   "1.4 %" or "1.4%"). Do not round, convert units, subtract, compare sizes, rank or count.
-   Write the value only, never the field path ("+3.1 %", not "withdrawal.delta_pct: +3.1 %").
-2. EVERY sentence that states a carbon, withdrawal or consumption figure must itself
-   contain the words "{basis} basis", even if an earlier sentence already said so.
-   Good: "On the {basis} basis, water withdrawal is -1.2 %."
-   Bad:  "Water withdrawal is -1.2 %."
-   Never mention any other accounting basis.
+   character, including its "+" or "-" sign and units ("+9.9 %", "20:00", "1 h"). Never
+   write a quantity as a word ("one hour", "twice", "half"); use the RECORD string.
+   Do not round, convert units, subtract, compare sizes, rank or count.
+2. A sentence that states a carbon, withdrawal or consumption figure must contain the
+   words "{basis} basis". Never mention any other accounting basis.
 3. Use only the RECORD. Say nothing about fuels, power plants, cooling, PJM, weather or
    anything else that is not a field above.
-4. headline: exactly one sentence. explanation: two to four sentences.
-5. fields_used: the field paths (from the RECORD) you drew on.
+4. fields_used: the field paths (from the RECORD) you drew on.
 
 Return ONLY a JSON object:
 {{"headline": string, "explanation": string, "fields_used": [string, ...]}}"""
