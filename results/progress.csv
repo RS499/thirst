@@ -4,3 +4,4 @@ timestamp,commit,model,eval,n,accuracy,window_parse_rate,window_mae_h,errors,maj
 2026-09-19T12:35:20,f87d959,nvidia/nemotron-3-super-120b-a12b,classify,60,0.9167,0.9750,0.000,1,0.5000,0.9333,1.0000,0.8667,1.0000
 2026-09-19T13:49:16,65b2aa2,nvidia/nemotron-3-super-120b-a12b,classify,60,0.9833,1.0000,0.000,0,0.5500,0.9333,1.0000,1.0000,1.0000
 2026-09-19T15:33:23,772a2d9,nvidia/nemotron-3-super-120b-a12b,classify,63,0.9524,1.0000,0.000,0,0.5714,0.9333,1.0000,0.9697,0.9000
+2026-09-19T16:30:35,05cbbf0,nvidia/nemotron-3-super-120b-a12b,classify,69,0.9855,1.0000,0.000,0,0.6087,0.9333,1.0000,1.0000,1.0000
