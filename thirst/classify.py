@@ -109,6 +109,7 @@ class Classification:
     rationale: str
     window_h: int | None          # computed by parse_window_hours, never by the model
     error: str | None = None      # why the result fell back to "unclear", if it did
+    now_hour: int | None = None   # clock hour (0-23) window_h counts from: stated in text, else caller's
 
 
 def client():
@@ -260,12 +261,20 @@ def parse_window_hours(full_text: str, window_phrase: str | None,
 
 def classify(description: str, model: ModelFn | None = None,
              now_hour: int | None = None) -> Classification:
-    """Classify one job end to end. Never raises: any failure -> label "unclear"."""
+    """Classify one job end to end. Never raises: any failure -> label "unclear".
+
+    ``now_hour`` is the caller's wall-clock hour; a time stated in the text
+    ("It's 10pm now") overrides it. The hour actually used is returned as
+    ``Classification.now_hour`` so placement starts where the window starts.
+    """
+    stated = _NOW.search(description.lower())
+    now_hour = _when(stated)[1] if stated else now_hour
     try:
         raw = (model or nemotron())(build_prompt(description))
         data = parse_response(raw)
     except Exception as e:                                   # noqa: BLE001 -- never raise
-        return Classification("unclear", None, None, "", None, error=f"{type(e).__name__}: {e}")
+        return Classification("unclear", None, None, "", None,
+                              error=f"{type(e).__name__}: {e}", now_hour=now_hour)
 
     label = data.get("label") if data.get("label") in LABELS else "unclear"
     interruptible = data.get("interruptible") if isinstance(data.get("interruptible"), bool) else None
@@ -274,4 +283,4 @@ def classify(description: str, model: ModelFn | None = None,
     rationale = data.get("rationale") if isinstance(data.get("rationale"), str) else ""
     rationale = "" if re.search(r"\d", rationale) else rationale
     return Classification(label, interruptible, phrase, rationale,
-                          parse_window_hours(description, phrase, now_hour))
+                          parse_window_hours(description, phrase, now_hour), now_hour=now_hour)

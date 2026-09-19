@@ -10,7 +10,7 @@ Pipeline for one request:
 Python owns every number. Nemotron only labels (classify) and narrates
 (explain). Every figure on this page is a ``PlacementRecord.display`` string.
 
-    streamlit run app.py
+    python3 -m streamlit run app.py
 """
 from __future__ import annotations
 
@@ -47,9 +47,10 @@ if submitted and description.strip():
     now = datetime.now()
     with st.spinner("Classifying..."):
         # Classify once per submit; the radios below re-run place() only.
+        c = classify(description, now_hour=now.hour)
         st.session_state["classification"] = {
-            "c": classify(description, now_hour=now.hour),
-            "arrival": now.hour + 1,             # hour-ending of the current hour
+            "c": c,
+            "arrival": c.now_hour + 1,           # hour-ending of the hour the window counts from
             "season": season_of(now.month),
         }
 

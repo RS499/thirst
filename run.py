@@ -33,7 +33,7 @@ def main(description: str) -> None:
         print("\nnot deferable -> run on arrival, nothing to place")
         return
 
-    arrival = now.hour + 1                                  # hour-ending of the current hour
+    arrival = c.now_hour + 1          # hour-ending of the hour the window counts from
     records = place(arrival, c.window_h, season_of(now.month))
     first = next(iter(records.values())).display
     print(f"\nplacement  (basis: average, season {first['season']}, arrival {first['arrival.hour']}, "
