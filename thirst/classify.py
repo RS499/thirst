@@ -52,24 +52,48 @@ CLASSIFY_SCHEMA: dict = {
     },
 }
 
-PROMPT = """You classify compute jobs for a scheduler that can delay jobs to cleaner grid hours.
+PROMPT = """You label compute jobs for a scheduler. The label is about what the TEXT STATES,
+not about whether the job could in principle wait.
 
-Read the job description and return ONLY a JSON object, no prose:
+Return ONLY a JSON object:
 {{"label": "deferable" | "not_deferable" | "unclear",
   "interruptible": true | false | null,
   "window_phrase": string | null,
   "rationale": string}}
 
-Rules:
-- label "deferable": the job can start later than now and still meet its need.
-- label "not_deferable": it must start now (urgent, interactive, a live user is waiting, ASAP).
-- label "unclear": the description does not say. Never guess "deferable".
+Labels:
+- "deferable": the text states a deadline that resolves to a number of hours from now:
+  a duration ("within a day and a half", "in three days"), a clock or day deadline with
+  the current time stated ("It's 7pm ... by 6am tomorrow"), or an event whose time the
+  text gives elsewhere ("before the audit" + "the audit is Friday at noon").
+- "not_deferable": the text says it must run now (immediately, ASAP, someone is waiting,
+  minutes away), or the job is real-time / interactive serving.
+- "unclear": timing words with no resolvable deadline ("sometime soon", "before EOD",
+  "in a bit", "tonight", "by morning", "before the demo" with no time given), OR no
+  timing at all for a batch job.
+RULE: if you cannot point to text that resolves to a number of hours, the label is
+"unclear", never "deferable".
+
+Fields:
 - interruptible: true only if the text says it can pause/resume or checkpoint; false if
   it says it cannot; otherwise null.
 - window_phrase: copy, character for character, the shortest words from the description
-  that state its deadline or time flexibility (e.g. "before the 9am standup", "no rush").
-  Copy exactly; do not paraphrase. null if there are none.
+  that state its deadline or timing. Copy exactly; do not paraphrase. null if none.
 - rationale: one sentence. Do NOT write any digits or numbers.
+
+Examples:
+
+Job: "Rebuild the product-image thumbnails. It's 7pm now and they must be ready by 6am tomorrow."
+{{"label": "deferable", "interruptible": null, "window_phrase": "by 6am tomorrow",
+  "rationale": "The current time and a clock deadline are both stated, so the window is computable."}}
+
+Job: "Refresh the churn scores sometime later today if the cluster frees up."
+{{"label": "unclear", "interruptible": null, "window_phrase": "sometime later today",
+  "rationale": "The timing is vague and gives no deadline that resolves to hours."}}
+
+Job: "Train a gradient-boosted model on the new clickstream features."
+{{"label": "unclear", "interruptible": null, "window_phrase": null,
+  "rationale": "A batch job with no timing stated at all."}}
 
 Job description:
 {description}"""
