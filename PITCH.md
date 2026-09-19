@@ -86,7 +86,7 @@ reporting. Headline: "Carbon-aware exists. Water-aware doesn't."*
 
 *Slide: pipeline diagram "plain English → Nemotron: classify → Python: place →
 Nemotron: explain → verify". Two numbers under it: 0.986 vs 0.609 · 19/20
-explanations exact.*
+explanations passed the verifier.*
 `[CUT → 1:30: drop "Every figure traces to its source"]`
 
 ## SLIDE 4 · 1:31–1:45 · What I learned (Cold Start)
