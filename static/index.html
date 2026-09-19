@@ -151,7 +151,6 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 .tl-lab.blk { top: 0; color: var(--text); font-weight: 500; }
 .tl-lab.blk.below { top: auto; bottom: 0; }
 .tl-lab.end { bottom: 0; color: var(--text-3); }
-.nodur { margin-top: 10px; color: var(--text-2); }
 .tl-line { margin-top: 4px; font-weight: 500; color: var(--text); }
 .region-line { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 .hero-2 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; }
@@ -328,7 +327,7 @@ body.demo #stage .demo-part {
         <div class="field"><label class="over" for="power">Power <span class="opt">kW, optional</span></label>
           <input type="number" id="power" min="1" step="any" placeholder="e.g. 400"></div>
         <div class="field"><label class="over" for="duration">Duration <span class="opt">h</span></label>
-          <input type="number" id="duration" min="1" max="24" step="1" placeholder="e.g. 3"></div>
+          <input type="number" id="duration" required min="1" max="24" step="1" placeholder="e.g. 3"></div>
       </div>
 
       <div class="group">
@@ -390,7 +389,6 @@ body.demo #stage .demo-part {
         </div>
         <div class="tl-line num" id="v-tl-text"></div>
       </div>
-      <div class="hint nodur" id="v-nodur" hidden></div>
       <div class="region-line" id="v-region" hidden>
         <div class="over">Best region · stress-adjusted · average basis</div>
         <div class="hero-2"><span class="rname" id="v-rname"></span><span class="rmeta num" id="v-rmeta"></span></div>
@@ -509,7 +507,7 @@ const EXAMPLES = [
   ["Overnight fine-tune", "It's 7pm now. Overnight fine-tune of the support model; it can pause and resume, and it has to be done by 7am tomorrow.", 6],
   ["Before standup", "It's 10pm now. Nightly fine-tuning run, it can pause and resume, and it needs to be done before the 9am standup.", 2],
   ["Same-day quantize", "It's 9am. Quantize the three release candidates to 4-bit; needed by 5pm today.", 3],
-  ["No deadline", "Re-embed our document archive with the new embedding model.", ""],
+  ["No deadline", "Re-embed our document archive with the new embedding model.", 4],
 ];
 const state = { cls: null, placed: null, req: null, explanations: {}, pending: {}, evidence: null };
 const demo = { on: false, run: 0, cache: null };   // ?demo=1 only; see "demo mode" below
@@ -702,7 +700,7 @@ function layoutStrip(t = state.placed && state.placed.records[basis()][objective
 window.addEventListener("resize", () => layoutStrip());
 
 function renderRefusal(c, r) {
-  $("v-tl").hidden = true; $("v-nodur").hidden = true;
+  $("v-tl").hidden = true;
   $("v-over").textContent = "Can't be moved · ET";
   setHero(c.display.now, false);
   $("v-sub").textContent = `This job takes ${r.duration} and the deadline is ${r.window} away — it can't be moved. ` +
@@ -713,7 +711,7 @@ function renderRefusal(c, r) {
 }
 
 function renderNotDeferable(c) {
-  $("v-tl").hidden = true; $("v-nodur").hidden = true;
+  $("v-tl").hidden = true;
   $("v-over").textContent = "Runs on arrival · ET";
   setHero(c.display.now, false);
   $("v-sub").textContent = c.label === "unclear"
@@ -764,11 +762,6 @@ function render(fresh) {
     (P.start_window_h !== state.cls.window_h ? ` · latest start ${d["latest_start"]}` : ""));
   $("bars").hidden = false;
   $("v-tl").hidden = !rec.timeline;
-  // Gallons need power x duration; the run window needs duration alone.
-  $("v-nodur").hidden = !!rec.timeline;
-  $("v-nodur").textContent = "No duration given — showing percentages only. " +
-    (state.req.power_kw ? "Add one to see gallons and the run window."
-                        : "Add one to see the run window; add power as well to see gallons.");
   if (rec.timeline) {
     const t = rec.timeline;
     $("v-tl-job").style.left = `${100 * t.shift / t.window}%`;
@@ -983,7 +976,7 @@ const readMs = (text) => Math.max(2500, 1400 + 260 * text.split(/\s+/).length);
 // ---- page state
 function resetResults() {                    // back to the page as it loads, before "Place it"
   Object.assign(state, { cls: null, placed: null, req: null, explanations: {}, pending: {} });
-  for (const id of ["cls", "explain", "v-badge", "v-job", "v-tl", "v-nodur"]) $(id).hidden = true;
+  for (const id of ["cls", "explain", "v-badge", "v-job", "v-tl"]) $(id).hidden = true;
   $("bars").hidden = false;
   $("v-over").textContent = "Best start";
   const hero = $("v-hero");
@@ -1088,6 +1081,7 @@ async function goTo(i, dir, manual = false) {
 function demoExit() {
   if (!demo.on) return;
   demo.on = false; demo.run++;
+  $("duration").required = true;
   clearTimeout(tour.timer);
   hidePop(); highlight(null); spotlight(null);
   $("demo-count").textContent = "";
@@ -1247,6 +1241,7 @@ async function startDemo(mode) {
       const s = tour.steps[i]; if (!s) return tour.final;
       return dir < 0 && s.back === "after" ? s.after : dir > 0 && s.late ? s.after : s.st; } };
   demo.on = true;
+  $("duration").required = false;            // the recorded demo request has no duration
   document.body.classList.add("demo");
   updatePill();
   setTimeout(() => goTo(0, 1), 1200);        // let /evidence fill the page first
