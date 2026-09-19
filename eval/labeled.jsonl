@@ -58,3 +58,6 @@
 {"id": "L58", "category": "no_deadline", "text": "Voice assistant inference for the in-car system: respond to spoken commands.", "label": "not_deferable", "window_h": null, "window_phrase": null}
 {"id": "L59", "category": "no_deadline", "text": "Train a small classifier on the labeled support tickets from Q2.", "label": "unclear", "window_h": null, "window_phrase": null}
 {"id": "L60", "category": "no_deadline", "text": "Run the full offline evaluation suite against the latest checkpoint.", "label": "unclear", "window_h": null, "window_phrase": null}
+{"id": "L61", "category": "standard", "text": "i have computing tasks that due on sunday 3pm. they're pausable", "label": "deferable", "window_h": 97, "window_phrase": "due on sunday 3pm", "now_day": "Wednesday", "now_hour": 14}
+{"id": "L62", "category": "standard", "text": "Nightly ETL backfill, due on sunday 10pm.", "label": "deferable", "window_h": 104, "window_phrase": "due on sunday 10pm", "now_day": "Wednesday", "now_hour": 14}
+{"id": "L63", "category": "standard", "text": "Refresh the recommendation embeddings before Monday 9am.", "label": "deferable", "window_h": 115, "window_phrase": "before Monday 9am", "now_day": "Wednesday", "now_hour": 14}

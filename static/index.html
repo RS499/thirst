@@ -533,7 +533,9 @@ async function submit(ev) {
     state.req = { arrival_hour: c.arrival_hour, window_h: c.window_h, season: c.season,
                   duration_h: Number.isFinite(dur) && dur > 0 ? dur : null,
                   power_kw: Number.isFinite(kw) && kw > 0 ? kw : null };
-    state.placed = await api("/place", state.req);
+    const placed = await api("/place", state.req);
+    if (placed.refusal) { state.placed = null; renderRefusal(c, placed.refusal); setStatus(""); return; }
+    state.placed = placed;
     render(true);
     setStatus("");
     await askNemotron();
@@ -560,6 +562,16 @@ function renderClassification(c) {
   $("model-dot").classList.toggle("ok", !c.error);
 }
 
+function renderRefusal(c, r) {
+  $("v-over").textContent = "Can't be moved";
+  setHero(c.display.now, false);
+  $("v-sub").textContent = `This job takes ${r.duration} and the deadline is ${r.window} away — it can't be moved. ` +
+    (r.late ? "Even starting now, it finishes after the deadline." : "It has to start now.");
+  $("v-badge").hidden = true;
+  $("bars").hidden = true;
+  $("explain").hidden = true;
+}
+
 function renderNotDeferable(c) {
   $("v-over").textContent = "Runs on arrival";
   setHero(c.display.now, false);
@@ -567,8 +579,7 @@ function renderNotDeferable(c) {
     ? "No deadline in the text resolves to a number of hours. Add one (“within 6 hours”, “by 8am tomorrow”) to place it."
     : "It has to run now, so there is nothing to place.";
   $("v-badge").hidden = true;
-  setBars(null);
-  $("v-job").hidden = true;
+  $("bars").hidden = true;
   $("explain").hidden = true;
 }
 
@@ -582,10 +593,6 @@ function setHero(text, idle) {
 function setBars(rec, scale) {
   for (const row of document.querySelectorAll(".brow")) {
     const m = row.dataset.m, bar = row.querySelector(".bar"), val = row.querySelector(".val");
-    if (!rec) {
-      bar.style.transform = "scaleX(0)"; bar.className = "bar";
-      val.textContent = "—"; val.className = "val num zero"; continue;
-    }
     const v = rec.delta[m], text = rec.display[`${m}.delta_pct`];
     const zero = text.replace(/[^0-9]/g, "").replace(/^0+/, "") === "";   // shows as ±0.0 %
     const frac = zero ? 0 : Math.sign(v) * Math.min(Math.abs(v) / scale, 1);
@@ -607,8 +614,8 @@ function render(fresh) {
   $("v-sub").append(
     "instead of ", Object.assign(document.createElement("b"), { textContent: d["arrival.hour"] }),
     ` · shift ${d["shift_h"]} · deadline ${deadline}` +
-    (P.start_window_h !== state.cls.window_h ? ` · ${d["window_h"]} of start times` : "") +
-    (P.infeasible ? " · runs past the deadline" : ""));
+    (P.start_window_h !== state.cls.window_h ? ` · ${d["window_h"]} of start times` : ""));
+  $("bars").hidden = false;
 
   const worse = Object.keys(METRIC_PROSE).filter(m => rec.display[`${m}.delta_pct`].startsWith("-")
                                                  && !/^-0\.0 %$/.test(rec.display[`${m}.delta_pct`]));

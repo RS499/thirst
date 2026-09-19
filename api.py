@@ -55,7 +55,7 @@ class ClassifyIn(BaseModel):
 def classify_route(body: ClassifyIn) -> dict:
     now = datetime.now()
     t0 = time.perf_counter()
-    c = classify(body.text, now_hour=now.hour)
+    c = classify(body.text, now_hour=now.hour, now_dow=now.weekday())
     elapsed = time.perf_counter() - t0
     return {**asdict(c), "arrival_hour": c.now_hour + 1, "season": season_of(now.month),
             "display": {"now": f"{c.now_hour:02d}:00",
@@ -95,6 +95,10 @@ def _record_json(rec, energy_mwh: float | None) -> dict:
 def place_route(body: PlaceIn) -> dict:
     if body.season not in ("DJF", "MAM", "JJA", "SON"):
         raise HTTPException(422, "season must be DJF, MAM, JJA or SON")
+    if body.duration_h and body.duration_h >= body.window_h:
+        # Nothing to choose: the job needs the whole window or more.
+        return {"refusal": {"duration": f"{body.duration_h} h", "window": f"{body.window_h} h",
+                            "late": body.duration_h > body.window_h}}
     start_window = _start_window(body.window_h, body.duration_h)
     energy = (body.power_kw * body.duration_h / 1000
               if body.power_kw and body.duration_h else None)
@@ -106,7 +110,6 @@ def place_route(body: PlaceIn) -> dict:
     scale = max(abs(v) for b in records.values() for r in b.values()
                 for v in r["delta"].values()) or 1.0
     return {"records": records, "scale": scale, "start_window_h": start_window,
-            "infeasible": (body.duration_h or 1) > max(body.window_h, 1),
             "basis_prose": BASIS_PROSE}
 
 

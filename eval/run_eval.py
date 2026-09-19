@@ -7,7 +7,9 @@ Each line of labeled.jsonl:
     {"id": str, "category": "standard|ambiguous|unusual|no_deadline", "text": str,
      "label": "deferable|not_deferable|unclear", "window_h": int | null,
      "window_phrase": str | null}
-The current time, where it matters, is stated inside ``text``.
+The current time, where it matters, is stated inside ``text``. Rows whose
+deadline needs the submission clock (a weekday with no "It's ..." clause) carry
+optional ``now_day`` (e.g. "Wednesday") and ``now_hour`` (0-23) instead.
 
 Calls are sequential with a 1 s pause (free NIM tier rate-limits). Writes
 results/classify_eval.json and appends one row to results/progress.csv.
@@ -31,6 +33,7 @@ from thirst.classify import LABELS, MODEL, classify, nemotron  # noqa: E402
 LABELED = ROOT / "eval" / "labeled.jsonl"
 RESULTS = ROOT / "results"
 DELAY_S = 1.0
+DAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 
 
 def main() -> None:
@@ -40,7 +43,8 @@ def main() -> None:
     for i, row in enumerate(rows):
         if i:
             time.sleep(DELAY_S)
-        c = classify(row["text"], model)
+        c = classify(row["text"], model, now_hour=row.get("now_hour"),
+                     now_dow=DAYS.index(row["now_day"].lower()) if row.get("now_day") else None)
         preds.append(c)
         mark = "ok " if c.label == row["label"] else "BAD"
         print(f"[{i + 1:>3}/{len(rows)}] {row['id']} {mark} {row['label']:>13s} -> {c.label:13s} "

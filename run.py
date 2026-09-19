@@ -21,7 +21,7 @@ METRIC_NAMES = {"carbon": "carbon", "withdrawal": "water withdrawal",
 
 def main(description: str) -> None:
     now = datetime.now()
-    c = classify(description, now_hour=now.hour)
+    c = classify(description, now_hour=now.hour, now_dow=now.weekday())
     print("classification")
     print(f"  label          {c.label}" + (f"   (error: {c.error})" if c.error else ""))
     print(f"  interruptible  {c.interruptible}")
