@@ -19,8 +19,8 @@
 {"id": "L19", "category": "standard", "text": "A customer is on the call waiting for this analysis, so run the inference batch right now.", "label": "not_deferable", "window_h": 0, "window_phrase": "right now"}
 {"id": "L20", "category": "standard", "text": "Production incident: re-run the anomaly detector over the last hour of logs immediately.", "label": "not_deferable", "window_h": 0, "window_phrase": "immediately"}
 {"id": "L21", "category": "standard", "text": "Generate the slide images for the pitch that starts in 20 minutes.", "label": "not_deferable", "window_h": 0, "window_phrase": "in 20 minutes"}
-{"id": "L22", "category": "standard", "text": "Our training job takes 8 hours and the results are due in 8 hours.", "label": "not_deferable", "window_h": 8, "window_phrase": "due in 8 hours"}
-{"id": "L23", "category": "standard", "text": "Retrain the recommender. It must finish within 4 hours and the run itself takes about 4 hours.", "label": "not_deferable", "window_h": 4, "window_phrase": "within 4 hours"}
+{"id": "L22", "category": "standard", "text": "Our training job takes 8 hours and the results are due in 8 hours.", "label": "deferable", "window_h": 8, "window_phrase": "due in 8 hours"}
+{"id": "L23", "category": "standard", "text": "Retrain the recommender. It must finish within 4 hours and the run itself takes about 4 hours.", "label": "deferable", "window_h": 4, "window_phrase": "within 4 hours"}
 {"id": "L24", "category": "standard", "text": "Hotfix: rerun the moderation classifier on today's flagged posts as soon as possible.", "label": "not_deferable", "window_h": 0, "window_phrase": "as soon as possible"}
 {"id": "L25", "category": "standard", "text": "Kick off the eval now, I need the numbers for the meeting in 30 minutes.", "label": "not_deferable", "window_h": 0, "window_phrase": "in 30 minutes"}
 {"id": "L26", "category": "standard", "text": "Regulators asked for the model audit report within the hour; run the attribution analysis.", "label": "not_deferable", "window_h": 1, "window_phrase": "within the hour"}
