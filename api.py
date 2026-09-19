@@ -106,13 +106,14 @@ def _timeline(rec, body: "PlaceIn") -> tuple[dict, dict]:
     """Run span, deadline and spare hours for a job of known duration.
 
     The job starts shift_h after arrival and runs duration_h; spare = window - shift -
-    duration. A time off the arrival day carries its weekday; when start and end share
-    a day that is not the arrival day, the day is written once, on the end.
+    duration. A run that crosses midnight names the weekday on BOTH ends ("8 PM Sat ->
+    4 PM Sun"); a run within one day names it once, on the end, and only if that day
+    is not the arrival day ("3 AM -> 5 AM Sun"; "8 PM -> 10 PM").
     The one "ET" in the verdict card lives here when this line is shown.
     """
     d, w, s = body.duration_h, body.window_h, rec.shift_h
     same_day = _day_offset(body, s) == _day_offset(body, s + d)
-    start = _at(body, s, with_day=False if same_day else None)
+    start = _at(body, s, with_day=not same_day)
     end = _at(body, s + d)
     line = f"runs {start} → {end} ET · deadline {_deadline(body)} · {w - s - d} h to spare"
     return ({"shift": s, "duration": d, "window": w},
