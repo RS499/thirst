@@ -111,14 +111,22 @@ class Classification:
     error: str | None = None      # why the result fell back to "unclear", if it did
 
 
-def nemotron() -> ModelFn:
-    """Return a prompt -> text callable bound to NVIDIA's hosted Nemotron."""
+def client():
+    """OpenAI-compatible client for NVIDIA's hosted Nemotron, shared by classify and explain.
+
+    The SDK retries 5xx and 429 with exponential backoff and jitter.
+    """
     from dotenv import load_dotenv
     from openai import OpenAI
 
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
-    client = OpenAI(base_url=BASE_URL, api_key=os.environ["NVIDIA_API_KEY"],
-                    max_retries=5)  # free tier returns transient 503 "overloaded"
+    return OpenAI(base_url=BASE_URL, api_key=os.environ["NVIDIA_API_KEY"],
+                  max_retries=5)  # free tier returns transient 503 "overloaded"
+
+
+def nemotron() -> ModelFn:
+    """Return a prompt -> text callable bound to NVIDIA's hosted Nemotron."""
+    client_ = client()
 
     # Server-side schema constraint; the no-digits rule is not expressible there
     # reliably, so it is enforced in Python in classify().
@@ -128,7 +136,7 @@ def nemotron() -> ModelFn:
     def call(prompt: str) -> str:
         # nemotron-3-super ignores "/no_think" and reasons inside ``content``
         # until max_tokens; enable_thinking=False is what turns reasoning off.
-        r = client.chat.completions.create(
+        r = client_.chat.completions.create(
             model=MODEL, temperature=TEMPERATURE, max_tokens=400,
             response_format={"type": "json_schema",
                              "json_schema": {"name": "classification", "schema": schema}},

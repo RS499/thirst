@@ -1,7 +1,7 @@
 """Pure-Python placement: pick the cheapest start hour in a window, per objective.
 
-Reads the vendored hour-of-day profile (average basis) through ``signals`` and
-builds one ``PlacementRecord`` per objective. The job is priced as one MWh
+Reads the vendored hour-of-day profile for ``basis`` (default average) through
+``signals`` and builds one ``PlacementRecord`` per objective. The job is priced as one MWh
 delivered in a single hour, so ``baseline``/``placed`` are per-MWh totals
 (kg CO2e and gallons) and ``delta_pct`` does not depend on job size.
 
@@ -14,7 +14,7 @@ than ``PROFILE_H`` search the same 24 hours; ``window_h`` is still reported as g
 from __future__ import annotations
 
 from thirst.explain import MetricOutcome, PlacementRecord
-from thirst.signals import METRICS, SOURCE, load_profile
+from thirst.signals import METRICS, SOURCE, Basis, load_profile
 
 BASIS = "average"
 OBJECTIVES = {"carbon": "carbon", "water_withdrawal": "withdrawal",
@@ -44,13 +44,14 @@ def _tradeoff(deltas: dict[str, float], optimised: str) -> str:
     return "aligned" if all(v > 0 for v in others) else "neutral"
 
 
-def place(arrival_hour: int, window_h: int, season: str) -> dict[str, PlacementRecord]:
+def place(arrival_hour: int, window_h: int, season: str,
+          basis: Basis = BASIS) -> dict[str, PlacementRecord]:
     """Best start hour in the window for each objective, as PlacementRecords.
 
     ``arrival_hour`` is hour-ending 1..24. ``window_h`` 0 or 1 leaves only the
     arrival hour, so every delta is 0 and the tradeoff is neutral.
     """
-    prof = load_profile("hourly", BASIS)
+    prof = load_profile("hourly", basis)
     prof = prof[prof["season"] == season].set_index("hour")
     shifts = range(min(max(window_h, 1), PROFILE_H))
     hour_at = {s: (arrival_hour - 1 + s) % 24 + 1 for s in shifts}
@@ -70,7 +71,7 @@ def place(arrival_hour: int, window_h: int, season: str) -> dict[str, PlacementR
         tradeoff = _tradeoff(deltas, metric)
 
         display = {
-            "basis": BASIS, "objective": objective, "season": season,
+            "basis": basis, "objective": objective, "season": season,
             "arrival.hour": _clock(arrival_hour), "placed.hour": _clock(placed_hour),
             "shift_h": f"{shift} h", "window_h": f"{window_h} h",
             "duration_h": f"{DURATION_H} h", "energy_mwh": f"{ENERGY_MWH:g} MWh",
@@ -83,7 +84,7 @@ def place(arrival_hour: int, window_h: int, season: str) -> dict[str, PlacementR
             display[f"{m}.delta_pct"] = f"{o.delta_pct:+.1f} %"
 
         records[objective] = PlacementRecord(
-            job_id=f"{season}-he{arrival_hour}-w{window_h}-{objective}", basis=BASIS,
+            job_id=f"{season}-he{arrival_hour}-w{window_h}-{objective}", basis=basis,
             objective=objective, season=season,
             arrival={"hour": arrival_hour}, placed={"hour": placed_hour},
             shift_h=shift, window_h=window_h, duration_h=DURATION_H, energy_mwh=ENERGY_MWH,

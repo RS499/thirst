@@ -19,11 +19,14 @@ DATA = Path(__file__).parent / "data"
 OUT = Path(__file__).parent / "results"
 SOURCE = "pjm-water-carbon @ 28aecf4 · PJM, 2025-09-17 to 2026-09-16"
 
-INK = "#0b0b0b"
-INK_2 = "#52514e"
-GRID = "#e4e3df"
-BLUE = "#2a78d6"    # categorical slot 1
-ORANGE = "#eb6834"  # categorical slot 2
+# Dark theme to match .streamlit/config.toml. Series use the dark-mode steps of the
+# categorical palette, validated against the #0D0D0D surface.
+SURFACE = "#0D0D0D"
+INK = "#EAEAEA"
+INK_2 = "#A8A8A8"
+GRID = "#2A2A2A"
+BLUE = "#3987e5"    # categorical slot 1 (dark step)
+ORANGE = "#d95926"  # categorical slot 2 (dark step)
 
 plt.rcParams.update({
     "font.size": 16,
@@ -33,7 +36,9 @@ plt.rcParams.update({
     "ytick.color": INK_2,
     "axes.spines.top": False,
     "axes.spines.right": False,
-    "figure.facecolor": "white",
+    "figure.facecolor": SURFACE,
+    "axes.facecolor": SURFACE,
+    "savefig.facecolor": SURFACE,
 })
 
 
@@ -58,7 +63,7 @@ def divergence() -> None:
         ax.plot(norm.index, norm[col], color=color, lw=3)
         h = int(norm[col].idxmin())
         mins[col] = h
-        ax.plot(h, 0, "o", ms=12, color=color, mec="white", mew=2, zorder=5)
+        ax.plot(h, 0, "o", ms=12, color=color, mec=SURFACE, mew=2, zorder=5)
         ax.annotate(f"{label} lowest\nhour {h}", (h, 0), xytext=(12 if ha == "right" else -12, -58),
                     textcoords="offset points", ha=ha, fontsize=15, color=INK)
         ax.text(24.4, norm[col].iloc[-1], label, color=INK, fontsize=16,

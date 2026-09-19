@@ -1,0 +1,1170 @@
+{
+  "timestamp": "2026-09-19T12:35:20",
+  "commit": "f87d959",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "metrics": {
+    "accuracy": 0.9166666666666666,
+    "accuracy_excl_errors": 0.9322033898305084,
+    "majority_baseline": {
+      "label": "deferable",
+      "accuracy": 0.5
+    },
+    "constant_baselines": {
+      "deferable": {
+        "overall": 0.5,
+        "ambiguous": 0.0,
+        "no_deadline": 0.0,
+        "standard": 0.6666666666666666,
+        "unusual": 1.0
+      },
+      "not_deferable": {
+        "overall": 0.2,
+        "ambiguous": 0.0,
+        "no_deadline": 0.4,
+        "standard": 0.3333333333333333,
+        "unusual": 0.0
+      },
+      "unclear": {
+        "overall": 0.3,
+        "ambiguous": 1.0,
+        "no_deadline": 0.6,
+        "standard": 0.0,
+        "unusual": 0.0
+      }
+    },
+    "n": 60,
+    "api_or_parse_errors": 1,
+    "by_category": {
+      "ambiguous": {
+        "accuracy": 0.9333333333333333,
+        "correct": 14,
+        "n": 15
+      },
+      "no_deadline": {
+        "accuracy": 1.0,
+        "correct": 5,
+        "n": 5
+      },
+      "standard": {
+        "accuracy": 0.8666666666666667,
+        "correct": 26,
+        "n": 30
+      },
+      "unusual": {
+        "accuracy": 1.0,
+        "correct": 10,
+        "n": 10
+      }
+    },
+    "per_label": {
+      "deferable": {
+        "precision": 0.8787878787878788,
+        "recall": 0.9666666666666667,
+        "support": 30
+      },
+      "not_deferable": {
+        "precision": 1.0,
+        "recall": 0.75,
+        "support": 12
+      },
+      "unclear": {
+        "precision": 0.9444444444444444,
+        "recall": 0.9444444444444444,
+        "support": 18
+      }
+    },
+    "confusion": {
+      "deferable->deferable": 29,
+      "deferable->unclear": 1,
+      "not_deferable->deferable": 3,
+      "not_deferable->not_deferable": 9,
+      "unclear->deferable": 1,
+      "unclear->unclear": 17
+    },
+    "window_parse_rate": 0.975,
+    "window_n_with_truth": 40,
+    "window_mae_h": 0.0
+  },
+  "predictions": [
+    {
+      "truth": {
+        "id": "L01",
+        "category": "standard",
+        "text": "Nightly retraining of the churn model, about 3 hours on 8 A100s. It's 10pm now and it needs to be done before the 9am standup.",
+        "label": "deferable",
+        "window_h": 11,
+        "window_phrase": "before the 9am standup"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before the 9am standup",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 11,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L02",
+        "category": "standard",
+        "text": "Batch-embed 40M product descriptions for the new search index. Needs to finish within 36 hours.",
+        "label": "deferable",
+        "window_h": 36,
+        "window_phrase": "within 36 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "within 36 hours",
+        "rationale": "The text states a duration that resolves to a number of hours from now.",
+        "window_h": 36,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L03",
+        "category": "standard",
+        "text": "Fine-tune a LoRA adapter on last month's support tickets. It's Wednesday noon and I need results by Friday at noon.",
+        "label": "deferable",
+        "window_h": 48,
+        "window_phrase": "by Friday at noon"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "by Friday at noon",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 48,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L04",
+        "category": "standard",
+        "text": "Re-run the offline eval suite on all 12 checkpoints. Anytime in the next 2 days is fine.",
+        "label": "deferable",
+        "window_h": 48,
+        "window_phrase": "Anytime in the next 2 days"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "Anytime in the next 2 days is fine",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 48,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L05",
+        "category": "standard",
+        "text": "Recompute the precomputed aggregates behind the weekly analytics dashboards. They have to be ready within 24 hours.",
+        "label": "deferable",
+        "window_h": 24,
+        "window_phrase": "within 24 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "within 24 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 24,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L06",
+        "category": "standard",
+        "text": "Distill our 70B model into a 7B student. It's a 20-hour run that can be checkpointed and resumed, and we need it done within 72 hours.",
+        "label": "deferable",
+        "window_h": 72,
+        "window_phrase": "within 72 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": true,
+        "window_phrase": "within 72 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours, making the deadline computable.",
+        "window_h": 72,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L07",
+        "category": "standard",
+        "text": "Generate synthetic QA pairs for the RAG eval set. No hurry, but I'd like them within the next 12 hours.",
+        "label": "deferable",
+        "window_h": 12,
+        "window_phrase": "within the next 12 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "within the next 12 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 12,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L08",
+        "category": "standard",
+        "text": "Hyperparameter sweep, 200 short trials. It's 6pm; I want results by 8am tomorrow.",
+        "label": "deferable",
+        "window_h": 14,
+        "window_phrase": "by 8am tomorrow"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "by 8am tomorrow",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 14,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L09",
+        "category": "standard",
+        "text": "Transcribe the podcast back catalogue with Whisper, roughly 5,000 hours of audio. Deadline is one week from now.",
+        "label": "deferable",
+        "window_h": 168,
+        "window_phrase": "one week from now"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "",
+        "window_h": null,
+        "error": "RateLimitError: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}"
+      }
+    },
+    {
+      "truth": {
+        "id": "L10",
+        "category": "standard",
+        "text": "Rebuild the vector index after the schema change. It must be live within 6 hours and the rebuild takes about 2.",
+        "label": "deferable",
+        "window_h": 6,
+        "window_phrase": "within 6 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "within 6 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 6,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L11",
+        "category": "standard",
+        "text": "Pretraining data dedup over the new crawl shard. Due in 3 days.",
+        "label": "deferable",
+        "window_h": 72,
+        "window_phrase": "in 3 days"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "Due in 3 days",
+        "rationale": "The text states a duration that resolves to a number of hours from now.",
+        "window_h": 72,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L12",
+        "category": "standard",
+        "text": "Score all 2M leads with the propensity model for the Monday campaign. It's Saturday 9am and scores are needed by Monday 9am.",
+        "label": "deferable",
+        "window_h": 48,
+        "window_phrase": "by Monday 9am"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "by Monday 9am",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 48,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L13",
+        "category": "standard",
+        "text": "Caption the photos uploaded today. It's midnight now and the captions must be ready by 7am.",
+        "label": "deferable",
+        "window_h": 7,
+        "window_phrase": "by 7am"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "by 7am",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 7,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L14",
+        "category": "standard",
+        "text": "Backfill the fraud model's feature store over the last 90 days. It can run any time over the next 48 hours.",
+        "label": "deferable",
+        "window_h": 48,
+        "window_phrase": "over the next 48 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "over the next 48 hours",
+        "rationale": "",
+        "window_h": 48,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L15",
+        "category": "standard",
+        "text": "Run the red-team prompt battery against the new checkpoint before the safety review in 30 hours.",
+        "label": "deferable",
+        "window_h": 30,
+        "window_phrase": "before the safety review in 30 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before the safety review in 30 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 30,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L16",
+        "category": "standard",
+        "text": "Quantize the three release candidates to 4-bit. It's 9am; needed by 5pm today.",
+        "label": "deferable",
+        "window_h": 8,
+        "window_phrase": "by 5pm today"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "by 5pm today",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 8,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L17",
+        "category": "standard",
+        "text": "Monthly recompute of customer embeddings. Fine as long as it's done within 18 hours.",
+        "label": "deferable",
+        "window_h": 18,
+        "window_phrase": "within 18 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "within 18 hours",
+        "rationale": "The text states a duration that resolves to a number of hours from now.",
+        "window_h": 18,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L18",
+        "category": "standard",
+        "text": "Batch-translate the help center into 14 languages with our MT model. Due in 4 days.",
+        "label": "deferable",
+        "window_h": 96,
+        "window_phrase": "in 4 days"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "Due in 4 days",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 96,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L19",
+        "category": "standard",
+        "text": "A customer is on the call waiting for this analysis, so run the inference batch right now.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "right now"
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": "right now",
+        "rationale": "The text states the job must run immediately because a customer is waiting on the call.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L20",
+        "category": "standard",
+        "text": "Production incident: re-run the anomaly detector over the last hour of logs immediately.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "immediately"
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": "immediately",
+        "rationale": "The text states the job must run immediately, indicating it cannot wait.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L21",
+        "category": "standard",
+        "text": "Generate the slide images for the pitch that starts in 20 minutes.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "in 20 minutes"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "starts in 20 minutes",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L22",
+        "category": "standard",
+        "text": "Our training job takes 8 hours and the results are due in 8 hours.",
+        "label": "deferable",
+        "window_h": 8,
+        "window_phrase": "due in 8 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "due in 8 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 8,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L23",
+        "category": "standard",
+        "text": "Retrain the recommender. It must finish within 4 hours and the run itself takes about 4 hours.",
+        "label": "deferable",
+        "window_h": 4,
+        "window_phrase": "within 4 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "within 4 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours, making the deadline computable.",
+        "window_h": 4,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L24",
+        "category": "standard",
+        "text": "Hotfix: rerun the moderation classifier on today's flagged posts as soon as possible.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "as soon as possible"
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": "as soon as possible",
+        "rationale": "The text states the job must run immediately with no delay permissible.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L25",
+        "category": "standard",
+        "text": "Kick off the eval now, I need the numbers for the meeting in 30 minutes.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "in 30 minutes"
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": "in 30 minutes",
+        "rationale": "The text states the job must run now because results are needed imminently for a meeting.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L26",
+        "category": "standard",
+        "text": "Regulators asked for the model audit report within the hour; run the attribution analysis.",
+        "label": "not_deferable",
+        "window_h": 1,
+        "window_phrase": "within the hour"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "within the hour",
+        "rationale": "The text states a deadline that resolves to a number of hours from now.",
+        "window_h": 1,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L27",
+        "category": "standard",
+        "text": "Live transcription for the all-hands that's happening right now.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "right now"
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": "happening right now",
+        "rationale": "The job is described as live transcription for an event occurring immediately, indicating it must run now.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L28",
+        "category": "standard",
+        "text": "Blocking CI step: run the regression evals on this PR. Merges are blocked until it finishes, so start it immediately.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "immediately"
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": "start it immediately",
+        "rationale": "The text says the job must start immediately because merges are blocked until it finishes.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L29",
+        "category": "standard",
+        "text": "The on-call engineer needs the log-clustering results within 15 minutes to decide on a rollback.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "within 15 minutes"
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": "within 15 minutes",
+        "rationale": "The text states a short deadline requiring immediate action for an ongoing decision.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L30",
+        "category": "standard",
+        "text": "Run fraud scoring on this morning's transactions before the payment batch clears in 45 minutes.",
+        "label": "not_deferable",
+        "window_h": 0,
+        "window_phrase": "in 45 minutes"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before the payment batch clears in 45 minutes",
+        "rationale": "The text gives a current reference point and a duration that resolves to a number of hours from now.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L31",
+        "category": "unusual",
+        "text": "It's Tuesday 6pm and my flight is Thursday at 6am. The legal-corpus fine-tune can pause and resume; I just need it done before I fly out.",
+        "label": "deferable",
+        "window_h": 36,
+        "window_phrase": "before I fly out"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": true,
+        "window_phrase": "before I fly out",
+        "rationale": "The current time and a future event time are both stated, so the window is computable.",
+        "window_h": 36,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L32",
+        "category": "unusual",
+        "text": "Regenerate the eval leaderboard for the sprint review. It's Wednesday 5pm, the sprint ends Friday 5pm, and it just needs to be in by end of sprint.",
+        "label": "deferable",
+        "window_h": 48,
+        "window_phrase": "by end of sprint"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "by end of sprint",
+        "rationale": "The current time and a future event time are both stated, so the window is computable.",
+        "window_h": 48,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L33",
+        "category": "unusual",
+        "text": "Batch-caption the image archive. It's Saturday 8am; whenever the office opens again after the long weekend is fine, and that's Tuesday 8am.",
+        "label": "deferable",
+        "window_h": 72,
+        "window_phrase": "whenever the office opens again after the long weekend"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "Tuesday 8am",
+        "rationale": "The current time and a future clock deadline are both stated, so the window is computable.",
+        "window_h": 72,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L34",
+        "category": "unusual",
+        "text": "Rerun the retrieval ablations before my advisor wakes up. It's 1am here and she's usually up around 7am.",
+        "label": "deferable",
+        "window_h": 6,
+        "window_phrase": "before my advisor wakes up"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before my advisor wakes up",
+        "rationale": "The current time and a usual wake time are both stated, so the window is computable.",
+        "window_h": 6,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L35",
+        "category": "unusual",
+        "text": "Refresh the demand forecast before the quarter closes. It's midnight on the 28th and the quarter closes at midnight on the 30th.",
+        "label": "deferable",
+        "window_h": 48,
+        "window_phrase": "before the quarter closes"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before the quarter closes",
+        "rationale": "The current time and a clock deadline are both stated, so the window is computable.",
+        "window_h": 48,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L36",
+        "category": "unusual",
+        "text": "Precompute the thumbnails by the time the East Coast team logs on. It's 11pm Eastern and they log on at 9am Eastern.",
+        "label": "deferable",
+        "window_h": 10,
+        "window_phrase": "by the time the East Coast team logs on"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "by the time the East Coast team logs on",
+        "rationale": "The current time and a future event time are both stated, so the window is computable.",
+        "window_h": 10,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L37",
+        "category": "unusual",
+        "text": "It's Friday 6pm. Train the ablation grid over the weekend; I'm back Monday 8am.",
+        "label": "deferable",
+        "window_h": 62,
+        "window_phrase": "over the weekend"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "Train the ablation grid over the weekend; I'm back Monday 8am.",
+        "rationale": "The current time and a future time are both stated, so the window is computable.",
+        "window_h": 62,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L38",
+        "category": "unusual",
+        "text": "Re-embed the knowledge base before the next release train leaves. Trains leave every 24 hours and the last one just left.",
+        "label": "deferable",
+        "window_h": 24,
+        "window_phrase": "before the next release train leaves"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before the next release train leaves",
+        "rationale": "The text states a recurring event with a known interval and the time since the last occurrence, allowing computation of a deadline in hours.",
+        "window_h": 24,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L39",
+        "category": "unusual",
+        "text": "Backfill the sentiment scores before the board pack goes out. The board pack goes out in two days.",
+        "label": "deferable",
+        "window_h": 48,
+        "window_phrase": "before the board pack goes out"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "before the board pack goes out",
+        "rationale": "The text states a deadline tied to an event whose time is given elsewhere, making the window computable.",
+        "window_h": 48,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L40",
+        "category": "unusual",
+        "text": "Run the long-context eval while I'm asleep. I'm going to bed now and I'm usually up 8 hours later.",
+        "label": "deferable",
+        "window_h": 8,
+        "window_phrase": "while I'm asleep"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "while I'm asleep. I'm going to bed now and I'm usually up 8 hours later",
+        "rationale": "The current state and a duration of sleep are both stated, so the window is computable.",
+        "window_h": 8,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L41",
+        "category": "ambiguous",
+        "text": "Retrain the ranking model sometime soon.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "sometime soon"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "sometime soon",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L42",
+        "category": "ambiguous",
+        "text": "Need the embeddings refreshed ASAP, but tomorrow is probably fine too.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "ASAP, but tomorrow is probably fine too"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "ASAP",
+        "rationale": "The phrase ASAP indicates urgency but does not resolve to a specific number of hours from now.",
+        "window_h": 0,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L43",
+        "category": "ambiguous",
+        "text": "Run the hyperparameter sweep before the demo.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "before the demo"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "No timing is stated for when the demo occurs, so the deadline cannot be resolved to hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L44",
+        "category": "ambiguous",
+        "text": "Batch-score the leads this week if possible.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "this week if possible"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "A batch job with no timing stated at all.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L45",
+        "category": "ambiguous",
+        "text": "Fine-tune on the new data. The PM wants it quickly but said the deadline is flexible.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "wants it quickly but said the deadline is flexible"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "The text states the deadline is flexible but gives no specific timing that resolves to a number of hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L46",
+        "category": "ambiguous",
+        "text": "Generate the synthetic dataset overnight or first thing tomorrow, depending on how the cluster looks.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "overnight or first thing tomorrow"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "overnight or first thing tomorrow",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L47",
+        "category": "ambiguous",
+        "text": "Evaluate the new checkpoint whenever, but the team is kind of blocked on it.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "whenever, but the team is kind of blocked on it"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "whenever",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "window_h": 24,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L48",
+        "category": "ambiguous",
+        "text": "Rebuild the search index at some point before launch.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "at some point before launch"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "before launch",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L49",
+        "category": "ambiguous",
+        "text": "Transcribe the user interviews. The researcher needs them in a bit.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "in a bit"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "in a bit",
+        "rationale": "The timing phrase is vague and does not resolve to a specific number of hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L50",
+        "category": "ambiguous",
+        "text": "Kick off the pretraining run when convenient. It's a multi-week run, though leadership is watching the start date.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "when convenient"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "No timing is stated that resolves to a number of hours from now.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L51",
+        "category": "ambiguous",
+        "text": "Recompute the recommendations; should be done by morning I think?",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "by morning"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "by morning",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L52",
+        "category": "ambiguous",
+        "text": "Run the eval on the new model before EOD.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "before EOD"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "before EOD",
+        "rationale": "The phrase before EOD does not specify a time that resolves to a number of hours from now.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L53",
+        "category": "ambiguous",
+        "text": "Summarize all of last quarter's tickets with the LLM. Not urgent, but don't let it slip past the next planning cycle.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "don't let it slip past the next planning cycle"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "past the next planning cycle",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L54",
+        "category": "ambiguous",
+        "text": "Retrain the model in 2 hours.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "in 2 hours"
+      },
+      "pred": {
+        "label": "deferable",
+        "interruptible": null,
+        "window_phrase": "in 2 hours",
+        "rationale": "The text states a duration from now that resolves to a number of hours.",
+        "window_h": 2,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L55",
+        "category": "ambiguous",
+        "text": "Re-run the benchmark tonight.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": "tonight"
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": "tonight",
+        "rationale": "The timing is vague and gives no deadline that resolves to hours.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L56",
+        "category": "no_deadline",
+        "text": "Serve real-time autocomplete suggestions to users as they type.",
+        "label": "not_deferable",
+        "window_h": null,
+        "window_phrase": null
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "The job is real-time interactive serving, which must run immediately as users type.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L57",
+        "category": "no_deadline",
+        "text": "Re-embed our document archive with the new embedding model.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": null
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "A batch job with no timing stated at all.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L58",
+        "category": "no_deadline",
+        "text": "Voice assistant inference for the in-car system: respond to spoken commands.",
+        "label": "not_deferable",
+        "window_h": null,
+        "window_phrase": null
+      },
+      "pred": {
+        "label": "not_deferable",
+        "interruptible": false,
+        "window_phrase": null,
+        "rationale": "The job is real-time interactive serving, requiring immediate response to spoken commands.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L59",
+        "category": "no_deadline",
+        "text": "Train a small classifier on the labeled support tickets from Q2.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": null
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "A batch job with no timing stated at all.",
+        "window_h": null,
+        "error": null
+      }
+    },
+    {
+      "truth": {
+        "id": "L60",
+        "category": "no_deadline",
+        "text": "Run the full offline evaluation suite against the latest checkpoint.",
+        "label": "unclear",
+        "window_h": null,
+        "window_phrase": null
+      },
+      "pred": {
+        "label": "unclear",
+        "interruptible": null,
+        "window_phrase": null,
+        "rationale": "A batch job with no timing stated at all.",
+        "window_h": null,
+        "error": null
+      }
+    }
+  ]
+}
