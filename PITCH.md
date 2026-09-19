@@ -1,155 +1,160 @@
-# PITCH: 3-minute live judging script
+# PITCH: 1:45 live, with slides and `/?demo=1`
 
-Pace: about 150 spoken words per minute. Each section gives its target clock
-time and a word budget. **Bold** is emphasis. `[BRACKETS]` are actions or cues,
-not spoken.
+Target **1:45**; the hard ceiling is 2:00. The `[CUT]` lines take it to about 1:30.
+Pace: about 150 spoken words per minute. `[BRACKETS]` are actions, not spoken.
 
-## Pre-flight (before the judges arrive)
-
-- [ ] `python3 -m uvicorn api:app --port 8600`, then open `localhost:8600`.
-  Fallback: `python3 -m streamlit run app.py` (NOT `streamlit run app.py`).
-- [ ] Run the demo job once, so the model endpoint is warm and you've seen the
-  verdict yourself.
-- [ ] Leave the run-time / power fields **blank**. A stated duration shrinks the
-  start window and the numbers below will change.
-- [ ] Basis set to **average**, objective set to **carbon** (the defaults).
-- [ ] Screenshot of the verdict in both bases, in case the Wi-Fi or the free
-  tier dies mid-demo.
-
-The demo numbers are deterministic for the autumn (SON) profile. The text
-anchors the time ("It's 10pm now"), so the demo gives the same answer at any
-time of day. Verified: 22:00 arrival, 11 h window.
-
-| basis | best start | tradeoff | carbon | withdrawal | consumption |
-|---|---|---|---:|---:|---:|
-| average | 03:00 | conflict | +6.6 % | −9.1 % | −3.4 % |
-| marginal-empirical | 22:00 (now) | neutral | +0.0 % | +0.0 % | +0.0 % |
+Tracks: **Beyond the Chatbot** (Nemotron) · **Seed Round** · **Xtract** · **Cold Start**.
+The story is one idea: *the advice everyone follows to make computing greener
+quietly makes it thirstier, and nobody can see it.*
 
 ---
 
-## 0:00–0:30 · The finding (30 s, ~75 words)
+## Pre-flight
 
-> Everyone says: run your compute when the grid is clean.
+- [ ] `python3 -m uvicorn api:app --port 8600`, with `NVIDIA_API_KEY` in `.env`.
+- [ ] Open `localhost:8600/?demo=1` in a second window. It auto-plays. **Do not
+  let it run through: the full tour is about 2.5 minutes.** Your only job is to
+  press a key once results appear (see the demo section).
+- [ ] Rehearse the handover once: the tour clicks "Place it" about 20 s in. Press
+  any key after the results render. The page stays, and switching the basis
+  re-renders locally from cache with no model call.
+- [ ] Backup: screenshots of the verdict on both bases, in case anything stalls.
+
+Verified numbers for the demo preset (*"It's 7pm now … done by 7am tomorrow"*,
+autumn profile, cached in `static/demo_cache.json` and recomputed from
+`place()`, which matches). The row is minimising carbon:
+
+| basis | best start | verdict | carbon | withdrawal | consumption |
+|---|---|---|---:|---:|---:|
+| average | 03:00 | conflict | +7.3 % | −16.5 % | −8.3 % |
+| marginal-empirical | 20:00 | aligned | +9.9 % | +24.7 % | +25.0 % |
+
+(+ = less than running at 7pm; − = more.)
+
+---
+
+## SLIDE 1 · 0:00–0:20 · The hidden cost
+
+> Every AI company is being told the same thing: run your compute when the
+> grid is clean. Big clouds already do it.
 >
-> I measured what that does to water on PJM, the grid under thirteen eastern
-> states. Counted the standard way, the average basis, the cleanest hour of the
-> day is not the lowest-water hour on **360 of 365 days**. Across the year,
-> cleaner hours tend to be *thirstier* hours.
+> I measured what that does to **water**. On the PJM grid, which covers
+> thirteen eastern states and Northern Virginia's data-centre alley, the
+> cleanest hour of the day is not the lowest-water hour on **360 of 365 days**.
+> Chase carbon, and you tend to pick a thirstier hour.
 >
 > Nobody noticed, because nobody measures both.
 
-## 0:30–1:35 · Live demo (65 s, ~160 words)
+*Slide: one line, "Greener compute is quietly thirstier", plus the chart where
+carbon bottoms out at 1pm and water at 7pm.*
 
-`[Page is open. Click into the text box.]`
+## SLIDE 2 · 0:20–0:35 · Who has this problem (Seed Round)
 
-> So I built **thirst**. I describe a job the way I'd say it in Slack.
+> Who cares? Anyone running flexible compute: AI labs, cloud providers, and
+> data-centre operators facing growing local scrutiny over water.
+> Carbon-aware scheduling is already a product category. **Nobody puts water on
+> the same screen.** That's the gap.
 
-`[Paste:]` *It's 10pm now. Nightly fine-tuning run, it can pause and resume, and it needs to be done before the 9am standup.*
+*Slide: three boxes, no logos: AI teams · data-centre operators · sustainability
+reporting. Headline: "Carbon-aware exists. Water-aware doesn't."*
+`[CUT → 1:30: drop the first sentence after "Who cares?"]`
 
-`[Click "Place it". About 3 seconds.]`
+## DEMO · 0:35–1:15 · Watch it decide
 
-> Nemotron reads that and gives back one thing: the exact words that set the
-> deadline, "before the 9am standup." It never gives me a number. Python turns
-> those words into an eleven-hour window.
+`[Switch to the /?demo=1 window. It is already running.]`
 
-`[Verdict appears: Conflict. Point at it.]`
+> Here's thirst. You describe a job the way you'd say it in Slack. *"It's 7pm.
+> Overnight fine-tune, can pause and resume, done by 7am."*
 
-> Verdict: **conflict**. Best start, three a.m. On the average basis, carbon
-> drops **6.6 percent**, and water withdrawal gets **9.1 percent worse**. The
-> cleanest hour is the thirsty hour.
+`[The tour presses "Place it". Results appear. PRESS ANY KEY: you now drive.]`
 
-`[Click the basis switch: marginal-empirical. Bars swing through zero.]`
+> **Nemotron** reads that and pulls out one thing: the exact words that set the
+> deadline. Plain code turns those words into a twelve-hour window. No guessing.
 
-> Now I change one thing: how the electricity is *counted*. On the
-> marginal-empirical basis the advice flips to **run it now**. Moving it buys
-> nothing, zero on every metric.
+`[Point at the verdict.]`
 
-> Why? The average basis asks what was in the grid when you ran. That's
-> attribution. Marginal asks which plants actually turned up *because* you
-> added load. That's causation. Nuclear never turns up for your job, so the
-> conflict disappears. Same job, opposite advice. That's why every number on
-> this screen names its basis.
+> The verdict: **conflict**. Start at 3am, and on the average basis carbon drops
+> 7 percent, but water withdrawal gets **16 percent worse**.
 
-## 1:35–2:20 · The evidence (45 s, ~115 words)
+`[Click "marginal-empirical". The bars swing.]`
 
-> **The classifier:** 0.983 on sixty hand-labeled jobs, against **0.550** for
-> always guessing the most common answer. The last jump was me fixing my own
-> label definitions, not the model improving. That's in the log.
+> Now count the electricity a different way: which power plants actually
+> respond to *your* job. On that basis the goals line up. Start at 8pm, and
+> carbon and water both improve. Same job, opposite advice. So thirst never shows
+> a number without saying how it was counted.
+
+## SLIDE 3 · 1:15–1:35 · Nemotron in the pipeline (Beyond the Chatbot · Xtract)
+
+> Nemotron isn't a chatbot here. It's two parts of the machine. It **classifies**
+> messy requests into a structured deadline: **0.952** accuracy on 63 labeled
+> jobs, against 0.571 for guessing. And it **explains** the tradeoff, but a
+> verifier checks every number it writes against the math. Anything untraceable
+> is thrown out, so a number the code didn't compute can never reach the screen.
+> Every figure traces back to its source: the exact words quoted, the public
+> grid data, the commit.
+
+*Slide: pipeline diagram "plain English → Nemotron: classify → Python: place →
+Nemotron: explain → verify". Two numbers under it: 0.952 vs 0.571 · 18/20
+explanations exact.*
+`[CUT → 1:30: drop the last sentence]`
+
+## SLIDE 4 · 1:35–1:50 · What I learned (Cold Start)
+
+> What I learned this weekend: an AI eval can lie to you. My classifier jumped
+> from 67 to 92 percent when I fixed *my own* question, not the model. And the
+> same data can give opposite answers depending on how you count. So I wrote
+> down every failure: there are seven, in the repo.
 >
-> **The explainer:** 18 of 20 explanations kept every number exact, **0.90**. The
-> other two flipped a sign, and both were caught. A verifier checks every number
-> the model writes against what Python computed. Anything that doesn't match is
-> thrown out for a plain template. A number Python didn't compute *cannot* reach
-> the screen.
->
-> **A holdout:** thirty jobs, sealed and hashed before my first eval run,
-> `[IF OPENED:]` opened exactly once, scoring ___.
-> `[IF NOT YET:]` opened exactly once, at the end.
->
-> And **seven failures, written down**, including a 40-percent savings result I
-> threw out as an artifact.
+> Greener computing shouldn't cost the rivers. thirst makes the trade visible.
 
-## 2:20–2:40 · Where it breaks (20 s, ~50 words)
-
-> Where it breaks. My deadline parser scores perfectly, but I built it on those
-> same sixty jobs, so that's optimistic. The cross-region pattern rests on five
-> grids. And timing is a single-digit lever: a few percent, not a fix.
-
-## 2:40–3:00 · The second finding (20 s, ~50 words)
-
-> One thing I didn't expect. Rank regions by the water they use, and Texas looks
-> like the second-best place to run. Weight that water by how scarce it is where
-> it's drawn, and Texas is the **worst** of five. Counting gallons sends you to
-> the driest places.
-
-`[Stop. Take questions.]`
+*Slide: "7 failures, documented" + the closing line.*
 
 ---
 
-## 60-second cut (short slot, ~150 words)
+## Track cheat-sheet (for Q&A)
 
-> Everyone says: run your compute when the grid is clean. On PJM, counted the
-> standard way, the cleanest hour isn't the lowest-water hour on **360 of 365
-> days**. Nobody noticed, because nobody measures both.
+**Beyond the Chatbot (Nemotron).** Two non-chat jobs in a pipeline.
+- **Classify:** plain English → `{label, interruptible, window_phrase}`, with the
+  phrase quoted verbatim. Python does all the arithmetic.
+- **Explain:** narrates a Python-built record, and `verify()` rejects any
+  untraceable number.
+- **Evidence:** 0.952 vs 0.571 baseline (63 rows); explainer 18/20 exact, and
+  both misses were sign flips caught by the verifier; a sealed, hashed holdout.
+- **Failures found:** `/no_think` is ignored by nemotron-3-super, so it needed
+  `enable_thinking=False` plus a JSON schema. The specified model was retired
+  (HTTP 410).
 
-`[Paste the job, click Place it.]`
+**Seed Round.** Who pays: AI and cloud teams with sustainability targets, and
+data-centre operators under water scrutiny. Wedge: an add-on to the
+carbon-aware scheduling people already run. It's a working product, not a deck.
+*Don't quote market-size numbers you haven't sourced; say "I'd validate
+willingness to pay next".*
 
-> I describe a job in plain English. Nemotron quotes the deadline; Python does
-> the maths. Verdict: **conflict**. Start at three a.m. and, on the average basis,
-> carbon drops 6.6 percent but water withdrawal gets 9.1 percent worse.
+**Xtract.** The honest fit is **traceability**: unstructured requests become a
+structured signal, each insight links to its source (the verbatim quote, EIA
+public data, the pinned commit), and it's shown in a clean UI. *Be candid if
+asked: it ingests job requests and grid data, not news or reports.*
 
-`[Flip to marginal-empirical.]`
+**Cold Start.** Things I didn't know on Friday:
+- evals measure your labels as much as your model;
+- a model being listed doesn't mean you can call it;
+- offline tests passed while the live app crashed on every submit.
 
-> Count it by which plants actually respond to my load, the marginal-empirical
-> basis, and the advice flips to run it now. Same job, opposite answer. So
-> every number here names its basis.
->
-> The classifier scores 0.983 against a 0.550 baseline, and a verifier
-> guarantees the model can't put a number on screen that Python didn't compute.
-
-## 20-second version (judge already walking away, ~50 words)
-
-> On the PJM grid, the cleanest hour to run your compute isn't the lowest-water
-> hour on 360 of 365 days. Nobody noticed, because nobody measures both. I built
-> a scheduler that shows the tradeoff, names how it's counted, and can't show a
-> number it didn't compute.
-
----
+*Eligibility: at least 75 % of the team first-time hackers, and no
+professional software-engineering experience.*
 
 ## If asked
 
-- **"Isn't 98.6 % just chance?"** On its own, nearly: independence would give
-  97.1 %. The stronger evidence is that the two are *opposed*. Across the
-  year's hours the correlation is −0.465 (average basis), and carbon-optimized
-  scheduling raised withdrawal by 0.29 % to 1.87 % in simulation (average
-  basis).
-- **"Which basis is right?"** Both are right, but they answer different
-  questions. Average is attribution (what your kWh contained). Marginal is
-  causation (what your load changed). thirst shows both and picks neither
-  silently.
-- **"How big is the Texas effect?"** Quote the ranking, not the multiple. The
-  order holds under both mean and median stress weighting. The size of the gap
-  doesn't: a few water-capped counties drive it.
-- **"What about withdrawal vs consumption?"** Withdrawal is water taken from a
-  river and mostly returned. Consumption is water evaporated and gone. They are
-  never added together.
+- **"Isn't 360/365 just chance?"** The days-differ rate alone is close to chance
+  (97.1 %). The stronger evidence is that the two are opposed: across the year,
+  cleaner hours tend to be thirstier (r = −0.465, average basis).
+- **"Which way of counting is right?"** Both, but they answer different questions.
+  Average is what your electricity contained; marginal is what your job changed.
+  thirst shows both and never picks one silently.
+- **"How big is the win?"** For this one job, up to about 25 % on the
+  marginal-empirical basis. Averaged over thousands of simulated jobs, it's
+  single digits. Timing is a lever, not a fix.
+- **"Does it generalize?"** No, and that's a finding. PJM is the only one of five
+  checkable grids with this conflict. And ranking regions by gallons alone sends
+  you to the driest places: Texas looks second-best by raw water, and worst once
+  local scarcity is counted.
