@@ -95,7 +95,8 @@ appended to `results/progress.csv`; full per-row output is in
 
 | what | result | baseline / note |
 |---|---|---|
-| Classify accuracy (60 rows) | **0.917** (55/60) | majority class ("deferable"): 0.500 |
+| Classify accuracy (60 rows) | **0.983** (59/60) | majority class ("deferable"): 0.550. Up from 0.917 by a **label-definition change, not a model improvement**: L21/L26/L30 relabeled, prompt and code unchanged (see FAILURES.md #7) |
+| Classify accuracy before that relabel | 0.917 (55/60) | majority class: 0.500 |
 | Classify accuracy, excluding one HTTP 429 | 0.932 (55/59) | the 429 was scored as "unclear", i.e. wrong |
 | Classify, ambiguous rows | 0.000 → **0.933** | before → after the label-definition fix (see FAILURES.md) |
 | Classify, no-deadline rows | 0.400 → **1.000** | before → after the same fix |

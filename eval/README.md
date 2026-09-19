@@ -15,8 +15,15 @@ Labeling conventions:
 - `window_h` = whole hours from submission until the job must be **finished**,
   rounded down (so "in 20 minutes" is `0`). It does not subtract run time.
   The placer does that.
-- `not_deferable` includes jobs whose run time uses up the whole window
-  ("takes 8 hours, due in 8 hours").
+- Labels describe what the text states, not whether the window is usable.
+  Any deadline that resolves to a number of hours is `deferable`, even when
+  the window is tiny ("in 20 minutes" → `window_h` 0, "within the hour" → 1)
+  or equals the run time ("takes 8 hours, due in 8 hours"). Whether a short
+  window leaves room to shift is arithmetic, and arithmetic belongs in
+  `place()`, not the classifier.
+- `not_deferable` is only: the text says to run now with no stated window
+  ("right now", "immediately", "as soon as possible"), or the job is
+  real-time / interactive serving.
 - Clock deadlines are anchored by a "now" stated in the text. Without one
   ("by morning", "before EOD"), the label is `unclear` and `window_h` is null.
 - `window_phrase` is the shortest verbatim span that states the time

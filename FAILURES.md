@@ -1,6 +1,6 @@
 # FAILURES
 
-Six things that went wrong, what they would have cost, and how each was caught.
+Seven things that went wrong, what they would have cost, and how each was caught.
 Logged here rather than silently fixed.
 
 ## 1. Solar PV water factor was 26× too high, in the flattering direction
@@ -81,3 +81,26 @@ was found only by a real Chrome submit against the live Nemotron endpoint, and
 fixed by storing the result under its own key.
 Evidence: commit `071295c` "app: store classification under its own
 session_state key".
+
+## 7. Gold labels did placement arithmetic: 0.917 → 0.983 is a definition change
+
+Three gold rows, L21 ("in 20 minutes"), L26 ("within the hour") and L30 ("in
+45 minutes"), were labeled `not_deferable` because their windows (0, 1 and 0
+hours) are too short to shift a job. That judgment is arithmetic: whether a
+window leaves room to move is `place()`'s job. The classifier's job is only
+whether the text states a deadline that resolves to hours. L22 and L23 had
+already been relabeled on the same principle. L21, L26 and L30 were relabeled
+`deferable`, keeping `window_h` 0, 1 and 0, with the prompt and code unchanged.
+
+**This is a definition change, not a model improvement.** Rescoring the
+*before* run's own predictions (commit `f87d959`) against the new labels moves
+0.917 → 0.967. The only rows that change are the three relabeled ones, and the
+model predicted `deferable` for all three both times. The single live re-run
+scored **0.983** (59/60). The extra 0.017 over the rescore is one row: L09,
+missed in the before run and correct in this one. That is run-to-run noise, not
+the relabel. The majority baseline rises with the relabel too, from 0.500 to
+**0.550** (33/60 `deferable`). The one remaining miss is L54 ("Retrain the
+model in 2 hours"), which the model calls `deferable`. The gold label is
+`unclear` because the run time is unknown.
+Evidence: `results/progress.csv` rows `f87d959` (0.9167) and `65b2aa2`
+(0.9833); `eval/README.md` labeling conventions.
