@@ -114,6 +114,8 @@ Layout:
    `data/build_profiles.py` against the upstream repo at a pinned commit and
    update the commit hash in the headers.
 5. **Do not modify `~/pjm-water-carbon`.** It is the upstream source of truth.
+6. WHEN COMMITING, DO NOT INCLUDE THE CLAUDE WATERMARK IN THE COMMIT NAME FOR
+  THE SAKE OF KEEPING THE COMMITS SHORT
 
 ## Nemotron job #1: classify
 
