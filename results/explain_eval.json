@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-09-19T12:36:21",
-  "commit": "f87d959",
+  "timestamp": "2026-09-19T16:26:36",
+  "commit": "3a147ca",
   "model": "nvidia/nemotron-3-super-120b-a12b",
   "seed": 0,
   "metrics": {
-    "numeric_fidelity_rate": 0.9,
-    "passed": 18,
+    "numeric_fidelity_rate": 1.0,
+    "passed": 20,
     "n": 20,
-    "numbers_clean_rate": 0.9,
+    "numbers_clean_rate": 1.0,
     "api_or_parse_errors": 0,
     "by_basis": {
       "average": {
@@ -16,16 +16,16 @@
         "rate": 1.0
       },
       "marginal_empirical": {
-        "passed": 8,
+        "passed": 10,
         "n": 10,
-        "rate": 0.8
+        "rate": 1.0
       }
     },
     "by_tradeoff": {
       "aligned": {
-        "passed": 6,
+        "passed": 8,
         "n": 8,
-        "rate": 0.75
+        "rate": 1.0
       },
       "conflict": {
         "passed": 6,
@@ -38,12 +38,8 @@
         "rate": 1.0
       }
     },
-    "violation_rule_counts": {
-      "sign_mismatch": 6
-    },
-    "outputs_with_violation": {
-      "sign_mismatch": 2
-    }
+    "violation_rule_counts": {},
+    "outputs_with_violation": {}
   },
   "records": [
     {
@@ -55,17 +51,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, carbon emissions decreased by +0.3 %.\",\n  \"explanation\": \"On the average basis, water withdrawal decreased by +0.3 %. On the average basis, water consumption decreased by +0.3 %. The job was shifted by 2 h within an 8 h window to align improvements across all metrics.\",\n  \"fields_used\": [\n    \"carbon.delta_pct\",\n    \"withdrawal.delta_pct\",\n    \"consumption.delta_pct\",\n    \"shift_h\",\n    \"window_h\",\n    \"tradeoff\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 14:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 2 h out of an 8 h window, and 14:00 is the best hour in that window for carbon. On the average basis, carbon is +0.3 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, carbon emissions decreased by +0.3 %.",
-        "explanation": "On the average basis, water withdrawal decreased by +0.3 %. On the average basis, water consumption decreased by +0.3 %. The job was shifted by 2 h within an 8 h window to align improvements across all metrics.",
+        "headline": "Delaying to 14:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 2 h out of an 8 h window, and 14:00 is the best hour in that window for carbon. On the average basis, carbon is +0.3 % against running on arrival.",
         "fields_used": [
-          "carbon.delta_pct",
-          "withdrawal.delta_pct",
-          "consumption.delta_pct",
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
           "shift_h",
           "window_h",
-          "tradeoff"
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
+          "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
+          "consumption.delta_pct",
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -105,15 +118,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, water withdrawal is +5.6 %.\",\n\"explanation\": \"On the average basis, water withdrawal is +5.6 %. On the average basis, carbon is +2.4 %. On the average basis, consumption is +4.7 %. The tradeoff is aligned.\",\n\"fields_used\": [\n\"withdrawal.delta_pct\",\n\"carbon.delta_pct\",\n\"consumption.delta_pct\",\n\"tradeoff\"\n]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 15:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 7 h out of its 8 h window, and 15:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +5.6 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, water withdrawal is +5.6 %.",
-        "explanation": "On the average basis, water withdrawal is +5.6 %. On the average basis, carbon is +2.4 %. On the average basis, consumption is +4.7 %. The tradeoff is aligned.",
+        "headline": "Delaying to 15:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 7 h out of its 8 h window, and 15:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +5.6 % against running on arrival.",
         "fields_used": [
-          "withdrawal.delta_pct",
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
           "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
           "consumption.delta_pct",
-          "tradeoff"
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -153,15 +185,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, water withdrawal is +1.6 %.\",\n  \"explanation\": \"On the average basis, carbon is +9.8 %. On the average basis, consumption is +4.8 %. The tradeoff is aligned.\",\n  \"fields_used\": [\n    \"withdrawal.delta_pct\",\n    \"carbon.delta_pct\",\n    \"consumption.delta_pct\",\n    \"tradeoff\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 17:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 20 h out of a 24 h window, and 17:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +1.6 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, water withdrawal is +1.6 %.",
-        "explanation": "On the average basis, carbon is +9.8 %. On the average basis, consumption is +4.8 %. The tradeoff is aligned.",
+        "headline": "Delaying to 17:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 20 h out of a 24 h window, and 17:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +1.6 % against running on arrival.",
         "fields_used": [
-          "withdrawal.delta_pct",
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
           "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
           "consumption.delta_pct",
-          "tradeoff"
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -201,17 +252,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, water consumption is +5.5 %.\",\n  \"explanation\": \"On the average basis, water withdrawal is +7.8 %. On the average basis, carbon is +0.8 %. The job arrived at 03:00 and was moved to 09:00 to minimise water_consumption.\",\n  \"fields_used\": [\n    \"consumption.delta_pct\",\n    \"withdrawal.delta_pct\",\n    \"carbon.delta_pct\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"objective\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 09:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 6 h out of a 12 h window, and 09:00 is the best hour in that window for water consumption. On the average basis, water consumption is +5.5 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, water consumption is +5.5 %.",
-        "explanation": "On the average basis, water withdrawal is +7.8 %. On the average basis, carbon is +0.8 %. The job arrived at 03:00 and was moved to 09:00 to minimise water_consumption.",
+        "headline": "Delaying to 09:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 6 h out of a 12 h window, and 09:00 is the best hour in that window for water consumption. On the average basis, water consumption is +5.5 % against running on arrival.",
         "fields_used": [
-          "consumption.delta_pct",
-          "withdrawal.delta_pct",
-          "carbon.delta_pct",
+          "basis",
+          "objective",
+          "season",
           "arrival.hour",
           "placed.hour",
-          "objective"
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
+          "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
+          "consumption.delta_pct",
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -251,15 +319,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, carbon is +6.5 %.\",\n  \"explanation\": \"On the average basis, water withdrawal is -1.2 %. On the average basis, water consumption is +1.9 %. The tradeoff is conflict.\",\n  \"fields_used\": [\n    \"carbon.delta_pct\",\n    \"withdrawal.delta_pct\",\n    \"consumption.delta_pct\",\n    \"tradeoff\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 14:00 improves carbon and water consumption but worsens water withdrawal.\",\n  \"explanation\": \"The job waited 17 h out of a 24 h window, and 14:00 is the best hour in that window for carbon. On the average basis, carbon is +6.5 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, carbon is +6.5 %.",
-        "explanation": "On the average basis, water withdrawal is -1.2 %. On the average basis, water consumption is +1.9 %. The tradeoff is conflict.",
+        "headline": "Delaying to 14:00 improves carbon and water consumption but worsens water withdrawal.",
+        "explanation": "The job waited 17 h out of a 24 h window, and 14:00 is the best hour in that window for carbon. On the average basis, carbon is +6.5 % against running on arrival.",
         "fields_used": [
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
           "carbon.delta_pct",
-          "withdrawal.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
           "consumption.delta_pct",
-          "tradeoff"
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -299,15 +386,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, water withdrawal is +4.4 %.\",\n  \"explanation\": \"On the average basis, carbon is -2.7 %. On the average basis, water consumption is +1.8 %. The job was shifted by 4 h to reduce water withdrawal, but this increased carbon emissions and slightly decreased water consumption.\",\n  \"fields_used\": [\n    \"withdrawal.delta_pct\",\n    \"carbon.delta_pct\",\n    \"consumption.delta_pct\",\n    \"shift_h\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 17:00 improves water withdrawal and water consumption but worsens carbon.\",\n  \"explanation\": \"The job waited 4 h out of an 8 h window, and 17:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +4.4 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, water withdrawal is +4.4 %.",
-        "explanation": "On the average basis, carbon is -2.7 %. On the average basis, water consumption is +1.8 %. The job was shifted by 4 h to reduce water withdrawal, but this increased carbon emissions and slightly decreased water consumption.",
+        "headline": "Delaying to 17:00 improves water withdrawal and water consumption but worsens carbon.",
+        "explanation": "The job waited 4 h out of an 8 h window, and 17:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +4.4 % against running on arrival.",
         "fields_used": [
-          "withdrawal.delta_pct",
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
           "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
           "consumption.delta_pct",
-          "shift_h"
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -347,14 +453,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, water withdrawal improved by +8.9 %.\",\n\"explanation\": \"On the average basis, water withdrawal improved by +8.9 %. On the average basis, water consumption improved by +4.1 %. On the average basis, carbon emissions worsened by -4.7 %.\",\n\"fields_used\": [\n\"withdrawal.delta_pct\",\n\"consumption.delta_pct\",\n\"carbon.delta_pct\"\n]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 17:00 improves water withdrawal and water consumption but worsens carbon.\",\n  \"explanation\": \"The job waited 6 h out of a 24 h window, and 17:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +8.9 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, water withdrawal improved by +8.9 %.",
-        "explanation": "On the average basis, water withdrawal improved by +8.9 %. On the average basis, water consumption improved by +4.1 %. On the average basis, carbon emissions worsened by -4.7 %.",
+        "headline": "Delaying to 17:00 improves water withdrawal and water consumption but worsens carbon.",
+        "explanation": "The job waited 6 h out of a 24 h window, and 17:00 is the best hour in that window for water withdrawal. On the average basis, water withdrawal is +8.9 % against running on arrival.",
         "fields_used": [
-          "withdrawal.delta_pct",
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
+          "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
           "consumption.delta_pct",
-          "carbon.delta_pct"
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -394,20 +520,19 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, the job placement resulted in no change to carbon emissions, water consumption, or water withdrawal.\",\n  \"explanation\": \"On the average basis, carbon emissions remained at 382.2 kg CO2e, showing a delta of +0.0 %. On the average basis, water consumption remained at 273.8 gal, showing a delta of +0.0 %. On the average basis, water withdrawal remained at 7,087.8 gal, showing a delta of +0.0 %.\",\n  \"fields_used\": [\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Running at 19:00 is already the best hour in the window.\",\n  \"explanation\": \"The job could wait up to 8 h, but 19:00 was already the best hour for water consumption, so waiting would not help. On the average basis, water consumption is +0.0 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"objective\",\n    \"consumption.delta_pct\",\n    \"basis\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, the job placement resulted in no change to carbon emissions, water consumption, or water withdrawal.",
-        "explanation": "On the average basis, carbon emissions remained at 382.2 kg CO2e, showing a delta of +0.0 %. On the average basis, water consumption remained at 273.8 gal, showing a delta of +0.0 %. On the average basis, water withdrawal remained at 7,087.8 gal, showing a delta of +0.0 %.",
+        "headline": "Running at 19:00 is already the best hour in the window.",
+        "explanation": "The job could wait up to 8 h, but 19:00 was already the best hour for water consumption, so waiting would not help. On the average basis, water consumption is +0.0 % against running on arrival.",
         "fields_used": [
-          "carbon.baseline",
-          "carbon.placed",
-          "carbon.delta_pct",
-          "consumption.baseline",
-          "consumption.placed",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "objective",
           "consumption.delta_pct",
-          "withdrawal.baseline",
-          "withdrawal.placed",
-          "withdrawal.delta_pct"
+          "basis"
         ],
         "fallback": false,
         "error": null
@@ -447,13 +572,33 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, water consumption is +12.3 % and water withdrawal is +18.3 %.\",\n  \"explanation\": \"On the average basis, carbon is +0.0 %. On the average basis, water consumption is +12.3 %. On the average basis, water withdrawal is +18.3 %.\",\n  \"fields_used\": [\n    \"carbon.delta_pct\",\n    \"consumption.delta_pct\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 16:00 improves both water metrics.\",\n  \"explanation\": \"The job waited 9 h out of a 24 h window, and 16:00 is the best hour in that window for water consumption. On the average basis, water consumption is +12.3 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, water consumption is +12.3 % and water withdrawal is +18.3 %.",
-        "explanation": "On the average basis, carbon is +0.0 %. On the average basis, water consumption is +12.3 %. On the average basis, water withdrawal is +18.3 %.",
+        "headline": "Delaying to 16:00 improves both water metrics.",
+        "explanation": "The job waited 9 h out of a 24 h window, and 16:00 is the best hour in that window for water consumption. On the average basis, water consumption is +12.3 % against running on arrival.",
         "fields_used": [
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
           "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
           "consumption.delta_pct",
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
           "withdrawal.delta_pct"
         ],
         "fallback": false,
@@ -494,20 +639,16 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the average basis, carbon emissions did not change.\",\n  \"explanation\": \"On the average basis, carbon emissions are 331.9 kg CO2e both at arrival and at the placed hour, resulting in a delta of +0.0 %. On the average basis, water withdrawal is 8,061.1 gal at both times, with a delta of +0.0 %. On the average basis, water consumption is 280.4 gal at both times, with a delta of +0.0 %.\",\n  \"fields_used\": [\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Running at 11:00 is already the best hour in the window.\",\n  \"explanation\": \"The job could wait up to 12 h, but 11:00 was already the best hour for carbon, so waiting would not help. On the average basis, carbon is +0.0 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"window_h\",\n    \"objective\",\n    \"carbon.delta_pct\",\n    \"basis\"\n  ]\n}",
       "shown": {
-        "headline": "On the average basis, carbon emissions did not change.",
-        "explanation": "On the average basis, carbon emissions are 331.9 kg CO2e both at arrival and at the placed hour, resulting in a delta of +0.0 %. On the average basis, water withdrawal is 8,061.1 gal at both times, with a delta of +0.0 %. On the average basis, water consumption is 280.4 gal at both times, with a delta of +0.0 %.",
+        "headline": "Running at 11:00 is already the best hour in the window.",
+        "explanation": "The job could wait up to 12 h, but 11:00 was already the best hour for carbon, so waiting would not help. On the average basis, carbon is +0.0 % against running on arrival.",
         "fields_used": [
-          "carbon.baseline",
-          "carbon.placed",
+          "arrival.hour",
+          "window_h",
+          "objective",
           "carbon.delta_pct",
-          "withdrawal.baseline",
-          "withdrawal.placed",
-          "withdrawal.delta_pct",
-          "consumption.baseline",
-          "consumption.placed",
-          "consumption.delta_pct"
+          "basis"
         ],
         "fallback": false,
         "error": null
@@ -543,48 +684,23 @@
       "basis": "marginal_empirical",
       "objective": "carbon",
       "tradeoff": "aligned",
-      "passed": false,
+      "passed": true,
       "api_or_parse_error": false,
-      "violations": [
-        {
-          "rule": "sign_mismatch",
-          "detail": "headline: '9.3' (record has +9.3)"
-        },
-        {
-          "rule": "sign_mismatch",
-          "detail": "explanation: '20.4' (record has +20.4)"
-        },
-        {
-          "rule": "sign_mismatch",
-          "detail": "explanation: '20.1' (record has +20.1)"
-        }
-      ],
-      "error": "sign_mismatch: headline: '9.3' (record has +9.3); sign_mismatch: explanation: '20.4' (record has +20.4); sign_mismatch: explanation: '20.1' (record has +20.1)",
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, carbon emissions decreased by 9.3 %.\",\n  \"explanation\": \"On the marginal-empirical basis, water withdrawal decreased by 20.4 %. On the marginal-empirical basis, water consumption decreased by 20.1 %. The job was shifted from 01:00 to 23:00, a 22-hour shift within a 24-hour window, to align improvements across all metrics.\",\n  \"fields_used\": [\n    \"carbon.delta_pct\",\n    \"withdrawal.delta_pct\",\n    \"consumption.delta_pct\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"basis\",\n    \"tradeoff\"\n  ]\n}",
+      "violations": [],
+      "error": null,
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 23:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 22 h out of a 24 h window, and placed.hour is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +9.3 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"carbon.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "Starting at 23:00 instead of 01:00 lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
-        "explanation": "On the marginal-empirical basis, compared with running on arrival, the change is carbon +9.3 %, water withdrawal +20.4 %, water consumption +20.1 % (positive means less, negative means more). Per 1 MWh on the marginal-empirical basis, that is carbon from 586.3 kg CO2e to 532.0 kg CO2e, water withdrawal from 2,919.4 gal to 2,324.6 gal, water consumption from 251.5 gal to 201.0 gal. The job was placed to minimise carbon, shifted 22 h within a 24 h window.",
+        "headline": "Delaying to 23:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 22 h out of a 24 h window, and placed.hour is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +9.3 % against running on arrival.",
         "fields_used": [
-          "basis",
-          "objective",
           "arrival.hour",
           "placed.hour",
           "shift_h",
           "window_h",
-          "energy_mwh",
-          "tradeoff",
-          "carbon.delta_pct",
-          "carbon.baseline",
-          "carbon.placed",
-          "withdrawal.delta_pct",
-          "withdrawal.baseline",
-          "withdrawal.placed",
-          "consumption.delta_pct",
-          "consumption.baseline",
-          "consumption.placed"
+          "carbon.delta_pct"
         ],
-        "fallback": true,
-        "error": "sign_mismatch: headline: '9.3' (record has +9.3); sign_mismatch: explanation: '20.4' (record has +20.4); sign_mismatch: explanation: '20.1' (record has +20.1)"
+        "fallback": false,
+        "error": null
       },
       "display": {
         "basis": "marginal_empirical",
@@ -621,18 +737,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, carbon emissions decreased by +2.2 %.\",\n  \"explanation\": \"On the marginal-empirical basis, water withdrawal decreased by +3.1 %. On the marginal-empirical basis, water consumption decreased by +8.6 %. The job was shifted from 06:00 to 16:00, a 10-hour shift within a 12-hour window, to minimize carbon emissions.\",\n  \"fields_used\": [\n    \"carbon.delta_pct\",\n    \"withdrawal.delta_pct\",\n    \"consumption.delta_pct\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 16:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 10 h out of a 12 h window, and 16:00 is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +2.2 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, carbon emissions decreased by +2.2 %.",
-        "explanation": "On the marginal-empirical basis, water withdrawal decreased by +3.1 %. On the marginal-empirical basis, water consumption decreased by +8.6 %. The job was shifted from 06:00 to 16:00, a 10-hour shift within a 12-hour window, to minimize carbon emissions.",
+        "headline": "Delaying to 16:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 10 h out of a 12 h window, and 16:00 is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +2.2 % against running on arrival.",
         "fields_used": [
-          "carbon.delta_pct",
-          "withdrawal.delta_pct",
-          "consumption.delta_pct",
+          "basis",
+          "objective",
+          "season",
           "arrival.hour",
           "placed.hour",
           "shift_h",
-          "window_h"
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
+          "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
+          "consumption.delta_pct",
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -672,19 +804,16 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, carbon emissions decreased by +2.5 %.\",\n  \"explanation\": \"On the marginal-empirical basis, water withdrawal decreased by +5.3 %. On the marginal-empirical basis, water consumption decreased by +1.4 %. The job was shifted from arrival at 07:00 to placement at 09:00, a 2 h shift within an 8 h window, to minimize carbon emissions.\",\n  \"fields_used\": [\n    \"carbon.delta_pct\",\n    \"withdrawal.delta_pct\",\n    \"consumption.delta_pct\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"basis\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 09:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 2 h out of an 8 h window, and 09:00 is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +2.5 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"carbon.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, carbon emissions decreased by +2.5 %.",
-        "explanation": "On the marginal-empirical basis, water withdrawal decreased by +5.3 %. On the marginal-empirical basis, water consumption decreased by +1.4 %. The job was shifted from arrival at 07:00 to placement at 09:00, a 2 h shift within an 8 h window, to minimize carbon emissions.",
+        "headline": "Delaying to 09:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 2 h out of an 8 h window, and 09:00 is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +2.5 % against running on arrival.",
         "fields_used": [
-          "carbon.delta_pct",
-          "withdrawal.delta_pct",
-          "consumption.delta_pct",
           "arrival.hour",
           "placed.hour",
           "shift_h",
           "window_h",
-          "basis"
+          "carbon.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -720,48 +849,23 @@
       "basis": "marginal_empirical",
       "objective": "carbon",
       "tradeoff": "aligned",
-      "passed": false,
+      "passed": true,
       "api_or_parse_error": false,
-      "violations": [
-        {
-          "rule": "sign_mismatch",
-          "detail": "headline: '6.1' (record has +6.1)"
-        },
-        {
-          "rule": "sign_mismatch",
-          "detail": "explanation: '14.3' (record has +14.3)"
-        },
-        {
-          "rule": "sign_mismatch",
-          "detail": "explanation: '5.5' (record has +5.5)"
-        }
-      ],
-      "error": "sign_mismatch: headline: '6.1' (record has +6.1); sign_mismatch: explanation: '14.3' (record has +14.3); sign_mismatch: explanation: '5.5' (record has +5.5)",
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, carbon emissions decreased by 6.1 %.\",\n  \"explanation\": \"On the marginal-empirical basis, water withdrawal decreased by 14.3 %. On the marginal-empirical basis, water consumption decreased by 5.5 %. The job was shifted from 18:00 to 23:00 to align improvements across all metrics.\",\n  \"fields_used\": [\n    \"carbon.delta_pct\",\n    \"withdrawal.delta_pct\",\n    \"consumption.delta_pct\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"tradeoff\",\n    \"basis\"\n  ]\n}",
+      "violations": [],
+      "error": null,
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 23:00 improves carbon, water withdrawal, and water consumption.\",\n  \"explanation\": \"The job waited 5 h out of a 12 h window, and 23:00 is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +6.1 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"carbon.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "Starting at 23:00 instead of 18:00 lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
-        "explanation": "On the marginal-empirical basis, compared with running on arrival, the change is carbon +6.1 %, water withdrawal +14.3 %, water consumption +5.5 % (positive means less, negative means more). Per 1 MWh on the marginal-empirical basis, that is carbon from 566.2 kg CO2e to 532.0 kg CO2e, water withdrawal from 2,711.4 gal to 2,324.6 gal, water consumption from 212.7 gal to 201.0 gal. The job was placed to minimise carbon, shifted 5 h within a 12 h window.",
+        "headline": "Delaying to 23:00 improves carbon, water withdrawal, and water consumption.",
+        "explanation": "The job waited 5 h out of a 12 h window, and 23:00 is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +6.1 % against running on arrival.",
         "fields_used": [
-          "basis",
-          "objective",
           "arrival.hour",
           "placed.hour",
           "shift_h",
           "window_h",
-          "energy_mwh",
-          "tradeoff",
-          "carbon.delta_pct",
-          "carbon.baseline",
-          "carbon.placed",
-          "withdrawal.delta_pct",
-          "withdrawal.baseline",
-          "withdrawal.placed",
-          "consumption.delta_pct",
-          "consumption.baseline",
-          "consumption.placed"
+          "carbon.delta_pct"
         ],
-        "fallback": true,
-        "error": "sign_mismatch: headline: '6.1' (record has +6.1); sign_mismatch: explanation: '14.3' (record has +14.3); sign_mismatch: explanation: '5.5' (record has +5.5)"
+        "fallback": false,
+        "error": null
       },
       "display": {
         "basis": "marginal_empirical",
@@ -798,15 +902,34 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, water withdrawal is +8.8 %.\",\n  \"explanation\": \"On the marginal-empirical basis, carbon is +5.5 %. On the marginal-empirical basis, consumption is -0.9 %. The tradeoff is conflict.\",\n  \"fields_used\": [\n    \"withdrawal.delta_pct\",\n    \"carbon.delta_pct\",\n    \"consumption.delta_pct\",\n    \"tradeoff\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 22:00 improves carbon and water withdrawal but worsens water consumption.\",\n  \"explanation\": \"The job waited 7 h out of a 12 h window, and 22:00 is the best hour in that window for water withdrawal. On the marginal-empirical basis, water withdrawal is +8.8 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, water withdrawal is +8.8 %.",
-        "explanation": "On the marginal-empirical basis, carbon is +5.5 %. On the marginal-empirical basis, consumption is -0.9 %. The tradeoff is conflict.",
+        "headline": "Delaying to 22:00 improves carbon and water withdrawal but worsens water consumption.",
+        "explanation": "The job waited 7 h out of a 12 h window, and 22:00 is the best hour in that window for water withdrawal. On the marginal-empirical basis, water withdrawal is +8.8 % against running on arrival.",
         "fields_used": [
-          "withdrawal.delta_pct",
+          "basis",
+          "objective",
+          "season",
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "duration_h",
+          "energy_mwh",
+          "tradeoff",
+          "source",
+          "carbon.units",
+          "carbon.baseline",
+          "carbon.placed",
           "carbon.delta_pct",
+          "consumption.units",
+          "consumption.baseline",
+          "consumption.placed",
           "consumption.delta_pct",
-          "tradeoff"
+          "withdrawal.units",
+          "withdrawal.baseline",
+          "withdrawal.placed",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -846,10 +969,10 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, the job was shifted from 21:00 to 05:00 to reduce water consumption.\",\n  \"explanation\": \"On the marginal-empirical basis, water consumption decreased by +9.7 %. On the marginal-empirical basis, carbon emissions increased by +3.7 %. On the marginal-empirical basis, water withdrawal changed by -0.2 %. The shift lasted 8 h within a 12 h window, with a job duration of 1 h and energy use of 1 MWh.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 05:00 improves carbon and water consumption but worsens water withdrawal.\",\n  \"explanation\": \"The job waited 8 h out of a 12 h window, and 05:00 is the best hour in that window for water consumption. On the marginal-empirical basis, water consumption is +9.7 % against running on arrival.\",\n  \"fields_used\": [\n    \"basis\",\n    \"objective\",\n    \"season\",\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"duration_h\",\n    \"energy_mwh\",\n    \"tradeoff\",\n    \"source\",\n    \"carbon.units\",\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.units\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.units\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, the job was shifted from 21:00 to 05:00 to reduce water consumption.",
-        "explanation": "On the marginal-empirical basis, water consumption decreased by +9.7 %. On the marginal-empirical basis, carbon emissions increased by +3.7 %. On the marginal-empirical basis, water withdrawal changed by -0.2 %. The shift lasted 8 h within a 12 h window, with a job duration of 1 h and energy use of 1 MWh.",
+        "headline": "Delaying to 05:00 improves carbon and water consumption but worsens water withdrawal.",
+        "explanation": "The job waited 8 h out of a 12 h window, and 05:00 is the best hour in that window for water consumption. On the marginal-empirical basis, water consumption is +9.7 % against running on arrival.",
         "fields_used": [
           "basis",
           "objective",
@@ -913,14 +1036,16 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, water withdrawal is +5.1 %.\",\n  \"explanation\": \"On the marginal-empirical basis, water withdrawal is +5.1 %. On the marginal-empirical basis, water consumption is -9.7 %. On the marginal-empirical basis, carbon is +0.8 %.\",\n  \"fields_used\": [\n    \"withdrawal.delta_pct\",\n    \"consumption.delta_pct\",\n    \"carbon.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Delaying to 23:00 improves water withdrawal but worsens water consumption.\",\n  \"explanation\": \"The job waited 1 h out of the 24 h window it had, and 23:00 is the best hour in that window for water withdrawal. On the marginal-empirical basis, water withdrawal is +5.1 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"window_h\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, water withdrawal is +5.1 %.",
-        "explanation": "On the marginal-empirical basis, water withdrawal is +5.1 %. On the marginal-empirical basis, water consumption is -9.7 %. On the marginal-empirical basis, carbon is +0.8 %.",
+        "headline": "Delaying to 23:00 improves water withdrawal but worsens water consumption.",
+        "explanation": "The job waited 1 h out of the 24 h window it had, and 23:00 is the best hour in that window for water withdrawal. On the marginal-empirical basis, water withdrawal is +5.1 % against running on arrival.",
         "fields_used": [
-          "withdrawal.delta_pct",
-          "consumption.delta_pct",
-          "carbon.delta_pct"
+          "arrival.hour",
+          "placed.hour",
+          "shift_h",
+          "window_h",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -960,20 +1085,15 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, the job placement resulted in no change to carbon emissions, water consumption, or water withdrawal.\",\n  \"explanation\": \"On the marginal-empirical basis, carbon emissions remained at 552.6 kg CO2e, showing a delta of +0.0 %. On the marginal-empirical basis, water consumption stayed at 209.1 gal, with a delta of +0.0 %. On the marginal-empirical basis, water withdrawal was unchanged at 2,600.5 gal, also with a delta of +0.0 %.\",\n  \"fields_used\": [\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Running at 11:00 is already the best hour in the window.\",\n  \"explanation\": \"The job could wait up to 4 h, but 11:00 was already the best hour for water consumption, so waiting would not help. On the marginal-empirical basis, water consumption is +0.0 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"window_h\",\n    \"objective\",\n    \"consumption.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, the job placement resulted in no change to carbon emissions, water consumption, or water withdrawal.",
-        "explanation": "On the marginal-empirical basis, carbon emissions remained at 552.6 kg CO2e, showing a delta of +0.0 %. On the marginal-empirical basis, water consumption stayed at 209.1 gal, with a delta of +0.0 %. On the marginal-empirical basis, water withdrawal was unchanged at 2,600.5 gal, also with a delta of +0.0 %.",
+        "headline": "Running at 11:00 is already the best hour in the window.",
+        "explanation": "The job could wait up to 4 h, but 11:00 was already the best hour for water consumption, so waiting would not help. On the marginal-empirical basis, water consumption is +0.0 % against running on arrival.",
         "fields_used": [
-          "carbon.baseline",
-          "carbon.placed",
-          "carbon.delta_pct",
-          "consumption.baseline",
-          "consumption.placed",
-          "consumption.delta_pct",
-          "withdrawal.baseline",
-          "withdrawal.placed",
-          "withdrawal.delta_pct"
+          "arrival.hour",
+          "window_h",
+          "objective",
+          "consumption.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -1013,14 +1133,15 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, water withdrawal changed by +0.0 %.\",\n  \"explanation\": \"On the marginal-empirical basis, water withdrawal is +0.0 %. On the marginal-empirical basis, carbon is +0.0 %. On the marginal-empirical basis, consumption is +0.0 %.\",\n  \"fields_used\": [\n    \"withdrawal.delta_pct\",\n    \"carbon.delta_pct\",\n    \"consumption.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Running at 20:00 is already the best hour in the window.\",\n  \"explanation\": \"The job could wait up to 24 h, but 20:00 was already the best hour for water withdrawal, so waiting would not help. On the marginal-empirical basis, water withdrawal is +0.0 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"window_h\",\n    \"objective\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, water withdrawal changed by +0.0 %.",
-        "explanation": "On the marginal-empirical basis, water withdrawal is +0.0 %. On the marginal-empirical basis, carbon is +0.0 %. On the marginal-empirical basis, consumption is +0.0 %.",
+        "headline": "Running at 20:00 is already the best hour in the window.",
+        "explanation": "The job could wait up to 24 h, but 20:00 was already the best hour for water withdrawal, so waiting would not help. On the marginal-empirical basis, water withdrawal is +0.0 % against running on arrival.",
         "fields_used": [
-          "withdrawal.delta_pct",
-          "carbon.delta_pct",
-          "consumption.delta_pct"
+          "arrival.hour",
+          "window_h",
+          "objective",
+          "withdrawal.delta_pct"
         ],
         "fallback": false,
         "error": null
@@ -1060,20 +1181,18 @@
       "api_or_parse_error": false,
       "violations": [],
       "error": null,
-      "raw_model_output": "{\n  \"headline\": \"On the marginal-empirical basis, the job placement resulted in no change to carbon emissions, water consumption, or water withdrawal.\",\n  \"explanation\": \"On the marginal-empirical basis, carbon emissions remained at 537.3 kg CO2e, showing a delta of +0.0 %. On the marginal-empirical basis, water consumption stayed at 191.5 gal, with a delta of +0.0 %. On the marginal-empirical basis, water withdrawal was unchanged at 2,335.7 gal, also with a delta of +0.0 %.\",\n  \"fields_used\": [\n    \"carbon.baseline\",\n    \"carbon.placed\",\n    \"carbon.delta_pct\",\n    \"consumption.baseline\",\n    \"consumption.placed\",\n    \"consumption.delta_pct\",\n    \"withdrawal.baseline\",\n    \"withdrawal.placed\",\n    \"withdrawal.delta_pct\"\n  ]\n}",
+      "raw_model_output": "{\n  \"headline\": \"Running at 17:00 is already the best hour in the window.\",\n  \"explanation\": \"The job could wait up to 4 h, but 17:00 was already the best hour for water consumption, so waiting would not help. On the marginal-empirical basis, water consumption is +0.0 % against running on arrival.\",\n  \"fields_used\": [\n    \"arrival.hour\",\n    \"window_h\",\n    \"placed.hour\",\n    \"shift_h\",\n    \"objective\",\n    \"consumption.delta_pct\",\n    \"basis\"\n  ]\n}",
       "shown": {
-        "headline": "On the marginal-empirical basis, the job placement resulted in no change to carbon emissions, water consumption, or water withdrawal.",
-        "explanation": "On the marginal-empirical basis, carbon emissions remained at 537.3 kg CO2e, showing a delta of +0.0 %. On the marginal-empirical basis, water consumption stayed at 191.5 gal, with a delta of +0.0 %. On the marginal-empirical basis, water withdrawal was unchanged at 2,335.7 gal, also with a delta of +0.0 %.",
+        "headline": "Running at 17:00 is already the best hour in the window.",
+        "explanation": "The job could wait up to 4 h, but 17:00 was already the best hour for water consumption, so waiting would not help. On the marginal-empirical basis, water consumption is +0.0 % against running on arrival.",
         "fields_used": [
-          "carbon.baseline",
-          "carbon.placed",
-          "carbon.delta_pct",
-          "consumption.baseline",
-          "consumption.placed",
+          "arrival.hour",
+          "window_h",
+          "placed.hour",
+          "shift_h",
+          "objective",
           "consumption.delta_pct",
-          "withdrawal.baseline",
-          "withdrawal.placed",
-          "withdrawal.delta_pct"
+          "basis"
         ],
         "fallback": false,
         "error": null
