@@ -91,7 +91,7 @@ plus 9 weekday-deadline rows added with the weekday parser). Per-run results in
 | Classify, ambiguous rows | 0.000 → **0.933** | before → after the label-definition fix (see FAILURES.md) |
 | Classify, no-deadline rows | 0.400 → **1.000** | before → after the same fix |
 | Window MAE where both parsed | **0.00 h** across 49/49 | 0.00 h in every run; optimistic: see Limitations |
-| Explain numeric fidelity | **1.00** (20/20) | after the prompt rewrite (FAILURES.md #8); was 0.90 (18/20), both sign mismatches caught by `verify()`. Fidelity scores numbers only; all 20 headlines were also read against their signs by hand and state the right direction |
+| Explain fidelity (passes `verify()`, no fallback) | **0.95** (19/20) | after the tradeoff-rule change. Every number in all 20 outputs was exact; the one fallback cited a non-existent field (`water_withdrawal`) in `fields_used`, and its headline was correct. All 20 headlines were read against their signs by hand and state the right direction. Earlier runs: 1.00 (20/20) after the prompt rewrite (FAILURES.md #8), 0.90 (18/20) before it |
 | Fallback template passes `verify()` | **4032/4032** | 4 seasons × 24 arrival hours × 7 windows × 3 objectives × 2 bases, offline |
 | Holdout | sealed | 30 rows, sha256 in `results/HOLDOUT_HASH.txt`; to be opened exactly once, on Sunday. Score: TODO |
 

@@ -85,7 +85,7 @@ reporting. Headline: "Carbon-aware exists. Water-aware doesn't."*
 > didn't compute. Every figure traces to its source.
 
 *Slide: pipeline diagram "plain English → Nemotron: classify → Python: place →
-Nemotron: explain → verify". Two numbers under it: 0.986 vs 0.609 · 20/20
+Nemotron: explain → verify". Two numbers under it: 0.986 vs 0.609 · 19/20
 explanations exact.*
 `[CUT → 1:30: drop "Every figure traces to its source"]`
 
@@ -106,9 +106,9 @@ explanations exact.*
   phrase quoted verbatim. Python does all the arithmetic.
 - **Explain:** narrates a Python-built record, and `verify()` rejects any
   untraceable number.
-- **Evidence:** 0.986 vs 0.609 baseline (69 rows); explainer 20/20 exact (it was
-  18/20, and both misses were sign flips caught by the verifier); a sealed,
-  hashed holdout.
+- **Evidence:** 0.986 vs 0.609 baseline (69 rows); explainer 19/20 passed the verifier,
+  with every number exact in all 20 (the miss cited a non-existent field);
+  earlier 18/20, both sign flips caught; a sealed, hashed holdout.
 - **Failures found:** `/no_think` is ignored by nemotron-3-super, so it needed
   `enable_thinking=False` plus a JSON schema. The specified model was retired
   (HTTP 410).
