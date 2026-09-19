@@ -3,8 +3,8 @@
 The model reads a user's description of a workload ("nightly retraining, needs
 to be done before the 9am standup") and returns a label plus the VERBATIM phrase
 that states its time flexibility. It never returns a number of hours: Python
-parses ``window_phrase`` into ``window_h`` (see ``parse_window_hours``), so the
-only numbers that reach the scheduler are ones Python computed.
+parses ``window_phrase`` into ``window_h`` (see ``parse_window_hours``), so the only
+numbers that reach the scheduler are ones Python computed.
 
 Output schema (see CLAUDE.md, "classify"):
 
@@ -17,11 +17,28 @@ Output schema (see CLAUDE.md, "classify"):
 """
 from __future__ import annotations
 
+import json
+import os
+import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Literal
 
 Label = Literal["deferable", "not_deferable", "unclear"]
 ModelFn = Callable[[str], str]   # prompt -> raw model text (Nemotron endpoint)
+
+LABELS = ("deferable", "not_deferable", "unclear")
+BASE_URL = "https://integrate.api.nvidia.com/v1"
+# nvidia/nvidia-nemotron-nano-9b-v2 reached end of life on NIM on 2026-08-26
+# (HTTP 410). nemotron-3-super is the Nemotron model that answered in seconds.
+MODEL = "nvidia/nemotron-3-super-120b-a12b"
+TEMPERATURE = 0.1
+
+# "no rush" / "whenever" with no anchor anywhere in the text: at least a full day.
+# The vendored profiles repeat daily, so more slack would offer no extra hour.
+NO_DEADLINE_H = 24
+MEETING_HOUR = 9                 # "before the standup" with no time given -> 9am
+TONIGHT_END_HOUR = 6             # "tonight" / "overnight" -> done by 6am
 
 CLASSIFY_SCHEMA: dict = {
     "type": "object",
@@ -35,6 +52,28 @@ CLASSIFY_SCHEMA: dict = {
     },
 }
 
+PROMPT = """You classify compute jobs for a scheduler that can delay jobs to cleaner grid hours.
+
+Read the job description and return ONLY a JSON object, no prose:
+{{"label": "deferable" | "not_deferable" | "unclear",
+  "interruptible": true | false | null,
+  "window_phrase": string | null,
+  "rationale": string}}
+
+Rules:
+- label "deferable": the job can start later than now and still meet its need.
+- label "not_deferable": it must start now (urgent, interactive, a live user is waiting, ASAP).
+- label "unclear": the description does not say. Never guess "deferable".
+- interruptible: true only if the text says it can pause/resume or checkpoint; false if
+  it says it cannot; otherwise null.
+- window_phrase: copy, character for character, the shortest words from the description
+  that state its deadline or time flexibility (e.g. "before the 9am standup", "no rush").
+  Copy exactly; do not paraphrase. null if there are none.
+- rationale: one sentence. Do NOT write any digits or numbers.
+
+Job description:
+{description}"""
+
 
 @dataclass(frozen=True)
 class Classification:
@@ -45,27 +84,152 @@ class Classification:
     window_phrase: str | None
     rationale: str
     window_h: int | None          # computed by parse_window_hours, never by the model
+    error: str | None = None      # why the result fell back to "unclear", if it did
+
+
+def nemotron() -> ModelFn:
+    """Return a prompt -> text callable bound to NVIDIA's hosted Nemotron."""
+    from dotenv import load_dotenv
+    from openai import OpenAI
+
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+    client = OpenAI(base_url=BASE_URL, api_key=os.environ["NVIDIA_API_KEY"], max_retries=2)
+
+    def call(prompt: str) -> str:
+        r = client.chat.completions.create(
+            model=MODEL, temperature=TEMPERATURE, max_tokens=400,
+            messages=[{"role": "system", "content": "/no_think"},
+                      {"role": "user", "content": prompt}])
+        return r.choices[0].message.content or ""
+    return call
 
 
 def build_prompt(description: str) -> str:
     """Render the classification prompt for one plain-English job description."""
-    raise NotImplementedError
+    return PROMPT.format(description=description)
 
 
 def parse_response(raw: str) -> dict:
-    """Parse and schema-validate raw model text against ``CLASSIFY_SCHEMA``."""
-    raise NotImplementedError
+    """Extract the JSON object from raw model text (fences, think blocks, prose)."""
+    text = re.sub(r"<think>.*?</think>", "", raw, flags=re.S)
+    text = re.sub(r"```(?:json)?", "", text)
+    match = re.search(r"\{.*\}", text, flags=re.S)
+    if not match:
+        raise ValueError("no JSON object in model output")
+    return json.loads(match.group(0))
 
 
-def parse_window_hours(window_phrase: str | None) -> int | None:
-    """Convert a verbatim flexibility phrase to whole hours of slack, in Python.
+_NUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
+        "eight": 8, "ten": 10, "twelve": 12, "a couple of": 2, "a few": 3, "an": 1, "a": 1}
+_DAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+_UNIT_H = {"minute": 1 / 60, "min": 1 / 60, "hour": 1, "hr": 1, "day": 24, "week": 168}
 
-    Returns None when the phrase is absent or cannot be parsed unambiguously;
-    the caller then treats the job as not deferable rather than guessing.
+_N = r"(\d+|" + "|".join(sorted(_NUM, key=len, reverse=True)) + r")"
+_UNIT = r"\s*(minutes?|mins?|hours?|hrs?|days?|weeks?)\b"
+# A relative span needs a deadline cue on one side, so "takes about 3 hours" is
+# a duration, not a deadline.
+_REL_BEFORE = re.compile(r"\b(?:in|within|next|every|over the next|in the next)\s+" + _N + _UNIT)
+_REL_AFTER = re.compile(r"\b" + _N + _UNIT + r"\s+(?:later|from now)")
+_TIME = r"(?:(\d{1,2})(?::\d{2})?\s*(am|pm|a\.m\.|p\.m\.)(?![a-z0-9])|(noon|midnight))"
+_WHEN = re.compile(r"(?:\b(" + "|".join(_DAYS) + r")\s+(?:at\s+)?)?" + _TIME
+                   + r"(?:\s+on\s+the\s+(\d{1,2})(?:st|nd|rd|th))?(\s+tomorrow)?")
+_NOW = re.compile(r"\bit['’]s\s+" + _WHEN.pattern)
+
+
+def _when(m: re.Match) -> tuple[int | None, int, int | None, bool]:
+    """(day-of-week, clock hour, day-of-month, tomorrow) from a _WHEN/_NOW match."""
+    day, num, ampm, word, dom, tomorrow = m.groups()
+    hour = (int(num) % 12 + (12 if ampm.startswith("p") else 0)) if num else \
+        (12 if word == "noon" else 0)
+    return (_DAYS.index(day) if day else None, hour, int(dom) if dom else None, bool(tomorrow))
+
+
+def _hours_until(clock_hour: int, now: int, next_day: bool = False) -> int:
+    """Hours from clock hour ``now`` (0-23) until the next ``clock_hour`` o'clock."""
+    h = (clock_hour - now) % 24
+    return h + 24 if next_day and clock_hour > now else (h or 24)
+
+
+def _anchor(text: str, now: tuple) -> int | None:
+    """Hours until the first relative span or dated/clock deadline in ``text``."""
+    m = _REL_BEFORE.search(text) or _REL_AFTER.search(text)
+    if m:
+        n, unit = m.group(1), m.group(2).rstrip("s")
+        return int((int(n) if n.isdigit() else _NUM[n]) * _UNIT_H[unit])
+    m = _WHEN.search(text)
+    now_dow, now_hour, now_dom = now
+    if not m or now_hour is None:
+        return None
+    dow, hour, dom, tomorrow = _when(m)
+    tomorrow = tomorrow or "tomorrow" in text
+    if dom is not None and now_dom is not None:
+        return (dom - now_dom) * 24 + hour - now_hour
+    if dow is not None:
+        if now_dow is None:
+            return None
+        days = (dow - now_dow) % 7 or (7 if hour <= now_hour else 0)
+        return days * 24 + hour - now_hour
+    return _hours_until(hour, now_hour, next_day=tomorrow)
+
+
+def parse_window_hours(full_text: str, window_phrase: str | None,
+                       now_hour: int | None = None) -> int | None:
+    """Hours from now until the job's deadline, parsed and computed in Python.
+
+    ``window_phrase`` is the model's verbatim quote; ``full_text`` supplies the
+    anchors a relative phrase leaves out ("before I fly out" + "my flight is
+    Thursday at 6am"). The current time comes from an "It's <day> <time>"
+    clause in the text, else from ``now_hour`` (local clock, 0-23), else it is
+    unknown and clock-based deadlines cannot be resolved.
+
+    Resolution order: the phrase itself; then deadline anchors elsewhere in the
+    text (the "It's ..." clause excluded); then vague no-deadline words. 0 means
+    run now. None -- no phrase, or nothing parseable -- means not deferable.
     """
-    raise NotImplementedError
+    if not window_phrase:
+        return None
+    text, p = full_text.lower(), window_phrase.lower()
+    m = _NOW.search(text)
+    now = _when(m)[:3] if m else (None, now_hour, None)
+    rest = text[:m.start()] + text[m.end():] if m else text
+
+    if re.search(r"\b(asap|as soon as possible|immediately|right now|right away|urgent)\b", p):
+        return 0
+    if "within the hour" in p:
+        return 1
+    hours = _anchor(p, now)
+    if hours is not None:
+        return hours
+    named = (MEETING_HOUR if re.search(r"standup|stand-up|meeting|before work|first thing"
+                                       r"|start of (the )?day|morning", p)
+             else TONIGHT_END_HOUR if re.search(r"tonight|overnight|over ?night", p)
+             else 17 if re.search(r"end of (the )?(business )?day|\beod\b|close of business", p)
+             else 12 if re.search(r"noon|lunch", p) else None)
+    if named is not None and now[1] is not None:
+        return _hours_until(named, now[1])
+    hours = _anchor(rest, now)
+    if hours is not None:
+        return hours
+    if re.search(r"no rush|no hurry|whenever|no deadline|any ?time|not urgent|end of (the )?week"
+                 r"|this week|when convenient", p):
+        return NO_DEADLINE_H
+    return None
 
 
-def classify(description: str, model: ModelFn) -> Classification:
-    """Classify one job end to end: prompt, call, validate, derive ``window_h``."""
-    raise NotImplementedError
+def classify(description: str, model: ModelFn | None = None,
+             now_hour: int | None = None) -> Classification:
+    """Classify one job end to end. Never raises: any failure -> label "unclear"."""
+    try:
+        raw = (model or nemotron())(build_prompt(description))
+        data = parse_response(raw)
+    except Exception as e:                                   # noqa: BLE001 -- never raise
+        return Classification("unclear", None, None, "", None, error=f"{type(e).__name__}: {e}")
+
+    label = data.get("label") if data.get("label") in LABELS else "unclear"
+    interruptible = data.get("interruptible") if isinstance(data.get("interruptible"), bool) else None
+    phrase = data.get("window_phrase")
+    phrase = phrase if isinstance(phrase, str) and phrase and phrase in description else None
+    rationale = data.get("rationale") if isinstance(data.get("rationale"), str) else ""
+    rationale = "" if re.search(r"\d", rationale) else rationale
+    return Classification(label, interruptible, phrase, rationale,
+                          parse_window_hours(description, phrase, now_hour))

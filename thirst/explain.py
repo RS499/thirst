@@ -54,8 +54,8 @@ class PlacementRecord:
     basis: Basis                  # accounting basis; MUST be named beside any figure
     objective: Objective
     season: str
-    arrival: dict                 # {"dow": "Tue", "hour": 14}
-    placed: dict                  # {"dow": "Tue", "hour": 18}
+    arrival: dict                 # {"hour": 15}  hour-ending, 1..24
+    placed: dict                  # {"hour": 19}
     shift_h: int
     window_h: int
     duration_h: int

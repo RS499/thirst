@@ -1,0 +1,30 @@
+{"id": "H01", "category": "standard", "text": "Nightly re-index of the code search embeddings. It's 9pm and it needs to be done by 6am.", "label": "deferable", "window_h": 9, "window_phrase": "by 6am"}
+{"id": "H02", "category": "standard", "text": "Fine-tune the summarizer on the new legal docs; results needed within 48 hours.", "label": "deferable", "window_h": 48, "window_phrase": "within 48 hours"}
+{"id": "H03", "category": "standard", "text": "Backfill image embeddings for 300M photos. Deadline is 5 days from now.", "label": "deferable", "window_h": 120, "window_phrase": "5 days from now"}
+{"id": "H04", "category": "standard", "text": "Run the multilingual eval suite; anytime in the next 10 hours works.", "label": "deferable", "window_h": 10, "window_phrase": "anytime in the next 10 hours"}
+{"id": "H05", "category": "standard", "text": "Batch-generate product descriptions for the catalog refresh. It's Monday 10am and they're due Wednesday 10am.", "label": "deferable", "window_h": 48, "window_phrase": "due Wednesday 10am"}
+{"id": "H06", "category": "standard", "text": "Train the next reward model iteration. It's checkpointable, needs about 15 hours of compute, and must be done within 40 hours.", "label": "deferable", "window_h": 40, "window_phrase": "within 40 hours"}
+{"id": "H07", "category": "standard", "text": "Precompute the weekly cohort forecasts; they need to be ready within 20 hours.", "label": "deferable", "window_h": 20, "window_phrase": "within 20 hours"}
+{"id": "H08", "category": "standard", "text": "Distill the ranking model. It's 2pm and I'd like it by 10am tomorrow.", "label": "deferable", "window_h": 20, "window_phrase": "by 10am tomorrow"}
+{"id": "H09", "category": "standard", "text": "OCR the scanned contract archive; due in 2 days.", "label": "deferable", "window_h": 48, "window_phrase": "in 2 days"}
+{"id": "H10", "category": "standard", "text": "The user is watching a spinner waiting for their generated image, so run it now.", "label": "not_deferable", "window_h": 0, "window_phrase": "run it now"}
+{"id": "H11", "category": "standard", "text": "Rerun the content filter on the livestream chat immediately, something is slipping through.", "label": "not_deferable", "window_h": 0, "window_phrase": "immediately"}
+{"id": "H12", "category": "standard", "text": "The pipeline takes 5 hours and the report is due in 5 hours.", "label": "not_deferable", "window_h": 5, "window_phrase": "due in 5 hours"}
+{"id": "H13", "category": "standard", "text": "I need the translation back within 10 minutes for the press call.", "label": "not_deferable", "window_h": 0, "window_phrase": "within 10 minutes"}
+{"id": "H14", "category": "standard", "text": "Pager went off: score the suspicious logins from the last hour right away.", "label": "not_deferable", "window_h": 0, "window_phrase": "right away"}
+{"id": "H15", "category": "standard", "text": "Kick off the eval now, the go/no-go meeting is in 25 minutes.", "label": "not_deferable", "window_h": 0, "window_phrase": "in 25 minutes"}
+{"id": "H16", "category": "unusual", "text": "It's Thursday 4pm. Retrain the churn model before the long weekend kicks off, which is Friday at 5pm.", "label": "deferable", "window_h": 25, "window_phrase": "before the long weekend kicks off"}
+{"id": "H17", "category": "unusual", "text": "It's 5pm. Re-run the ablations before the night shift hands over at 7am.", "label": "deferable", "window_h": 14, "window_phrase": "before the night shift hands over"}
+{"id": "H18", "category": "unusual", "text": "Refresh the embeddings by the time the Tokyo office wakes up. It's 1pm here in Philadelphia and Tokyo starts work at 8pm our time.", "label": "deferable", "window_h": 7, "window_phrase": "by the time the Tokyo office wakes up"}
+{"id": "H19", "category": "unusual", "text": "The dataset should be ready before the paper deadline, which is exactly 3 days away.", "label": "deferable", "window_h": 72, "window_phrase": "before the paper deadline"}
+{"id": "H20", "category": "unusual", "text": "Run the sweep before my visa appointment. The appointment is 30 hours from now.", "label": "deferable", "window_h": 30, "window_phrase": "before my visa appointment"}
+{"id": "H21", "category": "ambiguous", "text": "Retrain when you get a chance.", "label": "unclear", "window_h": null, "window_phrase": "when you get a chance"}
+{"id": "H22", "category": "ambiguous", "text": "Evaluate the checkpoints before the offsite.", "label": "unclear", "window_h": null, "window_phrase": "before the offsite"}
+{"id": "H23", "category": "ambiguous", "text": "Need the backfill done soonish, could be later.", "label": "unclear", "window_h": null, "window_phrase": "soonish, could be later"}
+{"id": "H24", "category": "ambiguous", "text": "Run the scoring job by tomorrow.", "label": "unclear", "window_h": null, "window_phrase": "by tomorrow"}
+{"id": "H25", "category": "ambiguous", "text": "Kick off the retrain in 3 hours.", "label": "unclear", "window_h": null, "window_phrase": "in 3 hours"}
+{"id": "H26", "category": "ambiguous", "text": "Generate the eval report this afternoon or so.", "label": "unclear", "window_h": null, "window_phrase": "this afternoon or so"}
+{"id": "H27", "category": "ambiguous", "text": "The CEO wants the forecast quickly, but the analyst says next week is fine.", "label": "unclear", "window_h": null, "window_phrase": "quickly, but the analyst says next week is fine"}
+{"id": "H28", "category": "ambiguous", "text": "Rebuild the index before the next deploy.", "label": "unclear", "window_h": null, "window_phrase": "before the next deploy"}
+{"id": "H29", "category": "no_deadline", "text": "Run fraud scoring inline on every card swipe at checkout.", "label": "not_deferable", "window_h": null, "window_phrase": null}
+{"id": "H30", "category": "no_deadline", "text": "Fine-tune a sentiment model on our product reviews.", "label": "unclear", "window_h": null, "window_phrase": null}
