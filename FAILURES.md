@@ -1,6 +1,6 @@
 # FAILURES
 
-Seven things that went wrong, what they would have cost, and how each was caught.
+Eight things that went wrong, what they would have cost, and how each was caught.
 Logged here rather than silently fixed.
 
 ## 1. Solar PV water factor was 26× too high, in the flattering direction
@@ -104,3 +104,28 @@ model in 2 hours"), which the model calls `deferable`. The gold label is
 `unclear` because the run time is unknown.
 Evidence: `results/progress.csv` rows `f87d959` (0.9167) and `65b2aa2`
 (0.9833); `eval/README.md` labeling conventions.
+
+## 8. The explainer reversed direction in 5 of 6 conflicts, and verify() passed all 5
+
+The first explainer prompt rewrite let Nemotron say which metrics got better or
+worse in its own words, and gave it a few-shot example headline. The model
+copied the example's direction instead of reading the record. **5 of the 6
+conflict cases got a headline with the direction reversed**: a metric that got
+worse was reported as improving, or the other way round.
+
+Every one of those five passed `verify()`. The verifier checks that each digit
+in the text matches a Python-computed display string with the right sign. The
+reversed headlines contained no figures at all, only words like "improves" and
+"worsens", so there was nothing for it to reject. A mechanical guard on numbers
+says nothing about the words around them.
+
+The fix takes the judgment away from the model. Python works out, from the same
+one-decimal deltas that are displayed, which metrics improved, which got worse
+and which were unchanged. It passes those lists into the prompt as fixed facts
+to restate, never re-derive. The examples now use placeholders instead of a
+concrete direction. In the next run, fidelity was 20/20, and all 20 headlines
+read by hand state the right direction.
+Evidence: commit `cc20c12` "explain: direction comes from Python, not the
+model" (the reversed run's outputs were not saved; the commit message records
+the 5-of-6 count); `thirst/explain.py` `build_prompt()` (the FACTS block);
+`results/explain_eval.json`.

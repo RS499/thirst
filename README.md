@@ -79,18 +79,19 @@ explanation worse, but it cannot put a wrong number in front of the user.
 
 ## Evidence
 
-Development set: `eval/labeled.jsonl`, 60 hand-written rows. Per-run results in
+Development set: `eval/labeled.jsonl`, 69 hand-written rows (the original 60,
+plus 9 weekday-deadline rows added with the weekday parser). Per-run results in
 `results/progress.csv`; per-row detail in `results/*_eval.json`.
 
 | what | result | baseline / note |
 |---|---|---|
-| Classify accuracy (60 rows) | **0.983** (59/60) | majority class ("deferable"): 0.550. Up from 0.917 by a **label-definition change, not a model improvement**: L21/L26/L30 relabeled, prompt and code unchanged (see FAILURES.md #7) |
-| Classify accuracy before that relabel | 0.917 (55/60) | majority class: 0.500 |
-| Classify accuracy, excluding one HTTP 429 | 0.932 (55/59) | the 429 was scored as "unclear", i.e. wrong |
+| Classify accuracy (69 rows) | **0.986** (68/69) | majority class ("deferable"): 0.609. The one miss is L54, "Retrain the model in 2 hours" (gold `unclear`, predicted `deferable`) |
+| Classify accuracy, 60 rows, after relabel | 0.983 (59/60) | majority class: 0.550. Up from 0.917 by a **label-definition change, not a model improvement**: L21/L26/L30 relabeled, prompt and code unchanged (see FAILURES.md #7) |
+| Classify accuracy, 60 rows, before relabel | 0.917 (55/60) | majority class: 0.500. 0.932 (55/59) excluding one HTTP 429 scored as "unclear" |
 | Classify, ambiguous rows | 0.000 → **0.933** | before → after the label-definition fix (see FAILURES.md) |
 | Classify, no-deadline rows | 0.400 → **1.000** | before → after the same fix |
-| Window MAE where both parsed | **0.00 h** in every run | optimistic: see Limitations |
-| Explain numeric fidelity | **0.90** (18/20) | both failures were sign mismatches, caught by `verify()` |
+| Window MAE where both parsed | **0.00 h** across 49/49 | 0.00 h in every run; optimistic: see Limitations |
+| Explain numeric fidelity | **1.00** (20/20) | after the prompt rewrite (FAILURES.md #8); was 0.90 (18/20), both sign mismatches caught by `verify()`. Fidelity scores numbers only; all 20 headlines were also read against their signs by hand and state the right direction |
 | Fallback template passes `verify()` | **4032/4032** | 4 seasons × 24 arrival hours × 7 windows × 3 objectives × 2 bases, offline |
 | Holdout | sealed | 30 rows, sha256 in `results/HOLDOUT_HASH.txt`; to be opened exactly once, on Sunday. Score: TODO |
 
@@ -101,14 +102,20 @@ across all four categories.
 ## Limitations
 
 - **Window MAE is optimistic.** The deadline parser was built against this same
-  development set. Given the gold quotes it resolves 40/40 exactly. The 0.00 h
+  development set. Given the gold quotes it resolves 49/49 exactly. The 0.00 h
   is measured only where both the model's quote and the parse succeeded. The
   holdout is the honest test.
-- **`verify()` checks that a number exists, not that it is on the right
-  metric.** It confirms every number appears in `display` with the right sign.
-  It does not catch the model attaching the carbon delta to the withdrawal
-  sentence.
-- **Free-tier rate limits.** One HTTP 429 in the final classify run, despite
+- **`verify()` checks digits, not words.** It confirms every number appears in
+  `display` with the right sign. It does not catch the model attaching the
+  carbon delta to the withdrawal sentence, and it cannot tell "improves" from
+  "worsens": five reversed headlines once passed it (FAILURES.md #8). Direction
+  is now fixed by Python-computed facts in the prompt, not checked by
+  `verify()`.
+- **Pausable jobs are placed as if contiguous.** Nemotron reports whether a job
+  can pause (`interruptible`), but the placer ignores it and prices every job
+  as one unbroken run. A pausable job could be split across the cleanest hours;
+  thirst doesn't do that yet.
+- **Free-tier rate limits.** One HTTP 429 in the 0.917 classify run, despite
   sequential calls, a 1 s pause and 5 SDK retries with backoff.
 - **The regional regression is n = 5.** R² = 0.82 with p = 0.034 on five points
   is suggestive, not established.
