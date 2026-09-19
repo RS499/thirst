@@ -94,6 +94,7 @@ FACTS (computed by Python from the deltas; restate them, never re-derive them):
   better than running on arrival: {better}
   worse than running on arrival: {worse}
   unchanged: {same}
+  objective, in words: {objective}
 
 What the fields mean:
 - The job arrived at arrival.hour. It may wait up to window_h (its slack) and can only
@@ -124,8 +125,10 @@ Write it like this:
   the best hour for the objective, so waiting would not help.
   * If anything is worse, say which metrics in words, with no figure.
   * No other carbon, withdrawal or consumption figures: do not list the deltas.
-- Phrase the figure so its sign does the work: "+9.9 % less carbon than running on
-  arrival", or "-3.4 % on water consumption" for a cost. Never "decreased by +9.9 %".
+- Write the figure sentence in this frame, where the sign alone carries the direction:
+  "On the {basis} basis, <metric> is <delta_pct> against running on arrival."
+  Copy the sign: "+8.9 %", never "8.9 %". Never put "less", "more", "lower", "higher",
+  "decreased by" or "increased by" next to a figure; the sign already says it.
 - Talk about the job and the hours, not the machinery: do not mention Python, the
   RECORD, field names, or the words "aligned", "conflict", "neutral" or "tradeoff".
 
@@ -170,7 +173,8 @@ def build_prompt(record: PlacementRecord) -> str:
     facts = {k: ", ".join(METRIC_PROSE[m] for m in METRIC_PROSE if test(sign[m])) or "none"
              for k, test in (("better", lambda v: v > 0), ("worse", lambda v: v < 0),
                              ("same", lambda v: v == 0))}
-    return PROMPT.format(display=display, basis=BASIS_PROSE[record.basis], **facts)
+    return PROMPT.format(display=display, basis=BASIS_PROSE[record.basis],
+                         objective=OBJECTIVE_PROSE[record.objective], **facts)
 
 
 def parse_response(raw: str) -> dict:
