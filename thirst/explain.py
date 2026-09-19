@@ -90,6 +90,11 @@ job is to say what the figures MEAN, in words.
 RECORD (field path -> the exact string you may print):
 {display}
 
+FACTS (computed by Python from the deltas; restate them, never re-derive them):
+  better than running on arrival: {better}
+  worse than running on arrival: {worse}
+  unchanged: {same}
+
 What the fields mean:
 - The job arrived at arrival.hour. It may wait up to window_h (its slack) and can only
   move LATER, never earlier. placed.hour, shift_h after arrival, is the best hour in that
@@ -102,17 +107,22 @@ What the fields mean:
   call either one just "water".
 
 Write it like this:
-- headline: one sentence that gives the direction in words and contains NO carbon,
-  withdrawal or consumption figure. Times from the RECORD are fine.
-  Shape: "Waiting until <placed.hour> improves carbon and both water metrics." or
-  "Delaying to <placed.hour> cuts carbon but costs water withdrawal and water consumption."
+- headline: one sentence that states the FACTS in words and contains NO carbon,
+  withdrawal or consumption figure. Times from the RECORD are fine. Name exactly the
+  metrics in each FACTS list; say "both water metrics" only when water withdrawal and
+  water consumption are in the same list.
+  Shape: "Delaying to <placed.hour> improves <better> but worsens <worse>." (drop the
+  "but" part when nothing is worse).
 - explanation: two or three sentences.
   * First, WHY: how long the job waits (shift_h) out of the slack it had (window_h), and
     that placed.hour is the best hour in that window for the objective.
   * Then ONE sentence containing ONE figure: the objective's delta_pct. That sentence
-    names the "{basis} basis"; it is the only place the basis is named. If shift_h is
-    "0 h", skip this figure.
-  * If tradeoff is "conflict", say in words, with no figure, which metrics get worse.
+    names the "{basis} basis"; it is the only place the basis is named.
+- If shift_h is "0 h", instead: headline "Running at <arrival.hour> is already the best
+  hour in the window."; explanation two sentences with no carbon, withdrawal or
+  consumption figure: the job could wait up to <window_h>, but <arrival.hour> was already
+  the best hour for the objective, so waiting would not help.
+  * If anything is worse, say which metrics in words, with no figure.
   * No other carbon, withdrawal or consumption figures: do not list the deltas.
 - Phrase the figure so its sign does the work: "+9.9 % less carbon than running on
   arrival", or "-3.4 % on water consumption" for a cost. Never "decreased by +9.9 %".
@@ -154,7 +164,13 @@ def nemotron() -> ModelFn:
 def build_prompt(record: PlacementRecord) -> str:
     """Render the explanation prompt: the record's ``display`` map plus rules."""
     display = "\n".join(f"  {k}: {v}" for k, v in record.display.items())
-    return PROMPT.format(display=display, basis=BASIS_PROSE[record.basis])
+    # Direction per metric, on the same one-decimal values that are displayed (as
+    # place._tradeoff does), so the words can never contradict the printed signs.
+    sign = {m: round(getattr(record, m).delta_pct, 1) for m in METRIC_PROSE}
+    facts = {k: ", ".join(METRIC_PROSE[m] for m in METRIC_PROSE if test(sign[m])) or "none"
+             for k, test in (("better", lambda v: v > 0), ("worse", lambda v: v < 0),
+                             ("same", lambda v: v == 0))}
+    return PROMPT.format(display=display, basis=BASIS_PROSE[record.basis], **facts)
 
 
 def parse_response(raw: str) -> dict:
