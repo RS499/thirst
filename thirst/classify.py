@@ -95,11 +95,20 @@ def nemotron() -> ModelFn:
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
     client = OpenAI(base_url=BASE_URL, api_key=os.environ["NVIDIA_API_KEY"], max_retries=2)
 
+    # Server-side schema constraint; the no-digits rule is not expressible there
+    # reliably, so it is enforced in Python in classify().
+    schema = {**CLASSIFY_SCHEMA, "properties": {**CLASSIFY_SCHEMA["properties"],
+                                                "rationale": {"type": "string"}}}
+
     def call(prompt: str) -> str:
+        # nemotron-3-super ignores "/no_think" and reasons inside ``content``
+        # until max_tokens; enable_thinking=False is what turns reasoning off.
         r = client.chat.completions.create(
             model=MODEL, temperature=TEMPERATURE, max_tokens=400,
-            messages=[{"role": "system", "content": "/no_think"},
-                      {"role": "user", "content": prompt}])
+            response_format={"type": "json_schema",
+                             "json_schema": {"name": "classification", "schema": schema}},
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+            messages=[{"role": "user", "content": prompt}])
         return r.choices[0].message.content or ""
     return call
 
