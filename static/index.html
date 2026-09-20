@@ -339,6 +339,16 @@ body.demo #stage .demo-part {
         <div class="hint">Portable: the job could run in another grid region.</div>
       </div>
 
+      <div class="group" id="mode-group" hidden>
+        <span class="over">Pausable job</span>
+        <div class="seg" role="radiogroup" aria-label="How to run it">
+          <input type="radio" name="mode" id="mode-block" value="contiguous"><label for="mode-block">Run as one block</label>
+          <input type="radio" name="mode" id="mode-split" value="split" checked><label for="mode-split">Split across cleanest hours</label>
+        </div>
+        <div class="hint">Split runs the job in its cheapest hours and prices every one of them;
+          one block prices its start hour only, so the two percentages are not directly comparable.</div>
+      </div>
+
       <div class="group">
         <span class="over">Minimise</span>
         <div class="seg" role="radiogroup" aria-label="Objective">
@@ -384,10 +394,11 @@ body.demo #stage .demo-part {
       <div class="timeline" id="v-tl" hidden>
         <div class="tl-wrap num" id="v-tl-wrap">
           <span class="tl-lab blk" id="v-tl-bs"></span><span class="tl-lab blk" id="v-tl-be"></span>
-          <div class="tl-track" aria-hidden="true"><div class="tl-job" id="v-tl-job"></div><span class="tl-dl"></span></div>
+          <div class="tl-track" aria-hidden="true"><div class="tl-job" id="v-tl-job"></div><span id="v-tl-blocks"></span><span class="tl-dl"></span></div>
           <span class="tl-lab end" id="v-tl-from"></span><span class="tl-lab end" id="v-tl-to"></span>
         </div>
         <div class="tl-line num" id="v-tl-text"></div>
+        <div class="hint" id="v-tl-note" hidden></div>
       </div>
       <div class="region-line" id="v-region" hidden>
         <div class="over">Best region · stress-adjusted · average basis</div>
@@ -509,13 +520,16 @@ const EXAMPLES = [
   ["Same-day quantize", "It's 9am. Quantize the three release candidates to 4-bit; needed by 5pm today.", 3],
   ["No deadline", "Re-embed our document archive with the new embedding model.", 4],
 ];
+const MODE_NOTE = "Every hour this job runs is priced, not just its first — the one-block " +
+  "mode prices the start hour only.";
 const state = { cls: null, placed: null, req: null, explanations: {}, pending: {}, evidence: null };
 const demo = { on: false, run: 0, cache: null };   // ?demo=1 only; see "demo mode" below
 
 const objective = () => document.querySelector("input[name=obj]:checked").value;
 const basis = () => document.querySelector("input[name=basis]:checked").value;
 const portable = () => document.querySelector("input[name=loc]:checked").value === "portable";
-const key = () => `${basis()}|${objective()}`;
+const mode = () => ($("mode-group").hidden ? "contiguous" : document.querySelector("input[name=mode]:checked").value);
+const key = () => `${basis()}|${objective()}|${mode()}`;
 
 async function api(path, body) {
   if (demo.on) { const hit = demoLookup(path, body); if (hit) return hit; }
@@ -637,6 +651,10 @@ async function submit(ev) {
   try {
     const c = await api("/classify", { text });
     state.cls = c;
+    // Split is only offered for a pausable job, and never in the demo: its cache
+    // holds the contiguous placement.
+    $("mode-group").hidden = !c.interruptible || demo.on;
+    if (demo.on) $("mode-block").checked = true;
     renderClassification(c);
     if (c.label !== "deferable" || !c.window_h) {
       state.placed = null; renderNotDeferable(c); setStatus(""); return;
@@ -644,7 +662,8 @@ async function submit(ev) {
     const dur = parseInt($("duration").value, 10), kw = parseFloat($("power").value);
     state.req = { arrival_hour: c.arrival_hour, window_h: c.window_h, season: c.season,
                   duration_h: Number.isFinite(dur) && dur > 0 ? dur : null,
-                  power_kw: Number.isFinite(kw) && kw > 0 ? kw : null, now_dow: c.now_dow };
+                  power_kw: Number.isFinite(kw) && kw > 0 ? kw : null, now_dow: c.now_dow,
+                  mode: c.interruptible ? mode() : "contiguous" };
     const placed = await api("/place", state.req);
     if (placed.refusal) { state.placed = null; renderRefusal(c, placed.refusal); setStatus(""); return; }
     state.placed = placed;
@@ -669,9 +688,6 @@ function renderClassification(c) {
   $("c-window").textContent = c.display.window_h;
   $("c-now").textContent = `${c.display.now} ET · ${c.season}`;
   $("c-int").textContent = c.interruptible === null ? "not stated" : c.interruptible ? "yes" : "no";
-  if (c.interruptible) $("c-int").append(Object.assign(document.createElement("div"), { className: "hint",
-    textContent: "Pausable jobs could be split across the cleanest hours instead of run as one block — " +
-                 "not implemented; the placer treats every job as contiguous." }));
   $("c-why").textContent = c.rationale || "—";
   $("c-meta").textContent = c.error ? `Fell back to unclear: ${c.error}`
                                      : `${c.display.model} · ${c._cached ? "cached response" : c.display.latency} · window parsed in Python`;
@@ -684,7 +700,9 @@ function layoutStrip(t = state.placed && state.placed.records[basis()][objective
   if (!t || $("v-tl").hidden) return;
   const W = $("v-tl-wrap").getBoundingClientRect().width, gap = 8;
   const wd = (el) => el.getBoundingClientRect().width;     // fractional, unlike offsetWidth
-  const x0 = W * t.shift / t.window, x1 = W * (t.shift + t.duration) / t.window;
+  const hours = t.hours || [t.shift];                      // split: one block per hour
+  const x0 = W * hours[0] / t.window;
+  const x1 = W * (t.hours ? hours[hours.length - 1] + 1 : t.shift + t.duration) / t.window;
   const bs = $("v-tl-bs"), be = $("v-tl-be"), from = $("v-tl-from"), to = $("v-tl-to");
   const clamp = (x, w) => Math.max(0, Math.min(x, W - w));
   const inside = x0 + wd(bs) + gap <= x1 - wd(be);
@@ -751,21 +769,34 @@ function render(fresh) {
   if (!P) return;
   const rec = P.records[basis()][objective()], d = rec.display, b = BASIS_PROSE[basis()];
   $("v-over").textContent = `Best start · minimising ${OBJ_PROSE[objective()]} · ${b} basis`;
-  setHero(d["placed.hour"], false);
+  setHero(d["hero"] || d["placed.hour"], false);
   // "ET" appears once on the card: in the timeline line when it is shown, else here,
   // where the deadline also moves when there is no timeline to carry it.
   $("v-sub").innerHTML = "";
   $("v-sub").append(
     "instead of ", Object.assign(document.createElement("b"), { textContent: d["arrival.hour"] }),
-    (rec.timeline ? "" : " ET") + ` · shift ${d["shift_h"]}` +
+    (rec.timeline ? "" : " ET") +
+    (rec.mode === "split" ? ` · the cheapest ${d["hours_n"]} in the window`
+                          : ` · shift ${d["shift_h"]}`) +
     (rec.timeline ? "" : ` · deadline ${d["deadline"]}`) +
-    (P.start_window_h !== state.cls.window_h ? ` · latest start ${d["latest_start"]}` : ""));
+    (rec.mode !== "split" && P.start_window_h !== state.cls.window_h
+       ? ` · latest start ${d["latest_start"]}` : ""));
   $("bars").hidden = false;
   $("v-tl").hidden = !rec.timeline;
+  $("v-tl-note").hidden = rec.mode !== "split";
+  $("v-tl-note").textContent = MODE_NOTE;
   if (rec.timeline) {
     const t = rec.timeline;
-    $("v-tl-job").style.left = `${100 * t.shift / t.window}%`;
-    $("v-tl-job").style.width = `${100 * t.duration / t.window}%`;
+    const one = 100 / t.window, hours = t.hours || [t.shift];
+    $("v-tl-job").style.left = `${100 * hours[0] / t.window}%`;
+    $("v-tl-job").style.width = `${(t.hours ? one : 100 * t.duration / t.window)}%`;
+    // One block per hour in split mode; the first block is #v-tl-job either way.
+    $("v-tl-blocks").innerHTML = "";
+    for (const off of hours.slice(1)) {
+      const b = document.createElement("i");
+      b.className = "tl-job"; b.style.left = `${100 * off / t.window}%`; b.style.width = `${one}%`;
+      $("v-tl-blocks").appendChild(b);
+    }
     $("v-tl-text").textContent = d["timeline"];
     $("v-tl-from").textContent = d["arrival.hour"];
     $("v-tl-to").textContent = d["deadline"];
@@ -825,6 +856,20 @@ function renderExplanation(rec) {
   $("e-ask").textContent = pending ? "Asking Nemotron…" : "Explain with Nemotron";
 }
 
+async function replaceMode() {           // same job, other run mode: /place only, no model call
+  if (!state.req) return;
+  state.req.mode = mode();
+  setStatus("Re-placing…", true);
+  try {
+    state.placed = await api("/place", state.req);
+    render(false);
+  } catch (e) {
+    setStatus(`Request failed: ${e.message}`, false);
+    return;
+  }
+  setStatus("");
+}
+
 async function askNemotron() {
   if (!state.placed) return;
   const k = key(), [b, o] = k.split("|");
@@ -854,6 +899,8 @@ $("e-ask").addEventListener("click", askNemotron);
 // Switching objective or basis re-renders from cache: no model call.
 for (const el of document.querySelectorAll("input[name=obj], input[name=basis]"))
   el.addEventListener("change", () => render(false));
+for (const el of document.querySelectorAll("input[name=mode]"))
+  el.addEventListener("change", replaceMode);
 for (const el of document.querySelectorAll("input[name=loc]"))
   el.addEventListener("change", () => {
     $("regions").hidden = !portable();
@@ -990,6 +1037,7 @@ function resetResults() {                    // back to the page as it loads, be
     Object.assign(row.querySelector(".val"), { textContent: "—", className: "val num zero" });
     row.querySelector(".abs").hidden = true;
   }
+  $("v-tl-blocks").innerHTML = "";
   setStatus("");
 }
 

@@ -86,3 +86,51 @@ def test_block_left_and_width_are_fractions_of_the_full_window(page, name, shift
     }""", [shift, duration, window])
     assert frac["left"] == pytest.approx(shift / window, abs=0.005), name
     assert frac["width"] == pytest.approx(duration / window, abs=0.005), name
+
+
+# ------------------------------------------------------------------ split placement
+
+from itertools import product  # noqa: E402
+
+from thirst.place import OBJECTIVES, _season_profile, place, place_split  # noqa: E402
+from thirst.signals import METRICS  # noqa: E402
+
+JOBS = list(product(("SON", "DJF"), (20, 9), (12, 24, 40), (3, 6), ("average", "marginal_empirical")))
+
+
+def hours_at(arrival: int, window: int) -> dict[int, int]:
+    """Offset from arrival -> hour-ending number, for every hour in the window."""
+    return {off: (arrival - 1 + off) % 24 + 1 for off in range(window)}
+
+
+@pytest.mark.parametrize("season,arrival,window,duration,basis", JOBS)
+def test_split_picks_exactly_the_n_cheapest_hours(season, arrival, window, duration, basis):
+    prof, at = _season_profile(season, basis), hours_at(arrival, window)
+    for objective, metric in OBJECTIVES.items():
+        col = METRICS[metric]
+        want = tuple(sorted(sorted(at, key=lambda o: (prof.at[at[o], col], o))[:duration]))
+        assert place_split(arrival, window, season, duration, basis=basis)[objective].hours == want
+
+
+@pytest.mark.parametrize("season,arrival,window,duration,basis", JOBS)
+def test_split_is_never_worse_than_any_contiguous_block(season, arrival, window, duration, basis):
+    """Priced the same way (mean over the hours run), the cheapest hours beat every block."""
+    prof, at = _season_profile(season, basis), hours_at(arrival, window)
+    for objective, metric in OBJECTIVES.items():
+        col = METRICS[metric]
+        mean = lambda hs: sum(float(prof.at[h, col]) for h in hs) / len(hs)  # noqa: E731
+        best_block = min(mean([at[start + k] for k in range(duration)])
+                         for start in range(window - duration + 1))
+        rec = place_split(arrival, window, season, duration, basis=basis)[objective]
+        assert mean([at[o] for o in rec.hours]) <= best_block + 1e-9
+
+
+@pytest.mark.parametrize("season,arrival,window,_d,basis", JOBS)
+def test_one_hour_job_is_identical_in_both_modes(season, arrival, window, _d, basis):
+    contiguous = place(arrival, window, season, basis=basis)
+    split = place_split(arrival, window, season, 1, basis=basis)
+    for objective in OBJECTIVES:
+        a, b = contiguous[objective], split[objective]
+        assert (a.placed, a.shift_h) == (b.placed, b.shift_h)
+        assert [a.carbon, a.withdrawal, a.consumption] == [b.carbon, b.withdrawal, b.consumption]
+        assert a.display == {k: v for k, v in b.display.items() if k != "hours_n"}

@@ -34,7 +34,7 @@ from pydantic import BaseModel, Field
 
 from thirst.classify import MODEL, classify
 from thirst.explain import BASIS_PROSE, explain, fallback
-from thirst.place import OBJECTIVES, clock, place
+from thirst.place import OBJECTIVES, clock, place, place_split
 from thirst.signals import load_profile, season_of
 
 # The profiles are PJM local time (Eastern). Read "now" there, not on the server's clock.
@@ -73,6 +73,7 @@ class PlaceIn(BaseModel):
     duration_h: int | None = Field(default=None, ge=1, le=24)
     power_kw: float | None = Field(default=None, gt=0)
     now_dow: int | None = Field(default=None, ge=0, le=6)    # weekday of arrival, 0 = Monday
+    mode: str = "contiguous"          # "split" runs a pausable job in its cheapest hours
 
 
 def _start_window(window_h: int, duration_h: int | None) -> int:
@@ -102,6 +103,19 @@ def _deadline(body: "PlaceIn") -> str:
     return _at(body, body.window_h)
 
 
+def _timeline_split(rec, body: "PlaceIn") -> tuple[dict, dict]:
+    """The hours a split job runs in: how many, over how many days, first and last."""
+    first, last = rec.hours[0], rec.hours[-1]
+    days = len({_day_offset(body, off) for off in rec.hours})
+    line = (f"runs {len(rec.hours)} hours across {days} day{'s' if days != 1 else ''} ET · "
+            f"first {_at(body, first)} · last {_at(body, last)} · deadline {_deadline(body)}")
+    return ({"mode": "split", "hours": list(rec.hours), "window": body.window_h, "duration": 1},
+            {"timeline": line, "timeline.start": _at(body, first), "timeline.end": _at(body, last),
+             "hero": f"{_at(body, first)} +{len(rec.hours) - 1} more",
+             "timeline.days": f"{days} day{'s' if days != 1 else ''}",
+             "latest_start": _at(body, body.window_h - 1)})
+
+
 def _timeline(rec, body: "PlaceIn") -> tuple[dict, dict]:
     """Run span, deadline and spare hours for a job of known duration.
 
@@ -126,6 +140,7 @@ def _record_json(rec, energy_mwh: float | None, body: "PlaceIn") -> dict:
     out = {"basis": rec.basis, "objective": rec.objective, "tradeoff": rec.tradeoff,
            "placed_hour": rec.placed["hour"], "shift_h": rec.shift_h,
            "delta": {m: getattr(rec, m).delta_pct for m in METRICS},
+           "mode": rec.mode, "hours": list(rec.hours),
            "display": {**rec.display, "deadline": _deadline(body)},
            "fallback": asdict(fallback(rec))}
     if energy_mwh:
@@ -136,7 +151,7 @@ def _record_json(rec, energy_mwh: float | None, body: "PlaceIn") -> dict:
             out["display"][f"job.{m}.saved"] = f"{saved:+,.1f} {o.units}"
         out["display"]["job.energy_mwh"] = f"{energy_mwh:,.2f} MWh"
     if body.duration_h:
-        out["timeline"], labels = _timeline(rec, body)
+        out["timeline"], labels = (_timeline_split if rec.mode == "split" else _timeline)(rec, body)
         out["display"].update(labels)
     return out
 
@@ -152,14 +167,18 @@ def place_route(body: PlaceIn) -> dict:
     start_window = _start_window(body.window_h, body.duration_h)
     energy = (body.power_kw * body.duration_h / 1000
               if body.power_kw and body.duration_h else None)
-    records = {b: {obj: _record_json(r, energy, body) for obj, r in
-                   place(body.arrival_hour, start_window, body.season, basis=b).items()}
+    split = body.mode == "split" and bool(body.duration_h)
+    placed = (lambda b: place_split(body.arrival_hour, body.window_h, body.season,
+                                    body.duration_h, basis=b)) if split else \
+             (lambda b: place(body.arrival_hour, start_window, body.season, basis=b))
+    records = {b: {obj: _record_json(r, energy, body) for obj, r in placed(b).items()}
                for b in BASES}
     # One bar scale for every basis and objective, so switching moves bars
     # through the centre line instead of silently rescaling them.
     scale = max(abs(v) for b in records.values() for r in b.values()
                 for v in r["delta"].values()) or 1.0
     return {"records": records, "scale": scale, "start_window_h": start_window,
+            "mode": "split" if split else "contiguous",
             "basis_prose": BASIS_PROSE}
 
 
@@ -172,8 +191,12 @@ class ExplainIn(PlaceIn):
 def explain_route(body: ExplainIn) -> dict:
     if body.basis not in BASES or body.objective not in OBJECTIVES:
         raise HTTPException(422, "unknown basis or objective")
-    rec = place(body.arrival_hour, _start_window(body.window_h, body.duration_h),
-                body.season, basis=body.basis)[body.objective]
+    if body.mode == "split" and body.duration_h:
+        rec = place_split(body.arrival_hour, body.window_h, body.season,
+                          body.duration_h, basis=body.basis)[body.objective]
+    else:
+        rec = place(body.arrival_hour, _start_window(body.window_h, body.duration_h),
+                    body.season, basis=body.basis)[body.objective]
     t0 = time.perf_counter()
     e = explain(rec)
     return {**asdict(e), "display": {"latency": f"{time.perf_counter() - t0:.1f} s"}}

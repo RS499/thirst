@@ -66,6 +66,8 @@ class PlacementRecord:
     tradeoff: Tradeoff            # computed: does optimising the objective cost another metric?
     source: str                   # e.g. "pjm-water-carbon@28aecf4"
     display: dict[str, str]       # dotted field path -> exact string the model may print
+    mode: str = "contiguous"      # "contiguous": one block; "split": the cheapest hours
+    hours: tuple[int, ...] = ()   # hour offsets from arrival that the job runs in, sorted
 
 
 @dataclass(frozen=True)
@@ -100,6 +102,8 @@ What the fields mean:
 - The job arrived at arrival.hour. It may wait up to window_h (its slack) and can only
   move LATER, never earlier. placed.hour, shift_h after arrival, is the best hour in that
   window for `objective`. A shift_h of "0 h" means running on arrival was already best.
+- mode says whether the job runs as one block from placed.hour, or is paused and resumed
+  so it runs only in the cheapest separate hours{days}.
 - For carbon, withdrawal and consumption, delta_pct is how much LESS than running on
   arrival: positive = better, negative = worse.
 - tradeoff: "aligned" = at least one metric improves and none gets worse; "conflict" =
@@ -117,6 +121,9 @@ Write it like this:
 - explanation: two or three sentences.
   * First, WHY: how long the job waits (shift_h) out of the slack it had (window_h), and
     that placed.hour is the best hour in that window for the objective.
+    When mode says the job is split, say that instead: it runs in those separate hours,
+    the cheapest in the window, starting at placed.hour -- and the headline says it is
+    split rather than naming one start time.
   * Then ONE sentence containing ONE figure: the objective's delta_pct. That sentence
     names the "{basis} basis"; it is the only place the basis is named.
 - If shift_h is "0 h", instead: headline "Running at <arrival.hour> is already the best
@@ -141,7 +148,9 @@ Rules (output that breaks any rule is thrown away):
    words "{basis} basis". Never mention any other accounting basis.
 3. Use only the RECORD. Say nothing about fuels, power plants, cooling, PJM, weather or
    anything else that is not a field above.
-4. fields_used: the field paths (from the RECORD) you drew on.
+4. fields_used: only field paths spelled exactly as the RECORD above prints them, e.g.
+   "withdrawal.delta_pct" (never "water_withdrawal.delta_pct", which is the objective's
+   name, not a field). The FACTS lines are not fields: never list them.
 
 Return ONLY a JSON object:
 {{"headline": string, "explanation": string, "fields_used": [string, ...]}}"""
@@ -173,6 +182,9 @@ def build_prompt(record: PlacementRecord) -> str:
     facts = {k: ", ".join(METRIC_PROSE[m] for m in METRIC_PROSE if test(sign[m])) or "none"
              for k, test in (("better", lambda v: v > 0), ("worse", lambda v: v < 0),
                              ("same", lambda v: v == 0))}
+    n_days = len({(record.arrival["hour"] - 1 + off) // 24 for off in record.hours})
+    facts["days"] = (f", spread over {n_days} day{'s' if n_days != 1 else ''}"
+                     if record.mode == "split" else "")
     return PROMPT.format(display=display, basis=BASIS_PROSE[record.basis],
                          objective=OBJECTIVE_PROSE[record.objective], **facts)
 
@@ -216,8 +228,10 @@ def fallback(record: PlacementRecord) -> Explanation:
     deltas = ", ".join(f"{METRIC_PROSE[m]} {d[f'{m}.delta_pct']}" for m in METRIC_PROSE)
     totals = ", ".join(f"{METRIC_PROSE[m]} from {d[f'{m}.baseline']} to {d[f'{m}.placed']}"
                        for m in METRIC_PROSE)
+    how = (f"It runs in {len(record.hours)} separate hours, the cheapest in the window, "
+           f"rather than as one block. " if record.mode == "split" else "")
     explanation = (
-        f"On the {b} basis, compared with running on arrival, the change is {deltas} "
+        f"{how}On the {b} basis, compared with running on arrival, the change is {deltas} "
         f"(positive means less, negative means more). "
         f"Per {d['energy_mwh']} on the {b} basis, that is {totals}. "
         f"The job was placed to minimise {obj}, shifted {d['shift_h']} within a "
