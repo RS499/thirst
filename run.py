@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Terminal path through thirst: classify -> place. No explainer or verifier yet.
+"""Terminal path through GridShift: classify -> place. No explainer or verifier yet.
 
     python run.py "fine-tuning overnight, need it before the 9am standup"
 
@@ -11,9 +11,9 @@ from __future__ import annotations
 import sys
 from datetime import datetime
 
-from thirst.classify import classify
-from thirst.place import place
-from thirst.signals import season_of
+from gridshift.classify import classify
+from gridshift.place import place
+from gridshift.signals import season_of
 
 METRIC_NAMES = {"carbon": "carbon", "withdrawal": "water withdrawal",
                 "consumption": "water consumption"}

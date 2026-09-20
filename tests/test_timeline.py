@@ -3,7 +3,7 @@
     python3 -m pytest tests/test_timeline.py
 
 The geometry test drives the served page in Chrome and needs the API running
-(python3 -m uvicorn api:app --port 8600, or THIRST_URL); it is skipped otherwise.
+(python3 -m uvicorn api:app --port 8600, or GRIDSHIFT_URL); it is skipped otherwise.
 It makes no model call: /place is pure Python, and the timeline under test is set
 directly on the record the page renders.
 """
@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from api import PlaceIn, _timeline  # noqa: E402
 
 SAT = 5
-URL = os.environ.get("THIRST_URL", "http://localhost:8600")
+URL = os.environ.get("GRIDSHIFT_URL", "http://localhost:8600")
 
 
 def labels(arrival_clock: int, shift: int, duration: int, window: int, dow: int = SAT) -> tuple[str, str]:
@@ -58,7 +58,7 @@ def page():
     try:
         httpx.get(URL, timeout=2).raise_for_status()
     except Exception:
-        pytest.skip(f"thirst API not reachable at {URL}")
+        pytest.skip(f"GridShift API not reachable at {URL}")
     with sync_api.sync_playwright() as p:
         browser = p.chromium.launch(channel="chrome", headless=True)
         pg = browser.new_page(viewport={"width": 1440, "height": 1000})
@@ -92,8 +92,8 @@ def test_block_left_and_width_are_fractions_of_the_full_window(page, name, shift
 
 from itertools import product  # noqa: E402
 
-from thirst.place import OBJECTIVES, _season_profile, place, place_split  # noqa: E402
-from thirst.signals import METRICS  # noqa: E402
+from gridshift.place import OBJECTIVES, _season_profile, place, place_split  # noqa: E402
+from gridshift.signals import METRICS  # noqa: E402
 
 JOBS = list(product(("SON", "DJF"), (20, 9), (12, 24, 40), (3, 6), ("average", "marginal_empirical")))
 

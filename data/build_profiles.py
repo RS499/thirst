@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ONE-OFF vendoring script. Never imported or run by thirst at runtime.
+"""ONE-OFF vendoring script. Never imported or run by GridShift at runtime.
 
 Vendored from: pjm-water-carbon @ 28aecf4462732f522229508d68c8dee3c30e5bca
     ("Extend to eight balancing authorities: the conflict is fleet-specific")

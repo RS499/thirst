@@ -4,7 +4,7 @@
 ("Extend to eight balancing authorities: the conflict is fleet-specific").
 Built once by `build_profiles.py`, which imports upstream's own
 `run_savings.build_signals`. No upstream logic is re-implemented here. That
-script is never run or imported by thirst at runtime.
+script is never run or imported by GridShift at runtime.
 
 **Window:** PJM BA, 2025-09-17 → 2026-09-16. Upstream headline configuration:
 EIA-860 fleet cooling mix, hydro reservoir evaporation excluded.

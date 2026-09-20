@@ -59,7 +59,7 @@ reporting. Headline: "Carbon-aware exists. Water-aware doesn't."*
 
 `[Switch to the /?demo=1 window. It is already running.]`
 
-> Here's thirst. I describe a job like a Slack message: overnight fine-tune,
+> Here's GridShift. I describe a job like a Slack message: overnight fine-tune,
 > done by 7am.
 
 `[The tour presses "Place it". Results appear. PRESS ANY KEY: you now drive.]`
@@ -140,7 +140,7 @@ professional software-engineering experience.*
   cleaner hours tend to be thirstier (r = −0.465, average basis).
 - **"Which way of counting is right?"** Both, but they answer different questions.
   Average is what your electricity contained; marginal is what your job changed.
-  thirst shows both and never picks one silently.
+  GridShift shows both and never picks one silently.
 - **"How big is the win?"** For this one job, up to about 25 % on the
   marginal-empirical basis. Averaged over thousands of simulated jobs, it's
   single digits. Timing is a lever, not a fix.

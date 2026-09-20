@@ -158,7 +158,7 @@ Return ONLY a JSON object:
 
 def nemotron() -> ModelFn:
     """Return a prompt -> text callable bound to Nemotron, constrained to ``EXPLAIN_SCHEMA``."""
-    from thirst.classify import MODEL, TEMPERATURE, client
+    from gridshift.classify import MODEL, TEMPERATURE, client
 
     client_ = client()
 
@@ -191,7 +191,7 @@ def build_prompt(record: PlacementRecord) -> str:
 
 def parse_response(raw: str) -> dict:
     """Parse and schema-validate raw model text against ``EXPLAIN_SCHEMA``."""
-    from thirst.classify import parse_response as extract_json
+    from gridshift.classify import parse_response as extract_json
 
     data = extract_json(raw)
     if set(data) != set(EXPLAIN_SCHEMA["required"]):
@@ -244,7 +244,7 @@ def fallback(record: PlacementRecord) -> Explanation:
 
 def explain(record: PlacementRecord, model: ModelFn | None = None) -> Explanation:
     """Explain one placement: prompt, call, validate, verify, else ``fallback``. Never raises."""
-    from thirst.verify import verify     # verify imports this module
+    from gridshift.verify import verify     # verify imports this module
 
     try:
         data = parse_response((model or nemotron())(build_prompt(record)))

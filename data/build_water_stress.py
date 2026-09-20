@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ONE-OFF: AWARE-US water-stress weighting of the five coverage-passing regions.
 
-Never imported or run by thirst at runtime.
+Never imported or run by GridShift at runtime.
 
     PYTHONDONTWRITEBYTECODE=1 python3 data/build_water_stress.py ~/pjm-water-carbon
 

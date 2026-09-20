@@ -93,9 +93,9 @@ volume.
 - **BPAT is small.** It has 4.1 GW of water-consuming thermal capacity, and
   one county (Lewis, WA) holds 32 % of it. Its factor rests on very few plants.
 
-**Consequence for thirst.** Raw volume and stress-weighted volume answer
+**Consequence for GridShift.** Raw volume and stress-weighted volume answer
 different questions. The ranking changes between them, so any cross-region
-comparison thirst makes must say which one it is using, in the same way every
+comparison GridShift makes must say which one it is using, in the same way every
 savings figure names its accounting basis.
 
 Reproduce: `PYTHONDONTWRITEBYTECODE=1 python3 data/build_water_stress.py ~/pjm-water-carbon`.

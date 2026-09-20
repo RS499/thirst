@@ -28,7 +28,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from thirst.classify import LABELS, MODEL, classify, nemotron  # noqa: E402
+from gridshift.classify import LABELS, MODEL, classify, nemotron  # noqa: E402
 
 LABELED = ROOT / "eval" / "labeled.jsonl"
 RESULTS = ROOT / "results"

@@ -17,8 +17,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, replace
 
-from thirst.classify import Classification
-from thirst.explain import Explanation, PlacementRecord, fallback
+from gridshift.classify import Classification
+from gridshift.explain import Explanation, PlacementRecord, fallback
 
 METRICS = ("carbon", "consumption", "withdrawal")
 

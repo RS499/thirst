@@ -25,11 +25,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from thirst.classify import MODEL  # noqa: E402
-from thirst.explain import Explanation, explain, nemotron, parse_response  # noqa: E402
-from thirst.place import place  # noqa: E402
-from thirst.signals import SEASONS  # noqa: E402
-from thirst.verify import verify_explanation  # noqa: E402
+from gridshift.classify import MODEL  # noqa: E402
+from gridshift.explain import Explanation, explain, nemotron, parse_response  # noqa: E402
+from gridshift.place import place  # noqa: E402
+from gridshift.signals import SEASONS  # noqa: E402
+from gridshift.verify import verify_explanation  # noqa: E402
 
 RESULTS = ROOT / "results"
 DELAY_S = 1.0

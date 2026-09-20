@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>thirst</title>
+<title>GridShift</title>
 <style>
 /* One family, three weights (400 / 500 / 700). Scale: 11 · 14 · 18 · 28 · 72. */
 :root {
@@ -301,7 +301,7 @@ body.demo #stage .demo-part {
 <body>
 
 <header class="brand">
-  <span class="word">thirst</span>
+  <span class="word">GridShift</span>
   <span class="tag">Water-aware placement for deferrable compute on the PJM grid</span>
   <span class="model"><span class="dot" id="model-dot"></span><span id="model-name">Nemotron</span></span>
 </header>
@@ -1242,8 +1242,8 @@ function buildSteps(mode) {
     add({ name: "Can you trust it?", section: evidence, ...acc });
     add({ name: "Can you trust it?", section: evidence, ...fid });
   } else {
-    add({ name: "Welcome", section: none, title: "What thirst does",
-      body: "Big computer jobs often don't need to run this minute. thirst finds the hour when power plants pollute less and use less water." });
+    add({ name: "Welcome", section: none, title: "What GridShift does",
+      body: "Big computer jobs often don't need to run this minute. GridShift finds the hour when power plants pollute less and use less water." });
     add({ name: "Your job", section: job, ...typeJob });
     add({ name: "Your job", section: job, el: () => $("obj-carbon").closest(".group"), title: "Choose what to cut",
       body: "Carbon means planet-warming pollution; the other options are water. We'll start with carbon." });
@@ -1279,7 +1279,7 @@ function buildSteps(mode) {
     add({ name: "Counted again", section: verdict, el: () => $("bars"), title: "Why did it flip?",
       body: "Nuclear plants barely pollute but use lots of water, and they run no matter what. The marginal count leaves them out." });
     add({ name: "Counted again", section: verdict, el: () => $("v-badge"), title: "Always labelled",
-      body: "So the answer depends on how you count. thirst always says which way it's counting." });
+      body: "So the answer depends on how you count. GridShift always says which way it's counting." });
     add({ name: "The explanation", section: explainP, el: () => $("e-headline"), title: "A plain-English summary",
       body: "The AI writes up the result in words. It may only use numbers the code already worked out." });
     add({ name: "The explanation", section: explainP, el: () => $("e-verify").parentElement, title: "Checked before you see it",
@@ -1297,7 +1297,7 @@ function buildSteps(mode) {
     add({ name: "Can you trust it?", section: evidence, ...fid });
     add({ name: "Can you trust it?", section: evidence, el: () => $("ev-prov"), title: "A sealed final exam",
       body: "Some test jobs are locked away and unseen. The final score can't be tuned to pass them." });
-    add({ name: "That's thirst", section: none, title: "Right time, honest trade-off",
+    add({ name: "That's GridShift", section: none, title: "Right time, honest trade-off",
       body: "Describe a job, get the best hour, and see the cost in carbon and water. The counting method is always named." });
   }
   tour.final = cur;

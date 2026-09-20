@@ -1,4 +1,4 @@
-"""thirst -- water-aware scheduling of deferrable compute on the PJM grid.
+"""GridShift -- water-aware scheduling of deferrable compute on the PJM grid.
 
 Pipeline for one request:
 
@@ -19,10 +19,10 @@ from pathlib import Path
 
 import streamlit as st
 
-from thirst.classify import classify
-from thirst.explain import explain
-from thirst.place import place
-from thirst.signals import season_of
+from gridshift.classify import classify
+from gridshift.explain import explain
+from gridshift.place import place
+from gridshift.signals import season_of
 
 RESULTS = Path(__file__).parent / "results"
 PLACEHOLDER = ("Nightly fine-tuning run. It can pause and resume, "
@@ -33,10 +33,10 @@ BASES = {"average": "average", "marginal_empirical": "marginal-empirical"}
 METRICS = {"carbon": "Carbon", "withdrawal": "Water withdrawal",
            "consumption": "Water consumption"}
 
-st.set_page_config(page_title="thirst", page_icon="💧")
+st.set_page_config(page_title="GridShift", page_icon="💧")
 st.markdown("<style>#MainMenu, footer, [data-testid='stMainMenu'] {visibility: hidden;}</style>",
             unsafe_allow_html=True)
-st.title("thirst")
+st.title("GridShift")
 st.caption("Place a deferrable compute job in the PJM hour that costs less carbon and water, "
            "and see what the choice trades away.")
 

@@ -69,7 +69,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## What this is
 
-**thirst** places deferrable compute jobs (batch training, ETL, rendering) into
+**GridShift** places deferrable compute jobs (batch training, ETL, rendering) into
 hours of the PJM grid that cost less carbon *and* water, and explains the
 tradeoff in plain English. The finding behind it (from `pjm-water-carbon`,
 vendored into `data/`): in PJM, carbon-optimal and water-optimal hours
@@ -83,10 +83,10 @@ Layout:
 | path | role |
 |---|---|
 | `app.py` | orchestration: classify → place → explain → verify |
-| `thirst/signals.py` | **vendored** read-only loader for `data/profile_*.csv` |
-| `thirst/classify.py` | Nemotron job #1 (deferability) |
-| `thirst/explain.py` | Nemotron job #2 (tradeoff narration) + `PlacementRecord` |
-| `thirst/verify.py` | deterministic guards on all model output |
+| `gridshift/signals.py` | **vendored** read-only loader for `data/profile_*.csv` |
+| `gridshift/classify.py` | Nemotron job #1 (deferability) |
+| `gridshift/explain.py` | Nemotron job #2 (tradeoff narration) + `PlacementRecord` |
+| `gridshift/verify.py` | deterministic guards on all model output |
 | `data/` | vendored profiles + `build_profiles.py` (one-off, never run at runtime) |
 | `eval/` | classification and explanation eval sets |
 | `results/` | eval outputs |
@@ -100,7 +100,7 @@ Layout:
    - explain: the model may only print strings that appear in
      `PlacementRecord.display`, copied exactly. It does no rounding, unit
      conversion, differencing or ranking of its own.
-   - `thirst/verify.py` enforces this mechanically. On any violation the output
+   - `gridshift/verify.py` enforces this mechanically. On any violation the output
      is discarded and `explain.fallback()` (a pure-Python template) is shown.
 2. **No savings figure appears without its accounting basis named.** Every
    sentence (in model output, UI, README, eval reports and commit messages)
@@ -144,7 +144,7 @@ treated as not deferable.
 
 ## Nemotron job #2: explain
 
-**Input:** one `PlacementRecord` (see `thirst/explain.py`), built entirely by
+**Input:** one `PlacementRecord` (see `gridshift/explain.py`), built entirely by
 Python: basis, objective, arrival and placed slot, shift, window, energy,
 per-metric `{units, baseline, placed, delta_pct}` for carbon / consumption /
 withdrawal, the computed `tradeoff` (`aligned | conflict | neutral`), the

@@ -1,6 +1,6 @@
-"""thirst HTTP API + the static frontend (static/index.html).
+"""GridShift HTTP API + the static frontend (static/index.html).
 
-Wraps thirst.classify / place / explain unchanged. Python formats every figure
+Wraps gridshift.classify / place / explain unchanged. Python formats every figure
 the page shows; the page only lays them out (and sizes bars from the same
 Python-computed deltas).
 
@@ -32,10 +32,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from thirst.classify import MODEL, classify
-from thirst.explain import BASIS_PROSE, explain, fallback
-from thirst.place import OBJECTIVES, clock, place, place_split
-from thirst.signals import load_profile, season_of
+from gridshift.classify import MODEL, classify
+from gridshift.explain import BASIS_PROSE, explain, fallback
+from gridshift.place import OBJECTIVES, clock, place, place_split
+from gridshift.signals import load_profile, season_of
 
 # The profiles are PJM local time (Eastern). Read "now" there, not on the server's clock.
 ET = ZoneInfo("America/New_York")
@@ -45,7 +45,7 @@ BASES = ("average", "marginal_empirical")
 METRICS = ("carbon", "withdrawal", "consumption")
 UPSTREAM_COMMIT = "28aecf4462732f522229508d68c8dee3c30e5bca"
 
-app = FastAPI(title="thirst", docs_url=None, redoc_url=None)
+app = FastAPI(title="GridShift", docs_url=None, redoc_url=None)
 
 
 # ---------------------------------------------------------------- classify / place

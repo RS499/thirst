@@ -1,11 +1,11 @@
-# thirst
+# GridShift
 
 **Schedule your compute when the grid is less thirsty, and see what that costs
 in carbon.**
 
 Power plants need water for cooling. On the PJM grid (13 eastern states and
 DC), I found the lowest-carbon hour and the lowest-water hour disagree on 360 of
-365 days. thirst reads a compute job in plain English, works out how long it
+365 days. GridShift reads a compute job in plain English, works out how long it
 can wait, places it in the best hour for carbon or water, and shows what that
 choice trades away.
 
@@ -52,26 +52,26 @@ up when you added load. Figures are average basis unless marked.
   carbon-optimized scheduling *increases* withdrawal by 0.29 % to 1.87 % across
   2–24 h of slack (average basis). It saves 3.05 % carbon and 6.37 % withdrawal
   at 24 h of slack on the marginal-empirical basis, where nuclear
-  never answers added load. So thirst never shows a figure without its basis.
+  never answers added load. So GridShift never shows a figure without its basis.
 
 ## Where Nemotron sits
 
 Nemotron (`nvidia/nemotron-3-super-120b-a12b`, NVIDIA's hosted API) does two
 jobs; Python does everything else.
 
-**(a) Classify: plain-English job → structured deferability** (`thirst/classify.py`).
+**(a) Classify: plain-English job → structured deferability** (`gridshift/classify.py`).
 A job is **deferable** when its text states a deadline that resolves to a
 number of hours. The model returns a label and a *verbatim quote* ("before
 the 9am standup"), never an hour count. Python confirms the quote is in the
 input; `parse_window_hours()` resolves it against anchors elsewhere in the text
 ("my flight is Thursday at 6am") and does the arithmetic.
 
-**(b) Explain: narrate the tradeoff from a `PlacementRecord`** (`thirst/explain.py`).
+**(b) Explain: narrate the tradeoff from a `PlacementRecord`** (`gridshift/explain.py`).
 Python builds the record, with every figure pre-formatted as a display string.
 Nemotron writes a headline and 2–4 sentences from those fields only.
 
 **The rule: Nemotron never emits a number Python didn't compute.** This is
-enforced mechanically by `thirst/verify.py`, not by prompt instructions: every
+enforced mechanically by `gridshift/verify.py`, not by prompt instructions: every
 number must match a display string, sign included; every sentence with a figure
 must name its basis; no outside facts or invented fields. Any violation swaps
 in `explain.fallback()`, a deterministic Python template. The model can make an
@@ -114,7 +114,7 @@ across all four categories.
 - **Pausable jobs are placed as if contiguous.** Nemotron reports whether a job
   can pause (`interruptible`), but the placer ignores it and prices every job
   as one unbroken run. A pausable job could be split across the cleanest hours;
-  thirst doesn't do that yet.
+  GridShift doesn't do that yet.
 - **Free-tier rate limits.** One HTTP 429 in the 0.917 classify run, despite
   sequential calls, a 1 s pause and 5 SDK retries with backoff.
 - **The regional regression is n = 5.** R² = 0.82 with p = 0.034 on five points

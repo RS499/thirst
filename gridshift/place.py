@@ -17,8 +17,8 @@ prices every hour it runs in (the contiguous path prices the start hour only).
 """
 from __future__ import annotations
 
-from thirst.explain import MetricOutcome, PlacementRecord
-from thirst.signals import METRICS, SOURCE, Basis, load_profile
+from gridshift.explain import MetricOutcome, PlacementRecord
+from gridshift.signals import METRICS, SOURCE, Basis, load_profile
 
 BASIS = "average"
 OBJECTIVES = {"carbon": "carbon", "water_withdrawal": "withdrawal",

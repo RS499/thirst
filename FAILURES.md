@@ -39,7 +39,7 @@ via `chat_template_kwargs: {"enable_thinking": false}`, it answered in about 60
 tokens, but it emitted invalid JSON: the `rationale` value was unquoted. The fix
 needed both: `enable_thinking=False` **plus** a server-side `json_schema`
 `response_format`.
-Evidence: `thirst/classify.py` `nemotron()`, commit "classify: disable Nemotron
+Evidence: `gridshift/classify.py` `nemotron()`, commit "classify: disable Nemotron
 reasoning and constrain output to the schema".
 
 ## 4. The specified model had been retired
@@ -52,7 +52,7 @@ longer available."* Of the Nemotron models still listed:
 - `nemotron-3-super-120b-a12b` answered in 2.2 s and was adopted.
 
 A listing that includes a model is not evidence the model can be called.
-Evidence: `MODEL` comment in `thirst/classify.py`.
+Evidence: `MODEL` comment in `gridshift/classify.py`.
 
 ## 5. The label definitions asked the wrong question: 0.633 → 0.917
 
@@ -127,5 +127,5 @@ concrete direction. In the next run, fidelity was 20/20, and all 20 headlines
 read by hand state the right direction.
 Evidence: commit `cc20c12` "explain: direction comes from Python, not the
 model" (the reversed run's outputs were not saved; the commit message records
-the 5-of-6 count); `thirst/explain.py` `build_prompt()` (the FACTS block);
+the 5-of-6 count); `gridshift/explain.py` `build_prompt()` (the FACTS block);
 `results/explain_eval.json`.

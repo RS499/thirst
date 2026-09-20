@@ -35,7 +35,7 @@ The explanation came back verified in about 2 s.
 ```js
 (() => {
   const caps = [
-    "thirst: schedule compute when the PJM grid is less thirsty",
+    "GridShift: schedule compute when the PJM grid is less thirsty",
     "A job in plain English. Nemotron quotes the deadline; Python computes the 12-hour window.",
     "Average basis: the lowest-carbon start saves 5.5 % carbon but uses 14.6 % more water withdrawal.",
     "Marginal-empirical basis: same job, all three improve. The conflict depends on the accounting basis.",
