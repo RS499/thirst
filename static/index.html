@@ -1292,7 +1292,8 @@ function buildSteps(mode) {
     add({ name: "If the job can move", section: regions, el: () => $("r-slope"), title: "Where water is scarce matters",
       body: "A litre used in dry West Texas costs more than one used where water is plentiful." });
     add({ name: "If the job can move", section: regions, el: () => $("r-slope"), title: "The ranking reshuffles",
-      body: "Weighted by local water stress, Texas's grid (ERCO) jumps from 4th to 1st. PJM drops from 2nd to 4th." });
+      body: "Rank 1 is the thirstiest. Weighted for local water stress, Texas's grid (ERCO) goes from " +
+            "4th-thirstiest to the worst of the five, and PJM moves the other way, 2nd to 4th." });
     add({ name: "Can you trust it?", section: evidence, ...acc });
     add({ name: "Can you trust it?", section: evidence, ...fid });
     add({ name: "Can you trust it?", section: evidence, el: () => $("ev-prov"), title: "A sealed final exam",
