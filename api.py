@@ -103,17 +103,55 @@ def _deadline(body: "PlaceIn") -> str:
     return _at(body, body.window_h)
 
 
+MAX_RUN_LABELS = 5           # more clusters than this and the strip labels crowd
+RUN_ROWS = 4                 # rows listed before "+N more"
+
+
+def _runs(rec, body: "PlaceIn") -> list[dict]:
+    """Consecutive chosen hours, grouped into runs, each with its own labels.
+
+    A run of n hours starting at offset s finishes at the END of hour s+n-1, so the
+    span reads start -> finish ("9 AM - 4 PM", 7 h), like the contiguous line.
+    """
+    groups: list[list[int]] = []
+    for off in rec.hours:
+        if groups and off == groups[-1][-1] + 1:
+            groups[-1].append(off)
+        else:
+            groups.append([off])
+
+    arrival = body.arrival_hour - 1
+    out = []
+    for g in groups:
+        start, finish = g[0], g[-1] + 1
+        day = (DAY_ABBR[(body.now_dow + _day_offset(body, start)) % 7]
+               if body.now_dow is not None else "")
+        a, b = clock((arrival + start) % 24), clock((arrival + finish) % 24)
+        out.append({"offset": start, "hours": len(g),
+                    "display": {"day": day, "span": f"{a} – {b}", "hours": f"{len(g)} h",
+                                "label": f"{a}–{b}{' ' + day if day else ''}"}})
+    return out
+
+
 def _timeline_split(rec, body: "PlaceIn") -> tuple[dict, dict]:
-    """The hours a split job runs in: how many, over how many days, first and last."""
-    first, last = rec.hours[0], rec.hours[-1]
+    """The hours a split job runs in, grouped into runs: how many, when, how long."""
+    runs = _runs(rec, body)
     days = len({_day_offset(body, off) for off in rec.hours})
     line = (f"runs {len(rec.hours)} hours across {days} day{'s' if days != 1 else ''} ET · "
-            f"first {_at(body, first)} · last {_at(body, last)} · deadline {_deadline(body)}")
-    return ({"mode": "split", "hours": list(rec.hours), "window": body.window_h, "duration": 1},
-            {"timeline": line, "timeline.start": _at(body, first), "timeline.end": _at(body, last),
-             "hero": f"{_at(body, first)} +{len(rec.hours) - 1} more",
+            f"deadline {_deadline(body)}")
+    rows = [r["display"] for r in runs[:RUN_ROWS]] if len(runs) > MAX_RUN_LABELS else \
+           [r["display"] for r in runs]
+    if len(runs) > MAX_RUN_LABELS:
+        rows.append({"more": f"+{len(runs) - RUN_ROWS} more"})
+    return ({"mode": "split", "hours": list(rec.hours), "window": body.window_h, "duration": 1,
+             # Strip labels only while they fit; the list below always carries the times.
+             "runs": [{"offset": r["offset"], "hours": r["hours"],
+                       "label": r["display"]["label"]} for r in runs],
+             "label_runs": len(runs) <= MAX_RUN_LABELS},
+            {"timeline": line, "hero": f"{_at(body, rec.hours[0])} +{len(rec.hours) - 1} more",
+             "timeline.start": _at(body, rec.hours[0]), "timeline.end": _at(body, rec.hours[-1]),
              "timeline.days": f"{days} day{'s' if days != 1 else ''}",
-             "latest_start": _at(body, body.window_h - 1)})
+             "timeline.rows": rows, "latest_start": _at(body, body.window_h - 1)})
 
 
 def _timeline(rec, body: "PlaceIn") -> tuple[dict, dict]:

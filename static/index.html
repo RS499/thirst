@@ -149,7 +149,13 @@ textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 
 .tl-lab { position: absolute; font-size: var(--fs-xs); line-height: 14px; white-space: nowrap;
   transition: left 250ms var(--ease); }
 .tl-lab.blk { top: 0; color: var(--text); font-weight: 500; }
-.tl-lab.blk.below { top: auto; bottom: 0; }
+.tl-lab.blk.below, .tl-lab.run.below { top: auto; bottom: 0; }
+.tl-lab.run { top: 0; color: var(--text); font-weight: 500; }
+.tl-runs { display: grid; grid-template-columns: max-content max-content max-content; gap: 3px 16px;
+  margin-top: 8px; font-size: var(--fs-xs); }
+.tl-runs .d { color: var(--text-2); }
+.tl-runs .h { color: var(--text-2); text-align: right; }
+.tl-runs .more { grid-column: 1 / -1; color: var(--text-3); }
 .tl-lab.end { bottom: 0; color: var(--text-3); }
 .tl-line { margin-top: 4px; font-weight: 500; color: var(--text); }
 .region-line { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -396,8 +402,10 @@ body.demo #stage .demo-part {
           <span class="tl-lab blk" id="v-tl-bs"></span><span class="tl-lab blk" id="v-tl-be"></span>
           <div class="tl-track" aria-hidden="true"><div class="tl-job" id="v-tl-job"></div><span id="v-tl-blocks"></span><span class="tl-dl"></span></div>
           <span class="tl-lab end" id="v-tl-from"></span><span class="tl-lab end" id="v-tl-to"></span>
+          <span id="v-tl-rlabels"></span>
         </div>
         <div class="tl-line num" id="v-tl-text"></div>
+        <div class="tl-runs num" id="v-tl-runs" hidden></div>
         <div class="hint" id="v-tl-note" hidden></div>
       </div>
       <div class="region-line" id="v-region" hidden>
@@ -705,6 +713,30 @@ function layoutStrip(t = state.placed && state.placed.records[basis()][objective
   const x1 = W * (t.hours ? hours[hours.length - 1] + 1 : t.shift + t.duration) / t.window;
   const bs = $("v-tl-bs"), be = $("v-tl-be"), from = $("v-tl-from"), to = $("v-tl-to");
   const clamp = (x, w) => Math.max(0, Math.min(x, W - w));
+  // Split: one label per cluster, centred on it. The rows below always carry the times,
+  // so labels are dropped rather than crowded when there are too many clusters.
+  $("v-tl-rlabels").innerHTML = "";
+  bs.hidden = be.hidden = !!t.runs;
+  if (t.runs) {
+    const labs = t.label_runs ? t.runs.map((r) => {
+      const el = document.createElement("span");
+      el.className = "tl-lab run"; el.textContent = r.label;
+      $("v-tl-rlabels").appendChild(el);
+      return [el, r];
+    }) : [];
+    let prev = -Infinity, below = false;
+    for (const [el, r] of labs) {
+      const mid = W * (r.offset + r.hours / 2) / t.window;
+      const left = clamp(mid - wd(el) / 2, wd(el));
+      below = left < prev + gap ? !below : false;       // alternate rows only on collision
+      el.classList.toggle("below", below);
+      el.style.left = `${left}px`;
+      if (!below) prev = left + wd(el);
+    }
+    from.style.left = "0px"; to.style.left = `${W - wd(to)}px`;
+    for (const e of [from, to]) e.style.visibility = "visible";
+    return;
+  }
   const inside = x0 + wd(bs) + gap <= x1 - wd(be);
   bs.classList.toggle("below", !inside); be.classList.toggle("below", !inside);
   bs.style.left = `${clamp(inside ? x0 : x0 - wd(bs), wd(bs))}px`;
@@ -783,6 +815,14 @@ function render(fresh) {
        ? ` · latest start ${d["latest_start"]}` : ""));
   $("bars").hidden = false;
   $("v-tl").hidden = !rec.timeline;
+  const rows = d["timeline.rows"];
+  $("v-tl-runs").hidden = !rows;
+  $("v-tl-runs").innerHTML = "";
+  for (const r of rows || []) {
+    const cell = (cls, text) => Object.assign(document.createElement("span"), { className: cls, textContent: text });
+    if (r.more) { $("v-tl-runs").append(cell("more", r.more)); continue; }
+    $("v-tl-runs").append(cell("d", r.day), cell("s", r.span), cell("h", r.hours));
+  }
   $("v-tl-note").hidden = rec.mode !== "split";
   $("v-tl-note").textContent = MODE_NOTE;
   if (rec.timeline) {
