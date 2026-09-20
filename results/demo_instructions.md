@@ -8,12 +8,12 @@ afterwards.
 
 Checked against the running API with the "Overnight fine-tune" preset. The text
 says "It's 7pm now", so these numbers do not depend on when you record, only on
-the season (SON until Nov 30):
+the season (SON until Nov 30) and the preset's 6 h duration:
 
 | basis | badge | best start | carbon | withdrawal | consumption |
 |---|---|---|---|---|---|
-| average | CONFLICT | 03:00 | +7.3 % | −16.5 % | −8.3 % |
-| marginal-empirical | ALIGNED | 20:00 | +9.9 % | +24.7 % | +25.0 % |
+| average | CONFLICT | 1 AM | +5.5 % | −14.6 % | −8.0 % |
+| marginal-empirical | ALIGNED | 8 PM | +9.9 % | +24.7 % | +25.0 % |
 
 The explanation came back verified in about 2 s.
 
@@ -37,7 +37,7 @@ The explanation came back verified in about 2 s.
   const caps = [
     "thirst: schedule compute when the PJM grid is less thirsty",
     "A job in plain English. Nemotron quotes the deadline; Python computes the 12-hour window.",
-    "Average basis: the lowest-carbon start saves 7.3 % carbon but uses 16.5 % more water withdrawal.",
+    "Average basis: the lowest-carbon start saves 5.5 % carbon but uses 14.6 % more water withdrawal.",
     "Marginal-empirical basis: same job, all three improve. The conflict depends on the accounting basis.",
     "Nemotron explains. verify() checks every number against Python's record, sign included.",
     "If the job can move regions: water stress reorders them (consumption, average basis).",

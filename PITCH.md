@@ -22,12 +22,13 @@ quietly makes it thirstier, and nobody can see it.*
 
 Verified numbers for the demo preset (*"It's 7pm now … done by 7am tomorrow"*,
 autumn profile, cached in `static/demo_cache.json` and recomputed from
-`place()`, which matches). The row is minimising carbon:
+`place()`, which matches). The row is minimising carbon, for the preset's 6 h job
+(a 6 h job in a 12 h window can only start in the first 7 hours):
 
 | basis | best start | verdict | carbon | withdrawal | consumption |
 |---|---|---|---:|---:|---:|
-| average | 03:00 | conflict | +7.3 % | −16.5 % | −8.3 % |
-| marginal-empirical | 20:00 | aligned | +9.9 % | +24.7 % | +25.0 % |
+| average | 1 AM | conflict | +5.5 % | −14.6 % | −8.0 % |
+| marginal-empirical | 8 PM | aligned | +9.9 % | +24.7 % | +25.0 % |
 
 (+ = less than running at 7pm; − = more.)
 
