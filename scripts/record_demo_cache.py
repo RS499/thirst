@@ -4,9 +4,9 @@
     python3 -m uvicorn api:app --port 8600      # in another shell
     python3 scripts/record_demo_cache.py
 
-Calls the live API once for classify, once for place and once per explain
-combination (2 bases x 3 objectives), so ?demo=1 needs no network and makes no
-model call. The preset text and its duration are read from static/index.html,
+Calls the live API once for classify, then place and one explain per
+combination (2 bases x 3 objectives) in each run mode, so ?demo=1 needs no
+network and makes no model call. The preset text and its duration are read from static/index.html,
 so the recording always matches the button a judge would click.
 
 Re-record whenever a display string changes shape (a new field, a new time
@@ -54,6 +54,12 @@ def main() -> None:
         place = post("/place", request)
         explain = {f"{b}|{o}": post("/explain", {**request, "basis": b, "objective": o})
                    for b in BASES for o in OBJECTIVES}
+        # The same job run in its cheapest hours, for the tour's split step. The
+        # contiguous entries above are untouched.
+        split_req = {**request, "mode": "split"}
+        place_split = post("/place", split_req)
+        explain_split = {f"{b}|{o}": post("/explain", {**split_req, "basis": b, "objective": o})
+                         for b in BASES for o in OBJECTIVES}
 
     for key, e in explain.items():
         print(f"  {key:34s} {'template' if e['fallback'] else 'Nemotron'}: {e['headline']}")
@@ -67,10 +73,10 @@ def main() -> None:
                                  capture_output=True, text=True).stdout.strip(),
         "model": classify["display"]["model"],
         "preset": text, "request": request, "classify": classify, "place": place,
-        "explain": explain,
+        "explain": explain, "place_split": place_split, "explain_split": explain_split,
     }, indent=2) + "\n")
     print(f"wrote {OUT.relative_to(ROOT)}: window {classify['window_h']} h, duration {duration} h, "
-          f"{len(explain)} explanations")
+          f"{len(explain)} + {len(explain_split)} explanations")
 
 
 if __name__ == "__main__":

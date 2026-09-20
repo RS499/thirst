@@ -1,7 +1,7 @@
 {
   "_note": "Recorded by scripts/record_demo_cache.py. The demo replays these responses so it runs with no network and no model call. Re-record when display strings change shape.",
-  "recorded_at": "2026-09-19T19:59:17",
-  "commit": "526e329",
+  "recorded_at": "2026-09-20T00:08:26",
+  "commit": "05e631b",
   "model": "nemotron-3-super-120b-a12b",
   "preset": "It's 7pm now. Overnight fine-tune of the support model; it can pause and resume, and it has to be done by 7am tomorrow.",
   "request": {
@@ -10,7 +10,7 @@
     "season": "SON",
     "duration_h": 6,
     "power_kw": null,
-    "now_dow": 5
+    "now_dow": 6
   },
   "classify": {
     "label": "deferable",
@@ -20,14 +20,14 @@
     "window_h": 12,
     "error": null,
     "now_hour": 19,
-    "now_dow": 5,
+    "now_dow": 6,
     "arrival_hour": 20,
     "season": "SON",
     "display": {
       "now": "7 PM",
       "window_h": "12 h",
       "model": "nemotron-3-super-120b-a12b",
-      "latency": "3.8 s"
+      "latency": "1.5 s"
     }
   },
   "place": {
@@ -44,6 +44,10 @@
             "withdrawal": -14.590553026169994,
             "consumption": -7.977976498411045
           },
+          "mode": "contiguous",
+          "hours": [
+            6
+          ],
           "display": {
             "basis": "average",
             "objective": "carbon",
@@ -56,6 +60,7 @@
             "energy_mwh": "1 MWh",
             "tradeoff": "conflict",
             "source": "pjm-water-carbon@28aecf4",
+            "mode": "one block",
             "carbon.units": "kg CO2e",
             "carbon.baseline": "366.5 kg CO2e",
             "carbon.placed": "346.5 kg CO2e",
@@ -68,11 +73,11 @@
             "withdrawal.baseline": "7,821.7 gal",
             "withdrawal.placed": "8,962.9 gal",
             "withdrawal.delta_pct": "-14.6 %",
-            "deadline": "7 AM Sun",
-            "timeline": "runs 1 AM \u2192 7 AM Sun ET \u00b7 deadline 7 AM Sun \u00b7 0 h to spare",
+            "deadline": "7 AM Mon",
+            "timeline": "runs 1 AM \u2192 7 AM Mon ET \u00b7 deadline 7 AM Mon \u00b7 0 h to spare",
             "timeline.start": "1 AM",
-            "timeline.end": "7 AM Sun",
-            "latest_start": "1 AM Sun"
+            "timeline.end": "7 AM Mon",
+            "latest_start": "1 AM Mon"
           },
           "fallback": {
             "headline": "Starting at 1 AM instead of 7 PM lowers carbon but makes water withdrawal and water consumption worse (average basis).",
@@ -116,6 +121,10 @@
             "withdrawal": 0.0,
             "consumption": 0.0
           },
+          "mode": "contiguous",
+          "hours": [
+            0
+          ],
           "display": {
             "basis": "average",
             "objective": "water_withdrawal",
@@ -128,6 +137,7 @@
             "energy_mwh": "1 MWh",
             "tradeoff": "neutral",
             "source": "pjm-water-carbon@28aecf4",
+            "mode": "one block",
             "carbon.units": "kg CO2e",
             "carbon.baseline": "366.5 kg CO2e",
             "carbon.placed": "366.5 kg CO2e",
@@ -140,11 +150,11 @@
             "withdrawal.baseline": "7,821.7 gal",
             "withdrawal.placed": "7,821.7 gal",
             "withdrawal.delta_pct": "+0.0 %",
-            "deadline": "7 AM Sun",
-            "timeline": "runs 7 PM Sat \u2192 1 AM Sun ET \u00b7 deadline 7 AM Sun \u00b7 6 h to spare",
-            "timeline.start": "7 PM Sat",
-            "timeline.end": "1 AM Sun",
-            "latest_start": "1 AM Sun"
+            "deadline": "7 AM Mon",
+            "timeline": "runs 7 PM Sun \u2192 1 AM Mon ET \u00b7 deadline 7 AM Mon \u00b7 6 h to spare",
+            "timeline.start": "7 PM Sun",
+            "timeline.end": "1 AM Mon",
+            "latest_start": "1 AM Mon"
           },
           "fallback": {
             "headline": "The best start in the window is the arrival hour, 7 PM, so the job stays put.",
@@ -188,6 +198,10 @@
             "withdrawal": 0.0,
             "consumption": 0.0
           },
+          "mode": "contiguous",
+          "hours": [
+            0
+          ],
           "display": {
             "basis": "average",
             "objective": "water_consumption",
@@ -200,6 +214,7 @@
             "energy_mwh": "1 MWh",
             "tradeoff": "neutral",
             "source": "pjm-water-carbon@28aecf4",
+            "mode": "one block",
             "carbon.units": "kg CO2e",
             "carbon.baseline": "366.5 kg CO2e",
             "carbon.placed": "366.5 kg CO2e",
@@ -212,11 +227,11 @@
             "withdrawal.baseline": "7,821.7 gal",
             "withdrawal.placed": "7,821.7 gal",
             "withdrawal.delta_pct": "+0.0 %",
-            "deadline": "7 AM Sun",
-            "timeline": "runs 7 PM Sat \u2192 1 AM Sun ET \u00b7 deadline 7 AM Sun \u00b7 6 h to spare",
-            "timeline.start": "7 PM Sat",
-            "timeline.end": "1 AM Sun",
-            "latest_start": "1 AM Sun"
+            "deadline": "7 AM Mon",
+            "timeline": "runs 7 PM Sun \u2192 1 AM Mon ET \u00b7 deadline 7 AM Mon \u00b7 6 h to spare",
+            "timeline.start": "7 PM Sun",
+            "timeline.end": "1 AM Mon",
+            "latest_start": "1 AM Mon"
           },
           "fallback": {
             "headline": "The best start in the window is the arrival hour, 7 PM, so the job stays put.",
@@ -262,6 +277,10 @@
             "withdrawal": 24.724289078088706,
             "consumption": 25.002536806138625
           },
+          "mode": "contiguous",
+          "hours": [
+            1
+          ],
           "display": {
             "basis": "marginal_empirical",
             "objective": "carbon",
@@ -274,6 +293,7 @@
             "energy_mwh": "1 MWh",
             "tradeoff": "aligned",
             "source": "pjm-water-carbon@28aecf4",
+            "mode": "one block",
             "carbon.units": "kg CO2e",
             "carbon.baseline": "577.2 kg CO2e",
             "carbon.placed": "520.2 kg CO2e",
@@ -286,11 +306,11 @@
             "withdrawal.baseline": "2,818.2 gal",
             "withdrawal.placed": "2,121.4 gal",
             "withdrawal.delta_pct": "+24.7 %",
-            "deadline": "7 AM Sun",
-            "timeline": "runs 8 PM Sat \u2192 2 AM Sun ET \u00b7 deadline 7 AM Sun \u00b7 5 h to spare",
-            "timeline.start": "8 PM Sat",
-            "timeline.end": "2 AM Sun",
-            "latest_start": "1 AM Sun"
+            "deadline": "7 AM Mon",
+            "timeline": "runs 8 PM Sun \u2192 2 AM Mon ET \u00b7 deadline 7 AM Mon \u00b7 5 h to spare",
+            "timeline.start": "8 PM Sun",
+            "timeline.end": "2 AM Mon",
+            "latest_start": "1 AM Mon"
           },
           "fallback": {
             "headline": "Starting at 8 PM instead of 7 PM lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
@@ -334,6 +354,10 @@
             "withdrawal": 24.724289078088706,
             "consumption": 25.002536806138625
           },
+          "mode": "contiguous",
+          "hours": [
+            1
+          ],
           "display": {
             "basis": "marginal_empirical",
             "objective": "water_withdrawal",
@@ -346,6 +370,7 @@
             "energy_mwh": "1 MWh",
             "tradeoff": "aligned",
             "source": "pjm-water-carbon@28aecf4",
+            "mode": "one block",
             "carbon.units": "kg CO2e",
             "carbon.baseline": "577.2 kg CO2e",
             "carbon.placed": "520.2 kg CO2e",
@@ -358,11 +383,11 @@
             "withdrawal.baseline": "2,818.2 gal",
             "withdrawal.placed": "2,121.4 gal",
             "withdrawal.delta_pct": "+24.7 %",
-            "deadline": "7 AM Sun",
-            "timeline": "runs 8 PM Sat \u2192 2 AM Sun ET \u00b7 deadline 7 AM Sun \u00b7 5 h to spare",
-            "timeline.start": "8 PM Sat",
-            "timeline.end": "2 AM Sun",
-            "latest_start": "1 AM Sun"
+            "deadline": "7 AM Mon",
+            "timeline": "runs 8 PM Sun \u2192 2 AM Mon ET \u00b7 deadline 7 AM Mon \u00b7 5 h to spare",
+            "timeline.start": "8 PM Sun",
+            "timeline.end": "2 AM Mon",
+            "latest_start": "1 AM Mon"
           },
           "fallback": {
             "headline": "Starting at 8 PM instead of 7 PM lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
@@ -406,6 +431,10 @@
             "withdrawal": 24.724289078088706,
             "consumption": 25.002536806138625
           },
+          "mode": "contiguous",
+          "hours": [
+            1
+          ],
           "display": {
             "basis": "marginal_empirical",
             "objective": "water_consumption",
@@ -418,6 +447,7 @@
             "energy_mwh": "1 MWh",
             "tradeoff": "aligned",
             "source": "pjm-water-carbon@28aecf4",
+            "mode": "one block",
             "carbon.units": "kg CO2e",
             "carbon.baseline": "577.2 kg CO2e",
             "carbon.placed": "520.2 kg CO2e",
@@ -430,11 +460,11 @@
             "withdrawal.baseline": "2,818.2 gal",
             "withdrawal.placed": "2,121.4 gal",
             "withdrawal.delta_pct": "+24.7 %",
-            "deadline": "7 AM Sun",
-            "timeline": "runs 8 PM Sat \u2192 2 AM Sun ET \u00b7 deadline 7 AM Sun \u00b7 5 h to spare",
-            "timeline.start": "8 PM Sat",
-            "timeline.end": "2 AM Sun",
-            "latest_start": "1 AM Sun"
+            "deadline": "7 AM Mon",
+            "timeline": "runs 8 PM Sun \u2192 2 AM Mon ET \u00b7 deadline 7 AM Mon \u00b7 5 h to spare",
+            "timeline.start": "8 PM Sun",
+            "timeline.end": "2 AM Mon",
+            "latest_start": "1 AM Mon"
           },
           "fallback": {
             "headline": "Starting at 8 PM instead of 7 PM lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
@@ -471,6 +501,7 @@
     },
     "scale": 25.002536806138625,
     "start_window_h": 7,
+    "mode": "contiguous",
     "basis_prose": {
       "average": "average",
       "marginal_empirical": "marginal-empirical"
@@ -481,51 +512,44 @@
       "headline": "Delaying to 1 AM improves carbon but worsens both water metrics.",
       "explanation": "The job waited 6 h out of a 7 h window, and 1 AM is the best hour in that window for carbon. On the average basis, carbon is +5.5 % against running on arrival.",
       "fields_used": [
-        "basis",
-        "objective",
-        "season",
         "arrival.hour",
         "placed.hour",
         "shift_h",
         "window_h",
-        "duration_h",
-        "energy_mwh",
-        "tradeoff",
-        "source",
-        "carbon.units",
-        "carbon.baseline",
-        "carbon.placed",
-        "carbon.delta_pct",
-        "consumption.units",
-        "consumption.baseline",
-        "consumption.placed",
-        "consumption.delta_pct",
-        "withdrawal.units",
-        "withdrawal.baseline",
-        "withdrawal.placed",
-        "withdrawal.delta_pct"
+        "carbon.delta_pct"
       ],
       "fallback": false,
       "error": null,
       "display": {
-        "latency": "6.1 s"
+        "latency": "1.0 s"
       }
     },
     "average|water_withdrawal": {
-      "headline": "Running at 7 PM is already the best hour in the window.",
-      "explanation": "The job could wait up to 7 h, but 7 PM was already the best hour for water withdrawal, so waiting would not help. On the average basis, water withdrawal is +0.0 % against running on arrival.",
+      "headline": "The best start in the window is the arrival hour, 7 PM, so the job stays put.",
+      "explanation": "On the average basis, compared with running on arrival, the change is carbon +0.0 %, water withdrawal +0.0 %, water consumption +0.0 % (positive means less, negative means more). Per 1 MWh on the average basis, that is carbon from 366.5 kg CO2e to 366.5 kg CO2e, water withdrawal from 7,821.7 gal to 7,821.7 gal, water consumption from 284.2 gal to 284.2 gal. The job was placed to minimise water withdrawal, shifted 0 h within a 7 h window.",
       "fields_used": [
+        "basis",
+        "objective",
         "arrival.hour",
         "placed.hour",
         "shift_h",
         "window_h",
-        "objective",
-        "withdrawal.delta_pct"
+        "energy_mwh",
+        "tradeoff",
+        "carbon.delta_pct",
+        "carbon.baseline",
+        "carbon.placed",
+        "withdrawal.delta_pct",
+        "withdrawal.baseline",
+        "withdrawal.placed",
+        "consumption.delta_pct",
+        "consumption.baseline",
+        "consumption.placed"
       ],
-      "fallback": false,
-      "error": null,
+      "fallback": true,
+      "error": "unknown_field: water_withdrawal.delta_pct",
       "display": {
-        "latency": "4.0 s"
+        "latency": "4.5 s"
       }
     },
     "average|water_consumption": {
@@ -535,76 +559,847 @@
         "arrival.hour",
         "window_h",
         "objective",
-        "consumption.delta_pct",
-        "basis"
+        "consumption.delta_pct"
       ],
       "fallback": false,
       "error": null,
       "display": {
-        "latency": "1.0 s"
+        "latency": "1.1 s"
       }
     },
     "marginal_empirical|carbon": {
       "headline": "Delaying to 8 PM improves carbon, water withdrawal, and water consumption.",
       "explanation": "The job waited 1 h out of a 7 h window, and 8 PM is the best hour in that window for carbon. On the marginal-empirical basis, carbon is +9.9 % against running on arrival.",
       "fields_used": [
-        "basis",
-        "objective",
-        "season",
         "arrival.hour",
         "placed.hour",
         "shift_h",
         "window_h",
-        "duration_h",
-        "energy_mwh",
-        "tradeoff",
-        "source",
-        "carbon.units",
-        "carbon.baseline",
-        "carbon.placed",
-        "carbon.delta_pct",
-        "consumption.units",
-        "consumption.baseline",
-        "consumption.placed",
-        "consumption.delta_pct",
-        "withdrawal.units",
-        "withdrawal.baseline",
-        "withdrawal.placed",
-        "withdrawal.delta_pct"
+        "carbon.delta_pct"
       ],
       "fallback": false,
       "error": null,
       "display": {
-        "latency": "2.1 s"
+        "latency": "2.0 s"
       }
     },
     "marginal_empirical|water_withdrawal": {
       "headline": "Delaying to 8 PM improves carbon, water withdrawal, and water consumption.",
       "explanation": "The job waited 1 h out of a 7 h window, and 8 PM is the best hour in that window for water withdrawal. On the marginal-empirical basis, water withdrawal is +24.7 % against running on arrival.",
       "fields_used": [
-        "basis",
-        "objective",
-        "season",
         "arrival.hour",
         "placed.hour",
         "shift_h",
         "window_h",
-        "duration_h",
-        "energy_mwh",
-        "tradeoff",
-        "source",
-        "carbon.units",
-        "carbon.baseline",
-        "carbon.placed",
-        "carbon.delta_pct",
-        "consumption.units",
-        "consumption.baseline",
-        "consumption.placed",
-        "consumption.delta_pct",
-        "withdrawal.units",
-        "withdrawal.baseline",
-        "withdrawal.placed",
         "withdrawal.delta_pct"
+      ],
+      "fallback": false,
+      "error": null,
+      "display": {
+        "latency": "1.6 s"
+      }
+    },
+    "marginal_empirical|water_consumption": {
+      "headline": "Delaying to 8 PM improves carbon, water withdrawal, and water consumption but worsens none.",
+      "explanation": "The job waited 1 h out of a 7 h window, and 8 PM is the best hour in that window for water consumption. On the marginal-empirical basis, water consumption is +25.0 % against running on arrival.",
+      "fields_used": [
+        "arrival.hour",
+        "placed.hour",
+        "shift_h",
+        "window_h",
+        "consumption.delta_pct"
+      ],
+      "fallback": false,
+      "error": null,
+      "display": {
+        "latency": "3.7 s"
+      }
+    }
+  },
+  "place_split": {
+    "records": {
+      "average": {
+        "carbon": {
+          "basis": "average",
+          "objective": "carbon",
+          "tradeoff": "conflict",
+          "placed_hour": 2,
+          "shift_h": 6,
+          "delta": {
+            "carbon": 5.332568453789571,
+            "withdrawal": -8.908761424401836,
+            "consumption": -3.858858190277036
+          },
+          "mode": "split",
+          "hours": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "display": {
+            "basis": "average",
+            "objective": "carbon",
+            "season": "SON",
+            "arrival.hour": "7 PM",
+            "placed.hour": "1 AM",
+            "shift_h": "6 h",
+            "window_h": "12 h",
+            "duration_h": "6 h",
+            "energy_mwh": "1 MWh",
+            "tradeoff": "conflict",
+            "source": "pjm-water-carbon@28aecf4",
+            "mode": "split across 6 separate hours",
+            "hours_n": "6 hours",
+            "carbon.units": "kg CO2e",
+            "carbon.baseline": "362.2 kg CO2e",
+            "carbon.placed": "342.9 kg CO2e",
+            "carbon.delta_pct": "+5.3 %",
+            "consumption.units": "gal",
+            "consumption.baseline": "294.6 gal",
+            "consumption.placed": "305.9 gal",
+            "consumption.delta_pct": "-3.9 %",
+            "withdrawal.units": "gal",
+            "withdrawal.baseline": "8,267.6 gal",
+            "withdrawal.placed": "9,004.2 gal",
+            "withdrawal.delta_pct": "-8.9 %",
+            "deadline": "7 AM Mon",
+            "timeline": "runs 6 hours across 1 day ET \u00b7 deadline 7 AM Mon",
+            "hero": "1 AM Mon +5 more",
+            "timeline.start": "1 AM Mon",
+            "timeline.end": "6 AM Mon",
+            "timeline.days": "1 day",
+            "timeline.rows": [
+              {
+                "day": "Mon",
+                "span": "1 AM \u2013 7 AM",
+                "hours": "6 h",
+                "label": "1 AM\u20137 AM Mon"
+              }
+            ],
+            "latest_start": "6 AM Mon"
+          },
+          "fallback": {
+            "headline": "Starting at 1 AM instead of 7 PM lowers carbon but makes water withdrawal and water consumption worse (average basis).",
+            "explanation": "It runs in 6 separate hours, the cheapest in the window, rather than as one block. On the average basis, compared with running on arrival, the change is carbon +5.3 %, water withdrawal -8.9 %, water consumption -3.9 % (positive means less, negative means more). Per 1 MWh on the average basis, that is carbon from 362.2 kg CO2e to 342.9 kg CO2e, water withdrawal from 8,267.6 gal to 9,004.2 gal, water consumption from 294.6 gal to 305.9 gal. The job was placed to minimise carbon, shifted 6 h within a 12 h window.",
+            "fields_used": [
+              "basis",
+              "objective",
+              "arrival.hour",
+              "placed.hour",
+              "shift_h",
+              "window_h",
+              "energy_mwh",
+              "tradeoff",
+              "carbon.delta_pct",
+              "carbon.baseline",
+              "carbon.placed",
+              "withdrawal.delta_pct",
+              "withdrawal.baseline",
+              "withdrawal.placed",
+              "consumption.delta_pct",
+              "consumption.baseline",
+              "consumption.placed"
+            ],
+            "fallback": true,
+            "error": null
+          },
+          "timeline": {
+            "mode": "split",
+            "hours": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "window": 12,
+            "duration": 1,
+            "runs": [
+              {
+                "offset": 6,
+                "hours": 6,
+                "label": "1 AM\u20137 AM Mon"
+              }
+            ],
+            "label_runs": true
+          }
+        },
+        "water_withdrawal": {
+          "basis": "average",
+          "objective": "water_withdrawal",
+          "tradeoff": "aligned",
+          "placed_hour": 20,
+          "shift_h": 0,
+          "delta": {
+            "carbon": 0.2657000851907638,
+            "withdrawal": 0.12112190386600878,
+            "consumption": 0.2711597661505861
+          },
+          "mode": "split",
+          "hours": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            11
+          ],
+          "display": {
+            "basis": "average",
+            "objective": "water_withdrawal",
+            "season": "SON",
+            "arrival.hour": "7 PM",
+            "placed.hour": "7 PM",
+            "shift_h": "0 h",
+            "window_h": "12 h",
+            "duration_h": "6 h",
+            "energy_mwh": "1 MWh",
+            "tradeoff": "aligned",
+            "source": "pjm-water-carbon@28aecf4",
+            "mode": "split across 6 separate hours",
+            "hours_n": "6 hours",
+            "carbon.units": "kg CO2e",
+            "carbon.baseline": "362.2 kg CO2e",
+            "carbon.placed": "361.2 kg CO2e",
+            "carbon.delta_pct": "+0.3 %",
+            "consumption.units": "gal",
+            "consumption.baseline": "294.6 gal",
+            "consumption.placed": "293.8 gal",
+            "consumption.delta_pct": "+0.3 %",
+            "withdrawal.units": "gal",
+            "withdrawal.baseline": "8,267.6 gal",
+            "withdrawal.placed": "8,257.6 gal",
+            "withdrawal.delta_pct": "+0.1 %",
+            "deadline": "7 AM Mon",
+            "timeline": "runs 6 hours across 2 days ET \u00b7 deadline 7 AM Mon",
+            "hero": "7 PM +5 more",
+            "timeline.start": "7 PM",
+            "timeline.end": "6 AM Mon",
+            "timeline.days": "2 days",
+            "timeline.rows": [
+              {
+                "day": "Sun",
+                "span": "7 PM \u2013 12 AM",
+                "hours": "5 h",
+                "label": "7 PM\u201312 AM Sun"
+              },
+              {
+                "day": "Mon",
+                "span": "6 AM \u2013 7 AM",
+                "hours": "1 h",
+                "label": "6 AM\u20137 AM Mon"
+              }
+            ],
+            "latest_start": "6 AM Mon"
+          },
+          "fallback": {
+            "headline": "The best start in the window is the arrival hour, 7 PM, so the job stays put.",
+            "explanation": "It runs in 6 separate hours, the cheapest in the window, rather than as one block. On the average basis, compared with running on arrival, the change is carbon +0.3 %, water withdrawal +0.1 %, water consumption +0.3 % (positive means less, negative means more). Per 1 MWh on the average basis, that is carbon from 362.2 kg CO2e to 361.2 kg CO2e, water withdrawal from 8,267.6 gal to 8,257.6 gal, water consumption from 294.6 gal to 293.8 gal. The job was placed to minimise water withdrawal, shifted 0 h within a 12 h window.",
+            "fields_used": [
+              "basis",
+              "objective",
+              "arrival.hour",
+              "placed.hour",
+              "shift_h",
+              "window_h",
+              "energy_mwh",
+              "tradeoff",
+              "carbon.delta_pct",
+              "carbon.baseline",
+              "carbon.placed",
+              "withdrawal.delta_pct",
+              "withdrawal.baseline",
+              "withdrawal.placed",
+              "consumption.delta_pct",
+              "consumption.baseline",
+              "consumption.placed"
+            ],
+            "fallback": true,
+            "error": null
+          },
+          "timeline": {
+            "mode": "split",
+            "hours": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              11
+            ],
+            "window": 12,
+            "duration": 1,
+            "runs": [
+              {
+                "offset": 0,
+                "hours": 5,
+                "label": "7 PM\u201312 AM Sun"
+              },
+              {
+                "offset": 11,
+                "hours": 1,
+                "label": "6 AM\u20137 AM Mon"
+              }
+            ],
+            "label_runs": true
+          }
+        },
+        "water_consumption": {
+          "basis": "average",
+          "objective": "water_consumption",
+          "tradeoff": "aligned",
+          "placed_hour": 20,
+          "shift_h": 0,
+          "delta": {
+            "carbon": 0.2657000851907638,
+            "withdrawal": 0.12112190386600878,
+            "consumption": 0.2711597661505861
+          },
+          "mode": "split",
+          "hours": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            11
+          ],
+          "display": {
+            "basis": "average",
+            "objective": "water_consumption",
+            "season": "SON",
+            "arrival.hour": "7 PM",
+            "placed.hour": "7 PM",
+            "shift_h": "0 h",
+            "window_h": "12 h",
+            "duration_h": "6 h",
+            "energy_mwh": "1 MWh",
+            "tradeoff": "aligned",
+            "source": "pjm-water-carbon@28aecf4",
+            "mode": "split across 6 separate hours",
+            "hours_n": "6 hours",
+            "carbon.units": "kg CO2e",
+            "carbon.baseline": "362.2 kg CO2e",
+            "carbon.placed": "361.2 kg CO2e",
+            "carbon.delta_pct": "+0.3 %",
+            "consumption.units": "gal",
+            "consumption.baseline": "294.6 gal",
+            "consumption.placed": "293.8 gal",
+            "consumption.delta_pct": "+0.3 %",
+            "withdrawal.units": "gal",
+            "withdrawal.baseline": "8,267.6 gal",
+            "withdrawal.placed": "8,257.6 gal",
+            "withdrawal.delta_pct": "+0.1 %",
+            "deadline": "7 AM Mon",
+            "timeline": "runs 6 hours across 2 days ET \u00b7 deadline 7 AM Mon",
+            "hero": "7 PM +5 more",
+            "timeline.start": "7 PM",
+            "timeline.end": "6 AM Mon",
+            "timeline.days": "2 days",
+            "timeline.rows": [
+              {
+                "day": "Sun",
+                "span": "7 PM \u2013 12 AM",
+                "hours": "5 h",
+                "label": "7 PM\u201312 AM Sun"
+              },
+              {
+                "day": "Mon",
+                "span": "6 AM \u2013 7 AM",
+                "hours": "1 h",
+                "label": "6 AM\u20137 AM Mon"
+              }
+            ],
+            "latest_start": "6 AM Mon"
+          },
+          "fallback": {
+            "headline": "The best start in the window is the arrival hour, 7 PM, so the job stays put.",
+            "explanation": "It runs in 6 separate hours, the cheapest in the window, rather than as one block. On the average basis, compared with running on arrival, the change is carbon +0.3 %, water withdrawal +0.1 %, water consumption +0.3 % (positive means less, negative means more). Per 1 MWh on the average basis, that is carbon from 362.2 kg CO2e to 361.2 kg CO2e, water withdrawal from 8,267.6 gal to 8,257.6 gal, water consumption from 294.6 gal to 293.8 gal. The job was placed to minimise water consumption, shifted 0 h within a 12 h window.",
+            "fields_used": [
+              "basis",
+              "objective",
+              "arrival.hour",
+              "placed.hour",
+              "shift_h",
+              "window_h",
+              "energy_mwh",
+              "tradeoff",
+              "carbon.delta_pct",
+              "carbon.baseline",
+              "carbon.placed",
+              "withdrawal.delta_pct",
+              "withdrawal.baseline",
+              "withdrawal.placed",
+              "consumption.delta_pct",
+              "consumption.baseline",
+              "consumption.placed"
+            ],
+            "fallback": true,
+            "error": null
+          },
+          "timeline": {
+            "mode": "split",
+            "hours": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              11
+            ],
+            "window": 12,
+            "duration": 1,
+            "runs": [
+              {
+                "offset": 0,
+                "hours": 5,
+                "label": "7 PM\u201312 AM Sun"
+              },
+              {
+                "offset": 11,
+                "hours": 1,
+                "label": "6 AM\u20137 AM Mon"
+              }
+            ],
+            "label_runs": true
+          }
+        }
+      },
+      "marginal_empirical": {
+        "carbon": {
+          "basis": "marginal_empirical",
+          "objective": "carbon",
+          "tradeoff": "aligned",
+          "placed_hour": 21,
+          "shift_h": 1,
+          "delta": {
+            "carbon": 0.8185411964173609,
+            "withdrawal": 1.1781206478404507,
+            "consumption": 2.4044544344233634
+          },
+          "mode": "split",
+          "hours": [
+            1,
+            2,
+            3,
+            4,
+            10,
+            11
+          ],
+          "display": {
+            "basis": "marginal_empirical",
+            "objective": "carbon",
+            "season": "SON",
+            "arrival.hour": "7 PM",
+            "placed.hour": "8 PM",
+            "shift_h": "1 h",
+            "window_h": "12 h",
+            "duration_h": "6 h",
+            "energy_mwh": "1 MWh",
+            "tradeoff": "aligned",
+            "source": "pjm-water-carbon@28aecf4",
+            "mode": "split across 6 separate hours",
+            "hours_n": "6 hours",
+            "carbon.units": "kg CO2e",
+            "carbon.baseline": "546.2 kg CO2e",
+            "carbon.placed": "541.8 kg CO2e",
+            "carbon.delta_pct": "+0.8 %",
+            "consumption.units": "gal",
+            "consumption.baseline": "198.3 gal",
+            "consumption.placed": "193.5 gal",
+            "consumption.delta_pct": "+2.4 %",
+            "withdrawal.units": "gal",
+            "withdrawal.baseline": "2,479.8 gal",
+            "withdrawal.placed": "2,450.6 gal",
+            "withdrawal.delta_pct": "+1.2 %",
+            "deadline": "7 AM Mon",
+            "timeline": "runs 6 hours across 2 days ET \u00b7 deadline 7 AM Mon",
+            "hero": "8 PM +5 more",
+            "timeline.start": "8 PM",
+            "timeline.end": "6 AM Mon",
+            "timeline.days": "2 days",
+            "timeline.rows": [
+              {
+                "day": "Sun",
+                "span": "8 PM \u2013 12 AM",
+                "hours": "4 h",
+                "label": "8 PM\u201312 AM Sun"
+              },
+              {
+                "day": "Mon",
+                "span": "5 AM \u2013 7 AM",
+                "hours": "2 h",
+                "label": "5 AM\u20137 AM Mon"
+              }
+            ],
+            "latest_start": "6 AM Mon"
+          },
+          "fallback": {
+            "headline": "Starting at 8 PM instead of 7 PM lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
+            "explanation": "It runs in 6 separate hours, the cheapest in the window, rather than as one block. On the marginal-empirical basis, compared with running on arrival, the change is carbon +0.8 %, water withdrawal +1.2 %, water consumption +2.4 % (positive means less, negative means more). Per 1 MWh on the marginal-empirical basis, that is carbon from 546.2 kg CO2e to 541.8 kg CO2e, water withdrawal from 2,479.8 gal to 2,450.6 gal, water consumption from 198.3 gal to 193.5 gal. The job was placed to minimise carbon, shifted 1 h within a 12 h window.",
+            "fields_used": [
+              "basis",
+              "objective",
+              "arrival.hour",
+              "placed.hour",
+              "shift_h",
+              "window_h",
+              "energy_mwh",
+              "tradeoff",
+              "carbon.delta_pct",
+              "carbon.baseline",
+              "carbon.placed",
+              "withdrawal.delta_pct",
+              "withdrawal.baseline",
+              "withdrawal.placed",
+              "consumption.delta_pct",
+              "consumption.baseline",
+              "consumption.placed"
+            ],
+            "fallback": true,
+            "error": null
+          },
+          "timeline": {
+            "mode": "split",
+            "hours": [
+              1,
+              2,
+              3,
+              4,
+              10,
+              11
+            ],
+            "window": 12,
+            "duration": 1,
+            "runs": [
+              {
+                "offset": 1,
+                "hours": 4,
+                "label": "8 PM\u201312 AM Sun"
+              },
+              {
+                "offset": 10,
+                "hours": 2,
+                "label": "5 AM\u20137 AM Mon"
+              }
+            ],
+            "label_runs": true
+          }
+        },
+        "water_withdrawal": {
+          "basis": "marginal_empirical",
+          "objective": "water_withdrawal",
+          "tradeoff": "aligned",
+          "placed_hour": 21,
+          "shift_h": 1,
+          "delta": {
+            "carbon": 0.7631074877551761,
+            "withdrawal": 1.9322157729741416,
+            "consumption": 0.5963472689504312
+          },
+          "mode": "split",
+          "hours": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            11
+          ],
+          "display": {
+            "basis": "marginal_empirical",
+            "objective": "water_withdrawal",
+            "season": "SON",
+            "arrival.hour": "7 PM",
+            "placed.hour": "8 PM",
+            "shift_h": "1 h",
+            "window_h": "12 h",
+            "duration_h": "6 h",
+            "energy_mwh": "1 MWh",
+            "tradeoff": "aligned",
+            "source": "pjm-water-carbon@28aecf4",
+            "mode": "split across 6 separate hours",
+            "hours_n": "6 hours",
+            "carbon.units": "kg CO2e",
+            "carbon.baseline": "546.2 kg CO2e",
+            "carbon.placed": "542.1 kg CO2e",
+            "carbon.delta_pct": "+0.8 %",
+            "consumption.units": "gal",
+            "consumption.baseline": "198.3 gal",
+            "consumption.placed": "197.1 gal",
+            "consumption.delta_pct": "+0.6 %",
+            "withdrawal.units": "gal",
+            "withdrawal.baseline": "2,479.8 gal",
+            "withdrawal.placed": "2,431.9 gal",
+            "withdrawal.delta_pct": "+1.9 %",
+            "deadline": "7 AM Mon",
+            "timeline": "runs 6 hours across 2 days ET \u00b7 deadline 7 AM Mon",
+            "hero": "8 PM +5 more",
+            "timeline.start": "8 PM",
+            "timeline.end": "6 AM Mon",
+            "timeline.days": "2 days",
+            "timeline.rows": [
+              {
+                "day": "Sun",
+                "span": "8 PM \u2013 1 AM",
+                "hours": "5 h",
+                "label": "8 PM\u20131 AM Sun"
+              },
+              {
+                "day": "Mon",
+                "span": "6 AM \u2013 7 AM",
+                "hours": "1 h",
+                "label": "6 AM\u20137 AM Mon"
+              }
+            ],
+            "latest_start": "6 AM Mon"
+          },
+          "fallback": {
+            "headline": "Starting at 8 PM instead of 7 PM lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
+            "explanation": "It runs in 6 separate hours, the cheapest in the window, rather than as one block. On the marginal-empirical basis, compared with running on arrival, the change is carbon +0.8 %, water withdrawal +1.9 %, water consumption +0.6 % (positive means less, negative means more). Per 1 MWh on the marginal-empirical basis, that is carbon from 546.2 kg CO2e to 542.1 kg CO2e, water withdrawal from 2,479.8 gal to 2,431.9 gal, water consumption from 198.3 gal to 197.1 gal. The job was placed to minimise water withdrawal, shifted 1 h within a 12 h window.",
+            "fields_used": [
+              "basis",
+              "objective",
+              "arrival.hour",
+              "placed.hour",
+              "shift_h",
+              "window_h",
+              "energy_mwh",
+              "tradeoff",
+              "carbon.delta_pct",
+              "carbon.baseline",
+              "carbon.placed",
+              "withdrawal.delta_pct",
+              "withdrawal.baseline",
+              "withdrawal.placed",
+              "consumption.delta_pct",
+              "consumption.baseline",
+              "consumption.placed"
+            ],
+            "fallback": true,
+            "error": null
+          },
+          "timeline": {
+            "mode": "split",
+            "hours": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              11
+            ],
+            "window": 12,
+            "duration": 1,
+            "runs": [
+              {
+                "offset": 1,
+                "hours": 5,
+                "label": "8 PM\u20131 AM Sun"
+              },
+              {
+                "offset": 11,
+                "hours": 1,
+                "label": "6 AM\u20137 AM Mon"
+              }
+            ],
+            "label_runs": true
+          }
+        },
+        "water_consumption": {
+          "basis": "marginal_empirical",
+          "objective": "water_consumption",
+          "tradeoff": "aligned",
+          "placed_hour": 21,
+          "shift_h": 1,
+          "delta": {
+            "carbon": 0.8185411964173609,
+            "withdrawal": 1.1781206478404507,
+            "consumption": 2.4044544344233634
+          },
+          "mode": "split",
+          "hours": [
+            1,
+            2,
+            3,
+            4,
+            10,
+            11
+          ],
+          "display": {
+            "basis": "marginal_empirical",
+            "objective": "water_consumption",
+            "season": "SON",
+            "arrival.hour": "7 PM",
+            "placed.hour": "8 PM",
+            "shift_h": "1 h",
+            "window_h": "12 h",
+            "duration_h": "6 h",
+            "energy_mwh": "1 MWh",
+            "tradeoff": "aligned",
+            "source": "pjm-water-carbon@28aecf4",
+            "mode": "split across 6 separate hours",
+            "hours_n": "6 hours",
+            "carbon.units": "kg CO2e",
+            "carbon.baseline": "546.2 kg CO2e",
+            "carbon.placed": "541.8 kg CO2e",
+            "carbon.delta_pct": "+0.8 %",
+            "consumption.units": "gal",
+            "consumption.baseline": "198.3 gal",
+            "consumption.placed": "193.5 gal",
+            "consumption.delta_pct": "+2.4 %",
+            "withdrawal.units": "gal",
+            "withdrawal.baseline": "2,479.8 gal",
+            "withdrawal.placed": "2,450.6 gal",
+            "withdrawal.delta_pct": "+1.2 %",
+            "deadline": "7 AM Mon",
+            "timeline": "runs 6 hours across 2 days ET \u00b7 deadline 7 AM Mon",
+            "hero": "8 PM +5 more",
+            "timeline.start": "8 PM",
+            "timeline.end": "6 AM Mon",
+            "timeline.days": "2 days",
+            "timeline.rows": [
+              {
+                "day": "Sun",
+                "span": "8 PM \u2013 12 AM",
+                "hours": "4 h",
+                "label": "8 PM\u201312 AM Sun"
+              },
+              {
+                "day": "Mon",
+                "span": "5 AM \u2013 7 AM",
+                "hours": "2 h",
+                "label": "5 AM\u20137 AM Mon"
+              }
+            ],
+            "latest_start": "6 AM Mon"
+          },
+          "fallback": {
+            "headline": "Starting at 8 PM instead of 7 PM lowers carbon, water withdrawal and water consumption (marginal-empirical basis).",
+            "explanation": "It runs in 6 separate hours, the cheapest in the window, rather than as one block. On the marginal-empirical basis, compared with running on arrival, the change is carbon +0.8 %, water withdrawal +1.2 %, water consumption +2.4 % (positive means less, negative means more). Per 1 MWh on the marginal-empirical basis, that is carbon from 546.2 kg CO2e to 541.8 kg CO2e, water withdrawal from 2,479.8 gal to 2,450.6 gal, water consumption from 198.3 gal to 193.5 gal. The job was placed to minimise water consumption, shifted 1 h within a 12 h window.",
+            "fields_used": [
+              "basis",
+              "objective",
+              "arrival.hour",
+              "placed.hour",
+              "shift_h",
+              "window_h",
+              "energy_mwh",
+              "tradeoff",
+              "carbon.delta_pct",
+              "carbon.baseline",
+              "carbon.placed",
+              "withdrawal.delta_pct",
+              "withdrawal.baseline",
+              "withdrawal.placed",
+              "consumption.delta_pct",
+              "consumption.baseline",
+              "consumption.placed"
+            ],
+            "fallback": true,
+            "error": null
+          },
+          "timeline": {
+            "mode": "split",
+            "hours": [
+              1,
+              2,
+              3,
+              4,
+              10,
+              11
+            ],
+            "window": 12,
+            "duration": 1,
+            "runs": [
+              {
+                "offset": 1,
+                "hours": 4,
+                "label": "8 PM\u201312 AM Sun"
+              },
+              {
+                "offset": 10,
+                "hours": 2,
+                "label": "5 AM\u20137 AM Mon"
+              }
+            ],
+            "label_runs": true
+          }
+        }
+      }
+    },
+    "scale": 8.908761424401836,
+    "start_window_h": 7,
+    "mode": "split",
+    "basis_prose": {
+      "average": "average",
+      "marginal_empirical": "marginal-empirical"
+    }
+  },
+  "explain_split": {
+    "average|carbon": {
+      "headline": "Delaying to 1 AM improves carbon but worsens both water metrics.",
+      "explanation": "The job waited 6 h out of a 12 h window, and 1 AM is the best hour in that window for carbon. It runs split across 6 separate hours, the cheapest in the window, starting at 1 AM. On the average basis, carbon is +5.3 % against running on arrival.",
+      "fields_used": [
+        "arrival.hour",
+        "placed.hour",
+        "shift_h",
+        "window_h",
+        "mode",
+        "hours_n",
+        "carbon.delta_pct"
+      ],
+      "fallback": false,
+      "error": null,
+      "display": {
+        "latency": "4.9 s"
+      }
+    },
+    "average|water_withdrawal": {
+      "headline": "Running at 7 PM is already the best hour in the window.",
+      "explanation": "The job could wait up to 12 h, but 7 PM was already the best hour for water withdrawal, so waiting would not help. On the average basis, water withdrawal is +0.1 % against running on arrival.",
+      "fields_used": [
+        "arrival.hour",
+        "window_h",
+        "objective",
+        "withdrawal.delta_pct"
+      ],
+      "fallback": false,
+      "error": null,
+      "display": {
+        "latency": "1.7 s"
+      }
+    },
+    "average|water_consumption": {
+      "headline": "Running at 7 PM is already the best hour in the window.",
+      "explanation": "The job could wait up to 12 h, but 7 PM was already the best hour for water consumption, so waiting would not help. On the average basis, water consumption is +0.3 % against running on arrival.",
+      "fields_used": [
+        "arrival.hour",
+        "window_h",
+        "objective",
+        "consumption.delta_pct"
+      ],
+      "fallback": false,
+      "error": null,
+      "display": {
+        "latency": "1.7 s"
+      }
+    },
+    "marginal_empirical|carbon": {
+      "headline": "Delaying to 8 PM improves carbon, water withdrawal, and water consumption.",
+      "explanation": "The job waited 1 h out of a 12 h window, and 8 PM is the best hour in that window for carbon. It runs split across 6 separate hours, the cheapest in the window, starting at 8 PM. On the marginal-empirical basis, carbon is +0.8 % against running on arrival.",
+      "fields_used": [
+        "arrival.hour",
+        "placed.hour",
+        "shift_h",
+        "window_h",
+        "mode",
+        "hours_n",
+        "carbon.delta_pct"
       ],
       "fallback": false,
       "error": null,
@@ -612,38 +1407,37 @@
         "latency": "2.3 s"
       }
     },
-    "marginal_empirical|water_consumption": {
+    "marginal_empirical|water_withdrawal": {
       "headline": "Delaying to 8 PM improves carbon, water withdrawal, and water consumption.",
-      "explanation": "The job waited 1 h out of a 7 h window, and 8 PM is the best hour in that window for water consumption. On the marginal-empirical basis, water consumption is +25.0 % against running on arrival.",
+      "explanation": "The job waited 1 h out of a 12 h window, and 8 PM is the best hour in that window for water withdrawal. On the marginal-empirical basis, water withdrawal is +1.9 % against running on arrival.",
       "fields_used": [
-        "basis",
-        "objective",
-        "season",
         "arrival.hour",
         "placed.hour",
         "shift_h",
         "window_h",
-        "duration_h",
-        "energy_mwh",
-        "tradeoff",
-        "source",
-        "carbon.units",
-        "carbon.baseline",
-        "carbon.placed",
-        "carbon.delta_pct",
-        "consumption.units",
-        "consumption.baseline",
-        "consumption.placed",
-        "consumption.delta_pct",
-        "withdrawal.units",
-        "withdrawal.baseline",
-        "withdrawal.placed",
         "withdrawal.delta_pct"
       ],
       "fallback": false,
       "error": null,
       "display": {
-        "latency": "1.6 s"
+        "latency": "2.7 s"
+      }
+    },
+    "marginal_empirical|water_consumption": {
+      "headline": "Delaying to 8 PM improves carbon, water withdrawal, and water consumption.",
+      "explanation": "The job waited 1 h out of a 12 h window, and 8 PM is the best hour in that window for water consumption. It runs as one block from the placed hour. On the marginal-empirical basis, water consumption is +2.4 % against running on arrival.",
+      "fields_used": [
+        "arrival.hour",
+        "placed.hour",
+        "shift_h",
+        "window_h",
+        "mode",
+        "consumption.delta_pct"
+      ],
+      "fallback": false,
+      "error": null,
+      "display": {
+        "latency": "1.3 s"
       }
     }
   }

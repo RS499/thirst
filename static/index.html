@@ -239,6 +239,28 @@ figcaption { font-size: var(--fs-xs); color: var(--text-2); margin-top: 6px; }
 
 .empty { color: var(--text-3); }
 
+/* ---------------------------------------------------------------- scroll cue */
+.scrollcue {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(6px);
+  display: flex; align-items: center; gap: 7px; padding: 6px 12px;
+  border-radius: 999px; background: color-mix(in srgb, var(--panel) 82%, transparent);
+  border: 1px solid var(--line); color: var(--text-3);
+  font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase;
+  opacity: 0; pointer-events: none; z-index: 40;
+  transition: opacity 400ms var(--ease), transform 400ms var(--ease);
+}
+.scrollcue.show { opacity: .75; transform: translateX(-50%); }
+.scrollcue .chev {
+  width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px); animation: cuenudge 2.4s var(--ease) infinite;
+}
+@keyframes cuenudge {
+  0%, 62%, 100% { transform: rotate(45deg) translate(-1px, -1px); }
+  80% { transform: rotate(45deg) translate(2px, 2px); }
+}
+body.demo .scrollcue { display: none; }        /* the demo drives its own camera */
+@media (prefers-reduced-motion: reduce) { .scrollcue .chev { animation: none; } }
+
 /* ---------------------------------------------------------------- demo mode (?demo=1 only) */
 /* The page is wrapped in #stage and moved like a camera: translate + scale. */
 body.demo { overflow: hidden; height: 100vh; }
@@ -500,6 +522,8 @@ body.demo #stage .demo-part {
   </aside>
 </main>
 
+<div class="scrollcue" id="scrollcue" aria-hidden="true">more<span class="chev"></span></div>
+
 <div class="demo-pill" id="demobar" hidden role="status" aria-live="polite">
   <span class="tag over"><span class="dot" style="background:var(--warn)"></span>demo mode · cached responses</span>
   <span class="count num" id="demo-count"></span>
@@ -661,8 +685,8 @@ async function submit(ev) {
     state.cls = c;
     // Split is only offered for a pausable job, and never in the demo: its cache
     // holds the contiguous placement.
-    $("mode-group").hidden = !c.interruptible || demo.on;
-    if (demo.on) $("mode-block").checked = true;
+    $("mode-group").hidden = !c.interruptible || (demo.on && !demo.cache.place_split);
+    if (demo.on) $("mode-block").checked = true;      // the tour starts on one block
     renderClassification(c);
     if (c.label !== "deferable" || !c.window_h) {
       state.placed = null; renderNotDeferable(c); setStatus(""); return;
@@ -966,8 +990,10 @@ const STEP_MS = 450;                         // camera move when YOU press an ar
 function demoLookup(path, body) {
   const C = demo.cache, copy = (o) => o && { ...structuredClone(o), _cached: true };
   if (path === "/classify" && body.text.trim() === C.preset) return copy(C.classify);
-  if (path === "/place" && Object.keys(C.request).every(k => body[k] === C.request[k])) return copy(C.place);
-  if (path === "/explain") return copy(C.explain[`${body.basis}|${body.objective}`]);
+  const split = body.mode === "split";
+  if (path === "/place" && Object.keys(C.request).every(k => body[k] === C.request[k]))
+    return copy(split ? C.place_split : C.place);
+  if (path === "/explain") return copy((split ? C.explain_split : C.explain)[`${body.basis}|${body.objective}`]);
   return null;
 }
 
@@ -1108,6 +1134,11 @@ async function applyState(st, animate, token) {
     tour.placing = placeCached();
     try { await tour.placing; } finally { tour.placing = null; }
   }
+  const wantMode = st.split ? "split" : "contiguous";
+  if (st.placed && state.placed && mode() !== wantMode) {
+    demoPick(st.split ? "mode-split" : "mode-block");     // its handler re-places from the cache
+    while (state.placed.records[basis()][objective()].mode !== wantMode) await demoWait(40, token);
+  }
   if (state.placed) await askNemotron();    // explanation for this basis, from the cache
 }
 
@@ -1199,7 +1230,7 @@ function onKey(e) {
 // ---- the tours
 function buildSteps(mode) {
   const steps = [];
-  let cur = { typed: false, placed: false, basis: "average", portable: false };
+  let cur = { typed: false, placed: false, basis: "average", portable: false, split: false };
   const add = (o) => {
     const st = { ...cur, ...(o.set || {}) };
     const after = { ...st, ...(o.late || {}) };
@@ -1217,6 +1248,9 @@ function buildSteps(mode) {
     late: { typed: true }, back: "after", lateDelay: 400 };
   const flip = { el: () => $("b-marginal").nextElementSibling, late: { basis: "marginal_empirical" },
     back: "before", lateDelay: 1500 };
+  const splitStep = { name: "If it can pause", el: () => $("v-tl"), title: "It can pause and resume",
+    body: "So it needn't run in one stretch. It takes only the cheapest hours before the deadline, " +
+          "and every hour it runs is counted.", set: { split: true } };
   const acc = { el: () => $("ev-acc").parentElement, title: "Does the AI read jobs right?",
     body: () => `It scored ${$("ev-acc").textContent} on test jobs, where 1.0 is perfect. ` +
                 `Guessing the most common answer scores ${accBase() || "far lower"}.` };
@@ -1239,6 +1273,7 @@ function buildSteps(mode) {
         return `Carbon ${c}, water taken ${w}, water used up ${u}. All better on the marginal-empirical basis.`; } });
     add({ name: "Counted again", section: verdict, el: () => $("v-badge"), title: "Why it flips",
       body: "Nuclear plants use lots of water but run no matter what. The marginal count leaves them out." });
+    add({ name: "If it can pause", section: verdict, ...splitStep });
     add({ name: "Can you trust it?", section: evidence, ...acc });
     add({ name: "Can you trust it?", section: evidence, ...fid });
   } else {
@@ -1286,6 +1321,7 @@ function buildSteps(mode) {
       body: "A checker compares every number to the math, down to the plus or minus sign." });
     add({ name: "The explanation", section: explainP, el: () => $("e-verify").parentElement, title: "If the AI slips",
       body: "Any mismatch and its words are thrown out. A safe template is shown instead." });
+    add({ name: "If it can pause", section: verdict, ...splitStep });
     add({ name: "If the job can move", section: regions, set: { portable: true },
       el: () => $("regions").querySelector("table"), title: "What if the job could move?",
       body: "Here's how five regional US power grids compare on water. PJM, the grid this app plans for, is highlighted." });
@@ -1337,6 +1373,17 @@ async function startDemo(mode) {
   updatePill();
   setTimeout(() => goTo(0, 1), 1200);        // let /evidence fill the page first
 }
+
+// ---------------------------------------------------------------- scroll cue
+// Shown only while there is more page below and you haven't scrolled yet.
+function updateScrollCue() {
+  const more = document.documentElement.scrollHeight - innerHeight > 80;
+  $("scrollcue").classList.toggle("show", more && scrollY < 120 && !demo.on);
+}
+addEventListener("scroll", updateScrollCue, { passive: true });
+addEventListener("resize", updateScrollCue);
+new ResizeObserver(updateScrollCue).observe(document.body);   // panels appearing changes the height
+updateScrollCue();
 
 loadLive(); loadEvidence();
 setInterval(loadLive, 10 * 60 * 1000);
