@@ -1011,6 +1011,8 @@ async function applyState(st, animate, token) {
       }
     } else $("text").value = want;
   }
+  // The duration the cache was recorded with, so the replayed request matches it.
+  $("duration").value = st.typed ? demo.cache.request.duration_h ?? "" : "";
   if (!st.placed && state.placed) resetResults();
   if (basis() !== st.basis) demoPick(st.basis === "average" ? "b-average" : "b-marginal");
   if (portable() !== st.portable) demoPick(st.portable ? "loc-portable" : "loc-pinned");
