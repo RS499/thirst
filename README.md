@@ -77,6 +77,24 @@ must name its basis; no outside facts or invented fields. Any violation swaps
 in `explain.fallback()`, a deterministic Python template. The model can make an
 explanation worse, but it cannot put a wrong number in front of the user.
 
+## How it places
+
+Placement is pure Python over the vendored profiles; no model call is involved.
+
+- **One block (the default).** The job runs as one unbroken stretch, and the
+  placer picks the start hour. It prices that start hour, not the whole run, so
+  a long job is priced by its first hour only.
+- **Split across the cheapest hours** (`gridshift/place.py`, `place_split`).
+  Offered when Nemotron reports the job is pausable and a duration is given.
+  The job runs in its N cheapest hours anywhere in the window, and every hour
+  it runs in is priced. Consecutive hours are grouped into runs, so the page
+  can say "runs 20 hours across 3 days" and name each stretch.
+
+The toggle beside the job form flips between them. **Their percentages are not
+directly comparable**: one block is priced optimistically at its start hour,
+split pays for every hour. Same job, two accounting rules — the same trap the
+average / marginal-empirical split sets, one level down.
+
 ## Evidence
 
 Development set: `eval/labeled.jsonl`, 69 hand-written rows (the original 60,
@@ -93,7 +111,8 @@ plus 9 weekday-deadline rows added with the weekday parser). Per-run results in
 | Window MAE where both parsed | **0.00 h** across 49/49 | 0.00 h in every run; optimistic: see Limitations |
 | Explain fidelity (passes `verify()`, no fallback) | **0.95** (19/20) | after the tradeoff-rule change. Every number in all 20 outputs was exact; the one fallback cited a non-existent field (`water_withdrawal`) in `fields_used`, and its headline was correct. All 20 headlines were read against their signs by hand and state the right direction. Earlier runs: 1.00 (20/20) after the prompt rewrite (FAILURES.md #8), 0.90 (18/20) before it |
 | Fallback template passes `verify()` | **4032/4032** | 4 seasons × 24 arrival hours × 7 windows × 3 objectives × 2 bases, offline |
-| Holdout | sealed | 30 rows, sha256 in `results/HOLDOUT_HASH.txt`; to be opened exactly once, on Sunday. Score: TODO |
+| Placement tests | **150 passing** | `tests/test_timeline.py`: split picks exactly the N cheapest hours and is never beaten by any contiguous block, a 1-hour job is identical in both modes, and the strip's geometry and day labels are asserted in a real browser |
+| Holdout | **sealed, not yet opened** | 30 rows, sha256 in `results/HOLDOUT_HASH.txt`; to be opened exactly once, on Sunday. No score until then |
 
 For scale: always answering "unclear" scores 1.000 on ambiguous rows and 0.000
 on standard and unusual rows. The classifier is the only thing that scores well
@@ -111,10 +130,14 @@ across all four categories.
   "worsens": five reversed headlines once passed it (FAILURES.md #8). Direction
   is now fixed by Python-computed facts in the prompt, not checked by
   `verify()`.
-- **Pausable jobs are placed as if contiguous.** Nemotron reports whether a job
-  can pause (`interruptible`), but the placer ignores it and prices every job
-  as one unbroken run. A pausable job could be split across the cleanest hours;
-  GridShift doesn't do that yet.
+- **One-block placement prices only the start hour.** A 6 h job is costed at
+  the intensity of the hour it begins in, so its figures are optimistic and
+  cannot be compared directly with split placement, which prices every hour it
+  runs in. Split is the honest mode; one block is kept because it is what a
+  non-pausable job actually does.
+- **Split assumes pausing is free.** Checkpoint and restart cost time and
+  energy that GridShift does not model, so a job split across many short runs
+  looks cheaper than it would be.
 - **Free-tier rate limits.** One HTTP 429 in the 0.917 classify run, despite
   sequential calls, a 1 s pause and 5 SDK retries with backoff.
 - **The regional regression is n = 5.** R² = 0.82 with p = 0.034 on five points
@@ -129,17 +152,25 @@ across all four categories.
 ```bash
 pip install -r requirements.txt
 echo 'NVIDIA_API_KEY=nvapi-...' > .env      # gitignored
-python3 -m streamlit run app.py              # NOT `streamlit run app.py`
+python3 -m uvicorn api:app --port 8600      # the app: http://localhost:8600
 ```
 
-Terminal path: `python3 run.py "It's 10pm. Fine-tuning overnight, need it before the 9am standup"`.
-Evals: `python3 eval/run_eval.py` (classify) and `python3 eval/explain_eval.py` (explain).
+The page is one hand-written file (`static/index.html`) over a small FastAPI
+wrapper (`api.py`) around the same functions the CLI uses. Nothing else runs it.
+
+| | |
+|---|---|
+| Offline walkthrough | `http://localhost:8600/?demo=1` (or `?demo=short`) replays a recorded job from `static/demo_cache.json`: no network, no model call. Re-record with `python3 scripts/record_demo_cache.py` |
+| Streamlit fallback | `python3 -m streamlit run app.py` — **not** `streamlit run app.py`, which may use a different interpreter without the dependencies |
+| Terminal | `python3 run.py "It's 10pm. Fine-tuning overnight, need it before the 9am standup"` |
+| Evals | `python3 eval/run_eval.py` (classify), `python3 eval/explain_eval.py` (explain) |
+| Tests | `pip install pytest playwright` first (they are not runtime dependencies), then `python3 -m pytest tests/`. The browser cases drive Chrome and skip unless the app is running |
 
 ## Team
 
 | name | email |
 |---|---|
-| TODO | TODO |
+| Rajan Saha | rajan.saha499@gmail.com |
 
 ## Prior work disclosure
 
